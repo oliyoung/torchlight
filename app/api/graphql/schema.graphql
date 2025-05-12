@@ -1,0 +1,170 @@
+scalar DateTime
+
+type Client {
+	id: ID!
+	birthday: String!
+	gender: String!
+	fitnessLevel: String!
+	trainingHistory: String!
+	height: Float
+	weight: Float
+	first_name: String!
+	last_name: String!
+	email: String!
+	tags: [String!]!
+	notes: String
+	created_at: DateTime!
+	updated_at: DateTime!
+	deleted_at: DateTime
+	goals: [Goal!]!
+	session_logs: [SessionLog!]!
+}
+
+type Goal {
+	id: ID!
+	client: Client!
+	title: String!
+	description: String
+	status: GoalStatus!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime
+	dueDate: DateTime
+	progressNotes: String
+	sessionLogs: [SessionLog!]!
+}
+
+enum GoalStatus {
+	ACTIVE
+	COMPLETED
+	PAUSED
+}
+
+type SessionLog {
+	id: ID!
+	client: Client!
+	date: DateTime!
+	notes: String
+	transcript: String
+	summary: String
+	actionItems: [String!]
+	goals: [Goal!]!
+	aiMetadata: AIMetadata
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime
+}
+
+type AIMetadata {
+	summaryGenerated: Boolean!
+	nextStepsGenerated: Boolean!
+}
+
+type Query {
+	clients: [Client!]!
+	client(id: ID!): Client
+	goals(clientId: ID!): [Goal!]!
+	goal(id: ID!, clientId: ID!): Goal
+	sessionLogs(clientId: ID!): [SessionLog!]!
+	sessionLog(id: ID!): SessionLog
+}
+
+input CreateClientInput {
+	firstName: String!
+	lastName: String!
+	email: String!
+	tags: [String!]
+	notes: String
+}
+
+input UpdateClientInput {
+	firstName: String
+	lastName: String
+	email: String
+	tags: [String!]
+	notes: String
+}
+
+input CreateGoalInput {
+	clientId: ID!
+	title: String!
+	description: String
+	dueDate: DateTime
+}
+
+input UpdateGoalInput {
+	title: String
+	description: String
+	dueDate: DateTime
+	status: GoalStatus
+	progressNotes: String
+}
+
+input CreateSessionLogInput {
+	clientId: ID!
+	date: DateTime!
+	notes: String
+	transcript: String
+	goalIds: [ID!]
+}
+
+input UpdateSessionLogInput {
+	notes: String
+	transcript: String
+	goalIds: [ID!]
+	summary: String
+	actionItems: [String!]
+}
+
+input AISummarizeSessionLogInput {
+	sessionLogId: ID!
+}
+
+input AIGeneratePlanInput {
+	clientId: ID!
+	goalIds: [ID!]!
+	sessionLogIds: [ID!]!
+}
+
+input AIGenerateSessionInput {
+	clientId: ID!
+	goalIds: [ID!]!
+	sessionLogIds: [ID!]!
+}
+
+input AIAnalyzeProgressInput {
+	clientId: ID!
+	startDate: DateTime!
+	endDate: DateTime!
+}
+
+type AIMutations {
+	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
+	generatePlan(input: AIGeneratePlanInput!): String!
+	generateSession(input: AIGenerateSessionInput!): SessionLog!
+	analyzeProgress(input: AIAnalyzeProgressInput!): String!
+}
+
+type Mutation {
+	createClient(input: CreateClientInput!): Client!
+	updateClient(id: ID!, input: UpdateClientInput!): Client!
+	deleteClient(id: ID!): Boolean!
+
+	createGoal(input: CreateGoalInput!): Goal!
+	updateGoal(id: ID!, input: UpdateGoalInput!): Goal!
+	deleteGoal(id: ID!): Boolean!
+
+	createSessionLog(input: CreateSessionLogInput!): SessionLog!
+	updateSessionLog(id: ID!, input: UpdateSessionLogInput!): SessionLog!
+	deleteSessionLog(id: ID!): Boolean!
+
+	ai: AIMutations!
+}
+
+type Subscription {
+	sessionLogAdded(clientId: ID!): SessionLog!
+	goalAdded(clientId: ID!): Goal!
+	sessionLogUpdated(id: ID!): SessionLog!
+	goalUpdated(id: ID!): Goal!
+	clientUpdated(id: ID!): Client!
+}

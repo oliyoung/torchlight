@@ -1,0 +1,70 @@
+{
+	"basketballFocusAreas": [
+		{
+			"id": 1,
+			"category": "Shooting",
+			"goals": [
+				"Improve free throw percentage",
+				"Develop consistent three-point shot",
+				"Master mid-range jumpers",
+				"Perfect layup techniques",
+				"Work on shot form mechanics"
+			]
+		},
+		{
+			"id": 2,
+			"category": "Ball Handling",
+			"goals": [
+				"Strengthen weak hand dribbling",
+				"Master crossover moves",
+				"Improve dribbling speed",
+				"Develop advanced move combinations",
+				"Reduce turnovers"
+			]
+		},
+		{
+			"id": 3,
+			"category": "Defense",
+			"goals": [
+				"Improve lateral quickness",
+				"Master defensive positioning",
+				"Increase steals without fouling",
+				"Develop shot blocking timing",
+				"Communicate effectively on team defense"
+			]
+		},
+		{
+			"id": 4,
+			"category": "Physical Conditioning",
+			"goals": [
+				"Increase vertical jump",
+				"Improve overall stamina",
+				"Develop explosive first step",
+				"Build core strength",
+				"Enhance agility and coordination"
+			]
+		},
+		{
+			"id": 5,
+			"category": "Game IQ",
+			"goals": [
+				"Read defenses more effectively",
+				"Master pick and roll scenarios",
+				"Improve court vision",
+				"Develop basketball situational awareness",
+				"Study game film consistently"
+			]
+		},
+		{
+			"id": 6,
+			"category": "Team Play",
+			"goals": [
+				"Improve assist-to-turnover ratio",
+				"Develop leadership skills",
+				"Master off-ball movement",
+				"Set effective screens",
+				"Understand and execute team strategies"
+			]
+		}
+	]
+}
