@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
+		"generate-types": "graphql-codegen",
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
@@ -12,14 +13,19 @@
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.41.0",
+		"@graphql-codegen/cli": "^5.0.6",
+		"@graphql-codegen/typescript": "^4.1.6",
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.4",
+		"graphql": "^16.11.0",
 		"graphql-yoga": "^5.13.4",
 		"next": "15.3.2",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0"
 	},
 	"devDependencies": {
+		"@graphql-codegen/typescript-operations": "^4.6.1",
+		"@graphql-codegen/typescript-resolvers": "^4.5.1",
 		"@tailwindcss/postcss": "^4",
 		"@types/jest": "^29.5.14",
 		"@types/node": "^20",

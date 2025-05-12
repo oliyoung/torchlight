@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS clients;
 -- Create table for Clients
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,

@@ -9,18 +9,3 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-export async function getClientById(clientId: string): Promise<Client | null> {
-  const { data, error } = await supabase
-    .from('clients')
-    .select('*')
-    .eq('id', clientId)
-    .single();
-
-  if (error) {
-    console.error('Error fetching client:', error);
-    return null;
-  }
-
-  return data as Client;
-}

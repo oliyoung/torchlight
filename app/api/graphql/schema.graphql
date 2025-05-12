@@ -1,23 +1,24 @@
 scalar DateTime
 
 type Client {
+	userId: ID!
 	id: ID!
-	birthday: String!
-	gender: String!
-	fitnessLevel: String!
-	trainingHistory: String!
+	birthday: String
+	gender: String
+	fitnessLevel: String
+	trainingHistory: String
 	height: Float
 	weight: Float
-	first_name: String!
-	last_name: String!
+	firstName: String!
+	lastName: String!
 	email: String!
-	tags: [String!]!
+	tags: [String!]
 	notes: String
-	created_at: DateTime!
-	updated_at: DateTime!
-	deleted_at: DateTime
-	goals: [Goal!]!
-	session_logs: [SessionLog!]!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime
+	goals: [Goal!]
+	sessionLogs: [SessionLog!]
 }
 
 type Goal {
@@ -138,13 +139,6 @@ input AIAnalyzeProgressInput {
 	endDate: DateTime!
 }
 
-type AIMutations {
-	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
-	generatePlan(input: AIGeneratePlanInput!): String!
-	generateSession(input: AIGenerateSessionInput!): SessionLog!
-	analyzeProgress(input: AIAnalyzeProgressInput!): String!
-}
-
 type Mutation {
 	createClient(input: CreateClientInput!): Client!
 	updateClient(id: ID!, input: UpdateClientInput!): Client!
@@ -158,7 +152,10 @@ type Mutation {
 	updateSessionLog(id: ID!, input: UpdateSessionLogInput!): SessionLog!
 	deleteSessionLog(id: ID!): Boolean!
 
-	ai: AIMutations!
+	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
+	generatePlan(input: AIGeneratePlanInput!): String!
+	generateSession(input: AIGenerateSessionInput!): SessionLog!
+	analyzeProgress(input: AIAnalyzeProgressInput!): String!
 }
 
 type Subscription {
