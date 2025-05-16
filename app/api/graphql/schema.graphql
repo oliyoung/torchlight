@@ -1,7 +1,7 @@
 scalar DateTime
 scalar JSON
 
-type Agent {
+type Assistant {
 	id: ID!
 	name: String!
 	sport: String!
@@ -77,7 +77,7 @@ type AIMetadata {
 
 type TrainingPlan {
 	id: ID!
-	agentIds: [ID!]!
+	assistantIds: [ID!]!
 	clientId: ID!
 	title: String!
 	overview: String
@@ -154,7 +154,7 @@ input AISummarizeSessionLogInput {
 input AIGenerateTrainingPlanInput {
 	clientId: ID!
 	goalIds: [ID!]!
-	agentIds: [ID!]!
+	assistantIds: [ID!]!
 	sessionLogIds: [ID!]!
 }
 

@@ -107,6 +107,11 @@ const data = {
 	],
 	navSecondary: [
 		{
+			title: "Assistants",
+			url: "/assistants",
+			icon: ClipboardItem,
+		},
+		{
 			title: "Settings",
 			url: "/settings",
 			icon: SettingsIcon,
