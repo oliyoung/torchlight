@@ -4,6 +4,7 @@ import type * as React from "react";
 import {
 	Calendar1,
 	CameraIcon,
+	ClipboardIcon,
 	ClipboardListIcon,
 	CreditCardIcon,
 	FileCodeIcon,
@@ -109,7 +110,7 @@ const data = {
 		{
 			title: "Assistants",
 			url: "/assistants",
-			icon: ClipboardItem,
+			icon: ClipboardIcon,
 		},
 		{
 			title: "Settings",

@@ -1,6 +1,6 @@
 import { generatePlan } from "@/lib/ai/generatePlan";
 import { generateSession } from "@/lib/ai/generateSession";
-import type { AiGeneratePlanInput, AiGenerateSessionInput } from "@/lib/types";
+import type { AiGenerateTrainingPlanInput, AiGenerateSessionInput } from "@/lib/types";
 import type { AiSummarizeSessionLogInput } from "@/lib/types";
 import type { SessionLog } from "@/lib/types";
 
@@ -16,9 +16,9 @@ export default {
       updatedAt: new Date(),
     } as SessionLog;
   },
-  generatePlan: async (
+  generateTrainingPlan: async (
     _: unknown,
-    input: AiGeneratePlanInput,
+    input: AiGenerateTrainingPlanInput,
   ): Promise<string> => generatePlan(input),
   generateSession: async (
     _: unknown,
