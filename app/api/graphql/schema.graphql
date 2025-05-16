@@ -1,4 +1,17 @@
 scalar DateTime
+scalar JSON
+
+type Agent {
+	id: ID!
+	name: String!
+	sport: String!
+	role: String! # e.g. "Center", "Guard", "Midfielder"
+	strengths: [String!]! # e.g. ["Rim Protection", "Defensive IQ"]
+	bio: String!
+	promptTemplate: String! # LLM prompt structure for session customization
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
 
 type Client {
 	userId: ID!
@@ -19,6 +32,7 @@ type Client {
 	deletedAt: DateTime
 	goals: [Goal!]
 	sessionLogs: [SessionLog!]
+	trainingPlans: [TrainingPlan!]!
 }
 
 type Goal {
@@ -61,6 +75,19 @@ type AIMetadata {
 	nextStepsGenerated: Boolean!
 }
 
+type TrainingPlan {
+	id: ID!
+	agentIds: [ID!]!
+	clientId: ID!
+	title: String!
+	overview: String
+	planJson: JSON!
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	generatedBy: String
+	sourcePrompt: String
+}
+
 type Query {
 	clients: [Client!]!
 	client(id: ID!): Client
@@ -68,6 +95,8 @@ type Query {
 	goal(id: ID!, clientId: ID!): Goal
 	sessionLogs(clientId: ID!): [SessionLog!]!
 	sessionLog(id: ID!): SessionLog
+	trainingPlan(id: ID!): TrainingPlan
+	trainingPlans(clientId: ID!): [TrainingPlan!]!
 }
 
 input CreateClientInput {
@@ -122,9 +151,10 @@ input AISummarizeSessionLogInput {
 	sessionLogId: ID!
 }
 
-input AIGeneratePlanInput {
+input AIGenerateTrainingPlanInput {
 	clientId: ID!
 	goalIds: [ID!]!
+	agentIds: [ID!]!
 	sessionLogIds: [ID!]!
 }
 
@@ -154,12 +184,13 @@ type Mutation {
 	deleteSessionLog(id: ID!): Boolean!
 
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
-	generatePlan(input: AIGeneratePlanInput!): String!
+	generateTrainingPlan(input: AIGenerateTrainingPlanInput!): String!
 	generateSession(input: AIGenerateSessionInput!): SessionLog!
 	analyzeProgress(input: AIAnalyzeProgressInput!): String!
 }
 
 type Subscription {
+	trainingPlanGenerated(clientId: ID!): TrainingPlan!
 	sessionLogAdded(clientId: ID!): SessionLog!
 	goalAdded(clientId: ID!): Goal!
 	sessionLogUpdated(id: ID!): SessionLog!
