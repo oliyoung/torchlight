@@ -5,7 +5,7 @@ import type { Client, Goal, SessionLog } from "@/lib/types";
 export async function createClient(userId: string | null, input: Partial<Client>): Promise<Client> {
   if (!userId) return {} as Client;
 
-  console.log(input)
+  console.log(input);
   const { data, error } = await supabase
     .from('clients')
     .insert({
@@ -14,7 +14,13 @@ export async function createClient(userId: string | null, input: Partial<Client>
       last_name: input.lastName,
       email: input.email,
       birthday: input.birthday,
-      gender: input.gender, fitness_level: input.fitnessLevel, training_history: input.trainingHistory, height: input.height, weight: input.weight, notes: input.notes
+      gender: input.gender,
+      fitness_level: input.fitnessLevel,
+      training_history: input.trainingHistory,
+      height: input.height,
+      weight: input.weight,
+      tags: input.tags,
+      notes: input.notes
     })
     .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .single();
@@ -30,7 +36,7 @@ export async function getClients(userId: string | null): Promise<Client[]> {
   if (!userId) return [];
   const { data, error } = await supabase
     .from('clients')
-    .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
+    .select('*, firstName:first_name, userId:user_id, lastName:last_name, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('user_id', userId);
 
   if (error) {
@@ -43,7 +49,7 @@ export async function getClients(userId: string | null): Promise<Client[]> {
 export async function getClientById(userId: string | null, clientId: Client['id']): Promise<Client | null> {
   const { data, error } = await supabase
     .from('clients')
-    .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
+    .select('*, firstName:first_name, userId:user_id, lastName:last_name, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('id', clientId)
     .eq('user_id', userId)
     .single();

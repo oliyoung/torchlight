@@ -73,6 +73,7 @@ type Query {
 input CreateClientInput {
 	firstName: String!
 	lastName: String!
+	birthday: DateTime!
 	email: String!
 	tags: [String!]
 	notes: String
