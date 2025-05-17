@@ -5,12 +5,13 @@ type Assistant {
 	id: ID!
 	name: String!
 	sport: String!
-	role: String! # e.g. "Center", "Guard", "Midfielder"
-	strengths: [String!]! # e.g. ["Rim Protection", "Defensive IQ"]
+	role: String!
+	strengths: [String!]!
 	bio: String!
-	promptTemplate: String! # LLM prompt structure for session customization
+	promptTemplate: String!
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	deletedAt: DateTime
 }
 
 type Client {
@@ -77,18 +78,31 @@ type AIMetadata {
 
 type TrainingPlan {
 	id: ID!
-	assistantIds: [ID!]!
+	assistantIds: [ID!]
+	goalIds: [ID!]
 	clientId: ID!
 	title: String!
 	overview: String
 	planJson: JSON!
 	createdAt: DateTime!
 	updatedAt: DateTime!
+	deletedAt: DateTime
 	generatedBy: String
 	sourcePrompt: String
 }
 
+input AssistantsFilter {
+	sport: String!
+	role: String
+	strengths: [String]
+}
+
+input AssistantsInput {
+	filter: AssistantsFilter
+}
+
 type Query {
+	assistants(input: AssistantsInput): [Assistant]!
 	clients: [Client!]!
 	client(id: ID!): Client
 	goals(clientId: ID!): [Goal!]!
@@ -96,7 +110,7 @@ type Query {
 	sessionLogs(clientId: ID!): [SessionLog!]!
 	sessionLog(id: ID!): SessionLog
 	trainingPlan(id: ID!): TrainingPlan
-	trainingPlans(clientId: ID!): [TrainingPlan!]!
+	trainingPlans(clientId: ID): [TrainingPlan!]!
 }
 
 input CreateClientInput {
@@ -151,11 +165,11 @@ input AISummarizeSessionLogInput {
 	sessionLogId: ID!
 }
 
-input AIGenerateTrainingPlanInput {
+input CreateTrainingPlanInput {
 	clientId: ID!
-	goalIds: [ID!]!
-	assistantIds: [ID!]!
-	sessionLogIds: [ID!]!
+	title: String!
+	assistantIds: [ID!]
+	goalIds: [ID!]
 }
 
 input AIGenerateSessionInput {
@@ -183,8 +197,9 @@ type Mutation {
 	updateSessionLog(id: ID!, input: UpdateSessionLogInput!): SessionLog!
 	deleteSessionLog(id: ID!): Boolean!
 
+	createTrainingPlan(input: CreateTrainingPlanInput!): TrainingPlan!
+
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
-	generateTrainingPlan(input: AIGenerateTrainingPlanInput!): String!
 	generateSession(input: AIGenerateSessionInput!): SessionLog!
 	analyzeProgress(input: AIAnalyzeProgressInput!): String!
 }

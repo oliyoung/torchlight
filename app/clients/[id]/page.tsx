@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useQuery } from "urql";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Card } from "@/components/ui/card";
+import Breadcrumbs from "@/components/breadcrumbs";
+import { Heading } from "@/components/ui/heading";
 
 const ClientQuery = `
 	query Client($id: ID!) {
@@ -44,10 +46,9 @@ const UserProfile: React.FC = () => {
 	const client = data.client;
 
 	return (
-		<Card className="max-w-2xl mx-auto mt-8 p-6">
-			<h1 className="text-2xl font-bold mb-4">
-				{client.firstName} {client.lastName}
-			</h1>
+		<>
+			<Breadcrumbs />
+			<Heading>{`${client.firstName} ${client.lastName}`}</Heading>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div>
 					<span className="font-semibold">Email:</span> {client.email}
@@ -98,7 +99,7 @@ const UserProfile: React.FC = () => {
 					<span className="font-semibold">Client ID:</span> {client.id}
 				</div>
 			</div>
-		</Card>
+		</>
 	);
 };
 

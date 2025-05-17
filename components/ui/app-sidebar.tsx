@@ -48,14 +48,19 @@ const data = {
 			icon: Users,
 		},
 		{
-			title: "Sessions",
-			url: "/session-logs",
-			icon: Calendar1,
+			title: "Training Plans",
+			url: "/training-plans",
+			icon: FileTextIcon,
 		},
 		{
 			title: "Goals",
 			url: "/goals",
 			icon: TargetIcon,
+		},
+		{
+			title: "Sessions",
+			url: "/session-logs",
+			icon: Calendar1,
 		},
 	],
 	navClouds: [

@@ -7,6 +7,21 @@
 			"problemMatcher": [],
 			"label": "npm: dev",
 			"detail": "next dev --turbopack"
+		},
+		{
+			"label": "GraphQL Generator",
+			"command": "yarn generate:watch",
+			"type": "shell",
+			"args": [],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"presentation": {
+				"reveal": "always"
+			}
 		}
 	]
 }

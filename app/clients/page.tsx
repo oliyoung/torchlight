@@ -29,18 +29,22 @@ function ClientsList() {
 		return <ErrorMessage message={`Error loading clients: ${error.message}`} />;
 
 	return (
-		<ul className="mt-4 space-y-2">
+		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
 			{data?.clients?.map((client) => (
-				<li key={client.id} className="border rounded px-3 py-2">
-					<Link href={`/clients/${client.id}`}>
-						{client.firstName} {client.lastName}{" "}
-						<span className="text-xs text-muted-foreground">
-							({client.email})
-						</span>
+				<div
+					key={client.id}
+					className="border rounded px-3 py-2 bg-white shadow-sm"
+				>
+					<Link
+						href={`/clients/${client.id}`}
+						className="font-semibold text-lg"
+					>
+						{client.firstName} {client.lastName}
 					</Link>
-				</li>
+					<div className="text-xs text-muted-foreground">{client.email}</div>
+				</div>
 			))}
-		</ul>
+		</div>
 	);
 }
 

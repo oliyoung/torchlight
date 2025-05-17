@@ -1,14 +1,14 @@
 -- Drop tables if they exist (drop join tables first to avoid FK errors)
-DROP TABLE IF EXISTS training_plan_session_logs;
-DROP TABLE IF EXISTS training_plan_goals;
-DROP TABLE IF EXISTS training_plan_assistants;
-DROP TABLE IF EXISTS goal_session_logs;
-DROP TABLE IF EXISTS ai_metadata;
-DROP TABLE IF EXISTS session_logs;
-DROP TABLE IF EXISTS goals;
-DROP TABLE IF EXISTS assistants;
-DROP TABLE IF EXISTS clients;
-DROP TABLE IF EXISTS training_plans;
+DROP TABLE IF EXISTS training_plan_session_logs CASCADE;
+DROP TABLE IF EXISTS training_plan_goals CASCADE;
+DROP TABLE IF EXISTS training_plan_assistants CASCADE;
+DROP TABLE IF EXISTS goal_session_logs CASCADE;
+DROP TABLE IF EXISTS ai_metadata CASCADE;
+DROP TABLE IF EXISTS session_logs CASCADE;
+DROP TABLE IF EXISTS goals CASCADE;
+DROP TABLE IF EXISTS assistants CASCADE;
+DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS training_plans CASCADE;
 
 -- Assistants table
 CREATE TABLE assistants (
@@ -29,11 +29,11 @@ INSERT INTO assistants (id, name, sport, role, strengths, bio, prompt_template, 
 (2, 'Coach Titan', 'Basketball', 'Center', ARRAY['Rim Protection', 'Post Defense', 'Shot Blocking'], 'A defensive anchor with a focus on timing, footwork, and paint dominance. Teaches how to protect the rim without fouling.', 'Design a training schedule to boost rim protection skills for a basketball center. Include shot-blocking drills and positioning strategies.', NOW(), NOW()),
 (3, 'Coach Blaze', 'Basketball', 'Wing', ARRAY['Shooting', 'Off-Ball Movement', 'Shot Creation'], 'An offensive specialist who trains players to create space, move without the ball, and become lethal from the perimeter.', 'Build a custom training routine to improve shooting consistency and off-ball awareness for a basketball wing.', NOW(), NOW()),
 (4, 'Coach Nova', 'Basketball', 'Forward', ARRAY['Transition Offense', 'Finishing', 'Athleticism'], 'Brings explosive energy and speed-focused drills to enhance fast breaks, driving lanes, and above-the-rim finishes.', 'Develop a 5-day plan for boosting transition scoring and finishing at the rim for an athletic forward.', NOW(), NOW()),
-(5, 'Coach Ice', 'Basketball', 'Guard', ARRAY['Clutch Performance', 'Free Throws', 'End-of-Game Execution'], NULL, 'Outline a training strategy to build composure and efficiency in clutch moments for a basketball guard.', NOW(), NOW()),
+(5, 'Coach Ice', 'Basketball', 'Guard', ARRAY['Clutch Performance', 'Free Throws', 'End-of-Game Execution'], 'A calm and collected leader who thrives under pressure. Specializes in teaching composure, free throw routines, and end-of-game execution for guards.', 'Outline a training strategy to build composure and efficiency in clutch moments for a basketball guard.', NOW(), NOW()),
 (6, 'Coach Atlas', 'Basketball', 'Center', ARRAY['Rebounding', 'Strength Training', 'Box Out Fundamentals'], 'A physicality-first coach who teaches players to control the glass with technique, strength, and hustle.', 'Craft a strength-focused training plan that emphasizes rebounding technique and box-out fundamentals.', NOW(), NOW()),
 (7, 'Coach Vibe', 'Basketball', 'Wing', ARRAY['Team Chemistry', 'Communication', 'Court Awareness'], 'Believes that great players make their teammates better. Focuses on awareness, unselfish play, and leadership.', 'Generate a training routine that builds communication, team cohesion, and court awareness for a versatile wing.', NOW(), NOW()),
 (8, 'Coach Spark', 'Basketball', 'Guard', ARRAY['Quickness', 'Agility', 'Full-Court Pressure'], 'A high-energy coach who thrives on intensity. Trains guards to press, harass ball handlers, and change pace effectively.', 'Prepare a high-intensity plan to improve quickness, agility, and pressure defense for a basketball guard.', NOW(), NOW()),
-(9, 'Coach Prism', 'Basketball', 'Forward', ARRAY['Defensive Switching', 'Versatility', 'Tactical IQ'], NULL, 'Design a week-long training block for a forward focused on defensive switching, versatility, and tactical IQ.', NOW(), NOW()),
+(9, 'Coach Prism', 'Basketball', 'Forward', ARRAY['Defensive Switching', 'Versatility', 'Tactical IQ'], 'A versatile forward who excels at defensive switching and tactical play. Coaches players to read the game, adapt on the fly, and contribute in multiple roles.', 'Design a week-long training block for a forward focused on defensive switching, versatility, and tactical IQ.', NOW(), NOW()),
 (10, 'Coach Echo', 'Basketball', 'Any', ARRAY['Film Study', 'Self-Assessment', 'Growth Mindset'], 'A reflective coach focused on reviewing past performances to drive future improvement through self-awareness.', 'Generate a training program that includes film breakdown, reflection prompts, and self-assessment for any basketball role.', NOW(), NOW());
 
 -- Clients table
@@ -126,10 +126,9 @@ CREATE TABLE training_plans (
     id SERIAL PRIMARY KEY,
     client_id INTEGER NOT NULL REFERENCES clients(id),
     title VARCHAR(255) NOT NULL,
-    overview TEXT,
-    plan_json JSONB NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
     generated_by VARCHAR(255),
     source_prompt TEXT
 );
