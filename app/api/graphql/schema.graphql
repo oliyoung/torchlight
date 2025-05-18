@@ -78,9 +78,9 @@ type AIMetadata {
 
 type TrainingPlan {
 	id: ID!
-	assistantIds: [ID!]
-	goalIds: [ID!]
-	clientId: ID!
+	assistants: [Assistant!]
+	goals: [Goal!]!
+	client: Client
 	title: String!
 	overview: String
 	planJson: JSON!

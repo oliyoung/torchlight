@@ -1,5 +1,5 @@
 import type { PubSub } from 'graphql-subscriptions';
-import type { TrainingPlan, Client, Goal } from '@/lib/types';
+import type { TrainingPlan, Client, Goal, Assistant } from '@/lib/types';
 import { getTrainingPlanById } from "@/lib/repository/trainingPlan";
 import { updateTrainingPlan } from "@/lib/repository/trainingPlan";
 import { readFileSync } from 'fs';
@@ -71,9 +71,9 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
 
 // Function to generate training plan content asynchronously
 export async function generateTrainingPlanContent(
-    trainingPlanId: string,
+    trainingPlanId: TrainingPlan['id'],
     userId: string | null,
-    assistantIds: string[],
+    assistantIds: Assistant['id'][],
     client: Client, // Accept Client object directly
     goals: Goal[] // Accept Goal objects directly
 ) {

@@ -1,4 +1,5 @@
-import { generateSession } from "@/lib/ai/generateSession"; import type { AiGenerateSessionInput } from "@/lib/types";
+import { generateSession as generateSessionFn } from "@/lib/ai/generateSession";
+import type { AiGenerateSessionInput } from "@/lib/types";
 import type { AiSummarizeSessionLogInput } from "@/lib/types";
 import type { SessionLog } from "@/lib/types";
 
@@ -17,4 +18,4 @@ export const summarizeSessionLog = async (
 export const generateSession = async (
   _: unknown,
   input: AiGenerateSessionInput,
-): Promise<string> => generateSession(input);
+): Promise<string> => generateSessionFn(input);
