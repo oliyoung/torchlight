@@ -3,7 +3,9 @@ import type { TrainingPlan, Client, Goal } from '@/lib/types';
 // Need repository functions to fetch client and goals, and update training plan
 import { getClientById } from "@/lib/repository/client"; // Assuming getClientById is in client.ts
 import { getGoalsByIds } from "@/lib/repository/goal"; // Add this import
+import { getTrainingPlanById } from "@/lib/repository/trainingPlan"; // Import getTrainingPlanById
 import { updateTrainingPlan } from "@/lib/repository/trainingPlan"; // Need to add this
+import { readFileSync } from 'fs'; // Import file system module
 
 // Ensure the correct PubSub event constant is used
 const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED'; // Use the same constant as the subscription
@@ -15,10 +17,56 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
     // Based on the prompt, generate mock overview and planJson
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
 
-    const mockOverview = "Generated training plan overview from LLM simulation.";
+    // Mock implementation based on the prompt structure from training_plan.md
+    const mockOverview = "Generated training plan overview based on client data and goals.";
     const mockPlanJson = {
-        sections: [{ title: "AI Generated Week 1", exercises: ["Generated Exercise 1", "Generated Exercise 2"] }]
+        programOverview: {
+            title: "Personalized Training Plan",
+            duration: "8 Weeks",
+            phases: ["Phase 1: Foundation", "Phase 2: Strength", "Phase 3: Power"],
+            expectedOutcomes: ["Improved strength", "Increased endurance"], // Based on goals
+            equipment: ["Gym access", "Dumbbells"],
+            targetGoals: [] // Populate with relevant goal IDs
+        },
+        weeklySchedule: [
+            { day: "Monday", focus: "Lower Body Strength", duration: "60 min", intensity: "High" },
+            { day: "Tuesday", focus: "Upper Body Strength", duration: "60 min", intensity: "High" },
+            { day: "Wednesday", focus: "Active Recovery", duration: "30 min", intensity: "Low" },
+            { day: "Thursday", focus: "Full Body Power", duration: "75 min", intensity: "Very High" },
+            { day: "Friday", focus: "Rest", duration: "", intensity: "" },
+            { day: "Saturday", focus: "Long Endurance", duration: "90 min", intensity: "Moderate" },
+            { day: "Sunday", focus: "Rest", duration: "", intensity: "" },
+        ],
+        sessions: [
+            {
+                name: "Monday - Lower Body Strength",
+                dayOfWeek: "Monday",
+                warmup: ["5 min jogging", "dynamic stretches"],
+                mainExercises: [
+                    { name: "Squats", sets: 3, reps: "8-10", intensity: "RPE 7", rest: "90s", notes: "Focus on form" },
+                    { name: "Deadlifts", sets: 3, reps: "5", intensity: "RPE 8", rest: "120s", notes: "Heavy day" },
+                ],
+                cooldown: ["stretching"]
+            },
+            {
+                name: "Tuesday - Upper Body Strength",
+                dayOfWeek: "Tuesday",
+                warmup: ["5 min cardio", "arm circles"],
+                mainExercises: [
+                    { name: "Bench Press", sets: 3, reps: "8-10", intensity: "RPE 7", rest: "90s", notes: "" },
+                    { name: "Pull-ups", sets: 3, reps: "AMRAP", intensity: "RPE 8", rest: "90s", notes: "As many reps as possible" },
+                ],
+                cooldown: ["stretching"]
+            }
+            // Add more sessions based on the prompt and data
+        ],
+        progressionGuidelines: ["Increase weight by 5% weekly", "Reduce rest periods over time"],
+        recoveryRecommendations: ["Get 7-9 hours of sleep", "Stay hydrated", "Include foam rolling"],
+        monitoringStrategies: ["Track RPE for each set", "Monitor resting heart rate"] // Link to session logs
     };
+
+    // In a real LLM call, you'd parse the LLM's response into this structure.
+
     return { overview: mockOverview, planJson: mockPlanJson };
 }
 
@@ -50,8 +98,9 @@ export async function generateTrainingPlanContent(trainingPlanId: string, userId
 
     try {
         // 1. Fetch necessary data (using userId for authorization checks in repository)
-        // First, get the training plan itself to get the clientId
-        const initialTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, {}); // Use update to fetch the current state
+        // Fetch the initial training plan to get the clientId
+        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId); // Use getTrainingPlanById
+
         if (!initialTrainingPlan || !initialTrainingPlan.clientId) {
             console.error(`Training plan ${trainingPlanId} not found or missing clientId.`);
             return; // Cannot proceed without training plan and client ID
@@ -73,8 +122,15 @@ export async function generateTrainingPlanContent(trainingPlanId: string, userId
         const goalsData = goals;
 
         // 2. Prepare the prompt
-        // This should use the actual training_plan.md prompt file content in a real implementation
-        const prompt = `Generate a training plan for client ${clientData.firstName} ${clientData.lastName} with goals: ${goalsData.map((g: Goal) => g.title).join(", ")}. Incorporate assistant perspectives from IDs: ${assistantIds.join(", ")}.`; // Example prompt based on fetched data
+        // Read the prompt template from the file
+        const promptTemplate = readFileSync('lib/ai/prompts/training_plan.md', 'utf-8');
+
+        // Construct the specific prompt using the template and fetched data
+        // This is a simplified example; a real implementation would involve
+        // more sophisticated prompt engineering and data formatting.
+        const prompt = `Based on the following prompt template and client data, generate a training plan:\n\n${promptTemplate}\n\nClient Data:\nName: ${clientData.firstName} ${clientData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
+
+        console.log("Generated Prompt:", prompt);
 
         // 3. Simulate AI call
         const { overview, planJson } = await callLLMForTrainingPlan(prompt);
