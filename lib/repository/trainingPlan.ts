@@ -1,17 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { TrainingPlan, CreateTrainingPlanInput } from "@/lib/types";
-import type { JSON } from "@/lib/types"; // Import JSON type if not already imported
-
-// Initialize Supabase client with service role key for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-// WARNING: SUPABASE_SERVICE_ROLE_KEY should only be used on the server-side and kept secret.
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error('Missing Supabase environment variables for service role client');
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+import type { JSON } from "@/lib/types";
+// Import the shared Supabase service role client
+import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 
 // Function to create a new training plan in the database
 export const createTrainingPlan = async (
@@ -21,7 +12,7 @@ export const createTrainingPlan = async (
     console.log("Saving training plan to database:", data);
 
     // Map the input data to the database schema (assuming snake_case)
-    const { data: newTrainingPlan, error } = await supabase
+    const { data: newTrainingPlan, error } = await supabaseServiceRole
         .from('training_plans') // Assuming your table name is 'training_plans'
         .insert([
             {
@@ -70,7 +61,7 @@ export const createTrainingPlan = async (
 export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | null> => {
     console.log("Fetching training plan by ID:", id);
 
-    const { data: trainingPlan, error } = await supabase
+    const { data: trainingPlan, error } = await supabaseServiceRole
         .from('training_plans')
         .select('*')
         .eq('id', id)
@@ -112,7 +103,7 @@ export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | nu
 export const getTrainingPlansByClientId = async (clientId: string): Promise<TrainingPlan[]> => {
     console.log("Fetching training plans for client ID:", clientId);
 
-    const { data: trainingPlans, error } = await supabase
+    const { data: trainingPlans, error } = await supabaseServiceRole
         .from('training_plans')
         .select('*')
         .eq('client_id', clientId);
