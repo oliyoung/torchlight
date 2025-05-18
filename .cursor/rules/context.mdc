@@ -1,0 +1,103 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Torchlight Project Context
+
+## 1. Current State of the Codebase
+- This is a greenfield project. All features currently implemented in the codebase can be inferred from their UI completeness. New features should follow the established patterns and conventions.
+- The next most important features or screens to build are currently being determined. Establishing and prioritizing the product backlog is the immediate priority.
+
+## 2. Core Data Models
+- The core data models are defined in the GraphQL schema (`app/api/graphql/schema.graphql`), which is always the single source of truth.
+- Main entities include:
+  - **Client**: Represents a person being coached, with personal details, goals, session logs, and training plans.
+  - **Goal**: Linked to a client, tracks objectives, status, progress notes, and related session logs.
+  - **SessionLog**: Records individual coaching sessions, notes, transcripts, summaries, action items, and links to goals.
+  - **Assistant**: AI or human coaching assistants, with sport, role, strengths, and prompt templates.
+  - **TrainingPlan**: Structured plans for clients, linked to assistants and goals, with plan data in JSON.
+  - **AIMetadata**: Metadata for AI-generated content in session logs.
+- Relationships and field details are fully described in the GraphQL schema.
+- GraphQL Playground is available at http://localhost:3000/api/graphql.
+
+## 3. User Flows & Key Screens
+- User journeys are derived from the UI. Key flows include:
+  - Coach logs in and views their client dashboard.
+  - Navigates to a client, reviews or adds session notes, uploads transcripts.
+  - Tags sessions to goals, views progress, and uses AI tools (when available) for summaries or next steps.
+  - Creates and manages training plans, goals, and session logs.
+- No wireframes, mockups, or formal user stories exist; development proceeds directly in code and browser.
+
+## 4. AI Integration
+- No AI integration is completed yet. All AI features (e.g., session summarization, next-step generation, progress analysis) should be stubbed/mocked for now. These correspond to the AI-related mutations in the GraphQL schema (e.g., `summarizeSessionLog`, `generateSession`, `analyzeProgress`).
+- When implementing these, return static or randomly generated data that matches the expected schema shape.
+- Actual integration will use the Model Context Protocol (MCP) ([https://github.com/modelcontextprotocol](mdc:https:/github.com/modelcontextprotocol)), an open protocol for connecting LLMs to external data sources. Use the TypeScript SDK when ready. The specific LLM provider is still to be determined.
+- The AI integration layer is intentionally left open for experimentation. Contributors are encouraged to explore, prototype, and suggest new approaches for connecting to LLMs, using MCP, and building AI-powered features.
+
+## 5. Authentication & Authorization
+- Supabase Auth is used for authentication ([Supabase Auth docs](mdc:https:/supabase.com/auth)).
+- Social logins and user management are supported out of the box.
+- Only the "Coach" role is currently implemented. Additional roles ("Client", "Admin") are planned after core features and AI integration are complete.
+- All authenticated users are assumed to be coaches for now.
+
+## 6. Deployment & Environment
+- The project will be deployed to AWS using Terraform for infrastructure as code.
+- Environment variables and secrets are stored in a `.env` file at the project root for local development. For production, use secure environment variable management (e.g., AWS Secrets Manager, SSM Parameter Store).
+- Supabase is always running remotely; use the provided remote Supabase connection string in `.env` as `DATABASE_URL`. No local database setup or automation script is required at this time.
+- Only two environments exist: local (development) and production. No staging environment.
+
+## 7. Design System & UI Patterns
+- Only use Shadcn UI components and Tailwind CSS for all UI and styling. Do not create custom component libraries or introduce other design systems.
+- Branding should be clean, professional, but also soft and fun to reflect the supportive nature of coaching.
+- Responsive, accessible, and modern design is required.
+- There are currently no Figma files, brand guidelines, or color palettes available. Design system and branding assets are a TODO for the future.
+
+## 8. Performance & Code Conventions
+- Follow the conventions in `general.mdc` for code style, structure, and optimization.
+- Use React Server Components where possible, minimize client-side state, and optimize for web vitals.
+- Organize code under `/src/app` and `/src/components` for clarity and scalability.
+
+## 9. Collaboration & Workflow
+- Currently, there are no strict conventions for branching or pull requests.
+- GitHub is used for code management. Branch development is preferred for future work.
+- Linear will be used for ticketing and backlog management soon.
+- All architectural decisions, assumptions, and new patterns should be documented in `@context.mdc`, which serves both as prompt context for LLMs and as human-readable documentation for engineers.
+
+## 10. Backlog & Prioritization
+- The next most important features or screens to build are currently being determined. Establishing and prioritizing the product backlog is the immediate priority.
+- There is currently no formal backlog or prioritized feature/bug list. This will be established as the project matures.
+
+## 11. Third-Party Integrations
+- Future plans include integrating with third-party services for calendaring and live chat.
+- All integrations should be modular and respect user privacy and security.
+
+## 12. Testing & Quality
+- Prefer end-to-end (E2E) and integration testing for most features.
+- Use Playwright for E2E tests.
+- Use Storybook for component-driven development and visual regression testing.
+- Use Jest and [Testing Library](mdc:https:/testing-library.com) for unit tests and component tests, following best practices for user-centric, maintainable tests.
+- Prioritize tests that reflect real user interactions and flows.
+
+## 13. Documentation
+- Continue using `@context.mdc` for project-wide context and decisions.
+- Add a `/docs` directory for deeper or feature-specific documentation as the project grows.
+- Use JSDoc/TSDoc in code for inline documentation.
+- Keep everything in-repo and markdown-based for accessibility and version control.
+
+## 14. Open Questions & Guidance
+- Where requirements are unclear, follow best practices for modern TypeScript/Next.js/GraphQL development.
+- Document assumptions and decisions in this file for future contributors.
+- The AI integration layer is intentionally left open for experimentation.
+- There is currently no known technical debt or areas of the codebase to avoid. All areas are open for development, except where otherwise noted in `@context.mdc`.
+
+## 15. Security, Privacy, and Compliance
+- There are currently no explicit security, privacy, or compliance requirements (e.g., GDPR, SOC2).
+- Always act as if such requirements are in place:
+  - Use secure coding practices.
+  - Protect all personal and sensitive data (encryption at rest and in transit).
+  - Minimize data exposure and follow the principle of least privilege.
+  - Be ready to support compliance needs in the future.
+
+---
+This file is intended as a living document. Update as the project evolves to ensure all contributors have a clear, shared understanding of Torchlight's context and conventions.
