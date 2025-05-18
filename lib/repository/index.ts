@@ -1,10 +1,18 @@
-
-import { supabase } from "@/lib/supabase";
+import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "@/lib/types";
+
+// This file will now re-export functions from dedicated repository files.
+// All function definitions are being moved out of this file.
+
+export { createClient, getClients, getClientById } from "./client";
+export { getGoalById, getGoalsByClientId } from "./goal";
+export { getSessionLogsByClientId, getSessionLogById } from "./sessionLog";
+export { createTrainingPlan, getTrainingPlanById, getTrainingPlansByClientId, getTrainingPlans } from "./trainingPlan";
+export { getAssistants } from "./assistant";
 
 export async function getTrainingPlans(userId: string | null, clientId: string | null): Promise<TrainingPlan[]> {
   if (!userId) return [];
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('training_plans')
     .select('*')
     .eq('user_id', userId);
@@ -20,7 +28,7 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
   const { filter } = input ?? {};
   const { sport, role, strengths } = filter ?? {};
 
-  const query = supabase.from('assistants').select('*');
+  const query = supabaseServiceRole.from('assistants').select('*');
   if (sport) query.eq('sport', sport);
   if (role) query.eq('role', role);
   if (strengths) query.in('strengths', strengths);
@@ -37,7 +45,7 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
 export async function createTrainingPlan(userId: string | null, input: Partial<TrainingPlan>): Promise<TrainingPlan> {
   if (!userId) return {} as TrainingPlan;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('training_plans')
     .insert({
       client_id: input.clientId,
@@ -57,7 +65,7 @@ export async function createTrainingPlan(userId: string | null, input: Partial<T
 export async function createClient(userId: string | null, input: Partial<Client>): Promise<Client> {
   if (!userId) return {} as Client;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('clients')
     .insert({
       user_id: userId,
@@ -85,7 +93,7 @@ export async function createClient(userId: string | null, input: Partial<Client>
 
 export async function getClients(userId: string | null): Promise<Client[]> {
   if (!userId) return [];
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('clients')
     .select('*, firstName:first_name, userId:user_id, lastName:last_name, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('user_id', userId);
@@ -98,7 +106,7 @@ export async function getClients(userId: string | null): Promise<Client[]> {
 }
 
 export async function getClientById(userId: string | null, clientId: Client['id']): Promise<Client | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('clients')
     .select('*, firstName:first_name, userId:user_id, lastName:last_name, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('id', clientId)
@@ -114,7 +122,7 @@ export async function getClientById(userId: string | null, clientId: Client['id'
 }
 
 export async function getGoalById(userId: string | null, goalId: Goal['id']): Promise<Goal | null> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('goals')
     .select('*')
     .eq('id', goalId)
@@ -129,7 +137,7 @@ export async function getGoalById(userId: string | null, goalId: Goal['id']): Pr
 }
 
 export async function getGoalsByClientId(userId: string | null, clientId: Client['id']): Promise<Goal[]> {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServiceRole
     .from('goals')
     .select('*')
     .eq('client_id', clientId);
