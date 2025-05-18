@@ -21,48 +21,50 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
     const mockOverview = "Generated training plan overview based on client data and goals.";
     const mockPlanJson = {
         programOverview: {
-            title: "Personalized Training Plan",
-            duration: "8 Weeks",
-            phases: ["Phase 1: Foundation", "Phase 2: Strength", "Phase 3: Power"],
-            expectedOutcomes: ["Improved strength", "Increased endurance"], // Based on goals
-            equipment: ["Gym access", "Dumbbells"],
+            title: "Basketball Skill & Conditioning Plan",
+            duration: "6 Weeks",
+            phases: ["Phase 1: Foundational Skills", "Phase 2: Conditioning & Agility", "Phase 3: Game Specific Drills"],
+            expectedOutcomes: ["Improved ball-handling", "Increased vertical jump", "Enhanced court speed"], // Based on goals
+            equipment: ["Basketball", "Cones", "Agility ladder", "Court access"],
             targetGoals: [] // Populate with relevant goal IDs
         },
         weeklySchedule: [
-            { day: "Monday", focus: "Lower Body Strength", duration: "60 min", intensity: "High" },
-            { day: "Tuesday", focus: "Upper Body Strength", duration: "60 min", intensity: "High" },
-            { day: "Wednesday", focus: "Active Recovery", duration: "30 min", intensity: "Low" },
-            { day: "Thursday", focus: "Full Body Power", duration: "75 min", intensity: "Very High" },
-            { day: "Friday", focus: "Rest", duration: "", intensity: "" },
-            { day: "Saturday", focus: "Long Endurance", duration: "90 min", intensity: "Moderate" },
+            { day: "Monday", focus: "Ball Handling & Shooting", duration: "75 min", intensity: "Moderate" },
+            { day: "Tuesday", focus: "Strength & Conditioning", duration: "60 min", intensity: "High" },
+            { day: "Wednesday", focus: "Rest or Active Recovery", duration: "30 min", intensity: "Low" },
+            { day: "Thursday", focus: "Agility & Footwork", duration: "60 min", intensity: "High" },
+            { day: "Friday", focus: "Game Simulation & Scrimmage", duration: "90 min", intensity: "Very High" },
+            { day: "Saturday", focus: "Light Skills Work", duration: "45 min", intensity: "Low" },
             { day: "Sunday", focus: "Rest", duration: "", intensity: "" },
         ],
         sessions: [
             {
-                name: "Monday - Lower Body Strength",
+                name: "Monday - Ball Handling & Shooting",
                 dayOfWeek: "Monday",
-                warmup: ["5 min jogging", "dynamic stretches"],
+                warmup: ["10 min dynamic stretching", "Mikan drill"],
                 mainExercises: [
-                    { name: "Squats", sets: 3, reps: "8-10", intensity: "RPE 7", rest: "90s", notes: "Focus on form" },
-                    { name: "Deadlifts", sets: 3, reps: "5", intensity: "RPE 8", rest: "120s", notes: "Heavy day" },
+                    { name: "Stationary Ball Handling (various drills)", sets: 5, reps: "60s each", intensity: "Moderate", rest: "30s", notes: "Focus on control" },
+                    { name: "Form Shooting (close range)", sets: 5, reps: "10 makes", intensity: "Low", rest: "60s", notes: "Elbow tucked" },
+                    { name: "Layup variations", sets: 3, reps: "5 each side", intensity: "Moderate", rest: "45s", notes: "Practice different finishes" },
                 ],
-                cooldown: ["stretching"]
+                cooldown: ["10 min static stretching"]
             },
             {
-                name: "Tuesday - Upper Body Strength",
+                name: "Tuesday - Strength & Conditioning",
                 dayOfWeek: "Tuesday",
-                warmup: ["5 min cardio", "arm circles"],
+                warmup: ["5 min jump rope", "dynamic movements"],
                 mainExercises: [
-                    { name: "Bench Press", sets: 3, reps: "8-10", intensity: "RPE 7", rest: "90s", notes: "" },
-                    { name: "Pull-ups", sets: 3, reps: "AMRAP", intensity: "RPE 8", rest: "90s", notes: "As many reps as possible" },
+                    { name: "Box Jumps", sets: 4, reps: "5", intensity: "High", rest: "90s", notes: "Focus on landing" },
+                    { name: "Lateral Bounds", sets: 3, reps: "8 each side", intensity: "Moderate", rest: "60s", notes: "Explosive movement" },
+                    { name: "Sprint Intervals (e.g., 17s)", sets: 10, reps: "1", intensity: "Very High", rest: "60s", notes: "Maximize speed" },
                 ],
-                cooldown: ["stretching"]
+                cooldown: ["stretching and foam rolling"]
             }
-            // Add more sessions based on the prompt and data
+            // Add more basketball-specific sessions
         ],
-        progressionGuidelines: ["Increase weight by 5% weekly", "Reduce rest periods over time"],
-        recoveryRecommendations: ["Get 7-9 hours of sleep", "Stay hydrated", "Include foam rolling"],
-        monitoringStrategies: ["Track RPE for each set", "Monitor resting heart rate"] // Link to session logs
+        progressionGuidelines: ["Increase reps/duration weekly", "Reduce rest periods", "Add defensive slides to warmups"],
+        recoveryRecommendations: ["Use ice baths post-conditioning", "Focus on nutrition for energy"],
+        monitoringStrategies: ["Track vertical jump progress", "Record sprint times", "Log shooting percentage in practice"] // Link to session logs
     };
 
     // In a real LLM call, you'd parse the LLM's response into this structure.
