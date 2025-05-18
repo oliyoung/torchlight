@@ -18,6 +18,8 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+export type JSON = Scalars['JSON'];
+
 export type AiAnalyzeProgressInput = {
   clientId: Scalars['ID']['input'];
   endDate: Scalars['DateTime']['input'];
