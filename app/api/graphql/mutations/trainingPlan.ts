@@ -13,19 +13,26 @@ export const createTrainingPlan = async (
 ): Promise<TrainingPlan> => {
     console.log("Creating training plan with input:", input);
 
-    // Call mock generation function
-    const { overview, planJson } = generateMockTrainingPlan(input.clientId, input.assistantIds ?? [], input.goalIds ?? []);
-
-    // Prepare data for repository
-    const trainingPlanData = {
+    // 1. Prepare initial data (without generated content)
+    const initialTrainingPlanData = {
         ...input,
-        overview: overview,
-        planJson: planJson,
+        overview: "", // Initialize with empty or placeholder
+        planJson: {}, // Initialize with empty or placeholder
     };
 
-    // Save to repository using the renamed import
-    const newTrainingPlan = await createTrainingPlanInRepo(context?.user?.id ?? null, trainingPlanData);
+    // 2. Save initial training plan to repository
+    const newTrainingPlan = await createTrainingPlanInRepo(context?.user?.id ?? null, initialTrainingPlanData);
 
-    // Return the saved training plan
+    // Check if training plan was successfully created
+    if (!newTrainingPlan || !newTrainingPlan.id) {
+        throw new Error("Failed to create initial training plan.");
+    }
+
+    // 3. Asynchronously generate content and update the training plan
+    // Do not await this call, it runs in the background
+    // The generateTrainingPlanContent function is responsible for updating the DB and publishing the subscription
+    generateTrainingPlanContent(newTrainingPlan.id, context?.user?.id ?? null, input.assistantIds ?? [], input.goalIds ?? []).catch(console.error);
+
+    // 4. Return the initial training plan immediately
     return newTrainingPlan;
 };

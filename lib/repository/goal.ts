@@ -83,3 +83,41 @@ export async function getGoalsByClientId(userId: string | null, clientId: Client
     console.log(`Successfully fetched ${fetchedGoals.length} goals for client ID ${clientId} for user ${userId}.`);
     return fetchedGoals;
 }
+
+// Function to get goals by a list of IDs
+export async function getGoalsByIds(userId: string | null, goalIds: string[]): Promise<Goal[]> {
+    console.log('Fetching goals by IDs:', goalIds, 'for user:', userId);
+
+    if (!userId) {
+        console.log('getGoalsByIds: No user ID provided.');
+        return [];
+    }
+
+    if (goalIds.length === 0) {
+        console.log('getGoalsByIds: No goal IDs provided.');
+        return [];
+    }
+
+    const { data, error } = await supabaseServiceRole
+        .from('goals')
+        .select('*')
+        .in('id', goalIds)
+        .eq('user_id', userId); // Ensure goals belong to the user
+
+    if (error) {
+        console.error(`Error fetching goals by IDs ${goalIds} for user ${userId}:`, error);
+        return [];
+    }
+
+    // Assuming created_at and updated_at need mapping to Date objects if they are strings
+    const fetchedGoals: Goal[] = data.map(goal => ({
+        ...goal,
+        createdAt: new Date(goal.created_at), // Assuming created_at is a string timestamp
+        updatedAt: new Date(goal.updated_at), // Assuming updated_at is a string timestamp
+        deletedAt: goal.deleted_at ? new Date(goal.deleted_at) : null, // Handle nullable deleted_at
+        // Assuming other fields like client and sessionLogs need resolving separately or are implicitly joined by Supabase
+    })) as Goal[]; // Type assertion for now, proper mapping might be needed
+
+    console.log(`Successfully fetched ${fetchedGoals.length} goals by IDs ${goalIds} for user ${userId}.`);
+    return fetchedGoals;
+}
