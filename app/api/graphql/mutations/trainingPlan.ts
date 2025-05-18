@@ -4,31 +4,28 @@ import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
 import { generateMockTrainingPlan } from "@/lib/ai/generateTrainingPlan";
 
 // TODO: Implement saving training plan to the database
-import { createTrainingPlan } from "@/lib/repository/trainingPlan";
+import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/trainingPlan";
 
-export default {
-    createTrainingPlan: async (
-        _: unknown,
-        { input }: { input: CreateTrainingPlanInput },
-    ): Promise<TrainingPlan> => {
-        console.log("Creating training plan with input:", input);
+export const createTrainingPlan = async (
+    _: unknown,
+    { input }: { input: CreateTrainingPlanInput },
+    context: any
+): Promise<TrainingPlan> => {
+    console.log("Creating training plan with input:", input);
 
-        // Call mock generation function
-        const { overview, planJson } = generateMockTrainingPlan(input.clientId, input.assistantIds ?? [], input.goalIds ?? []);
+    // Call mock generation function
+    const { overview, planJson } = generateMockTrainingPlan(input.clientId, input.assistantIds ?? [], input.goalIds ?? []);
 
-        // Prepare data for repository
-        const trainingPlanData = {
-            ...input,
-            overview: overview,
-            planJson: planJson,
-            // Assuming userId can be derived or is not strictly needed by the repository create function based on current signature
-            // If needed, the resolver signature should include context: GraphQLContext
-        };
+    // Prepare data for repository
+    const trainingPlanData = {
+        ...input,
+        overview: overview,
+        planJson: planJson,
+    };
 
-        // Save to repository
-        const newTrainingPlan = await createTrainingPlan(trainingPlanData);
+    // Save to repository using the renamed import
+    const newTrainingPlan = await createTrainingPlanInRepo(context?.user?.id ?? null, trainingPlanData);
 
-        // Return the saved training plan
-        return newTrainingPlan;
-    },
+    // Return the saved training plan
+    return newTrainingPlan;
 };

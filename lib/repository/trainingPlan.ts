@@ -15,6 +15,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 // Function to create a new training plan in the database
 export const createTrainingPlan = async (
+    userId: string | null,
     data: CreateTrainingPlanInput & { overview: string; planJson: JSON },
 ): Promise<TrainingPlan> => {
     console.log("Saving training plan to database:", data);
