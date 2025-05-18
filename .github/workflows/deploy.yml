@@ -1,0 +1,73 @@
+name: Deploy to AWS App Runner
+
+on:
+  push:
+    branches:
+      - main # Trigger on push to the main branch
+
+env:
+  AWS_REGION: us-east-1 # Replace with your desired AWS region
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Optional: Set up Node.js and build the project as a check
+      # App Runner builds from source, but this ensures the build works
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x' # Use the Node.js version compatible with your project
+
+      - name: Install dependencies
+        run: npm install # Or yarn install, pnpm install
+
+      - name: Build project
+        run: npm run build # Or yarn build, pnpm build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest # Or a specific version like 1.5.0
+
+      - name: Navigate to Terraform directory
+        run: cd terraform
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./terraform # Ensure command runs in the terraform directory
+
+      # Apply the Terraform configuration
+      # Pass variables using -var or a .tfvars file if needed.
+      # For simplicity and to match the previous main.tf, we are assuming
+      # sensitive values like DATABASE_URL are directly in the `secret_string`
+      # resource in main.tf (which is NOT recommended for production).
+      # A better approach is to fetch secrets within the application using an IAM role.
+      # If you passed secrets via Terraform variables, you'd use -var="variable_name=${{ secrets.YOUR_SECRET_NAME }}"
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./terraform # Ensure command runs in the terraform directory
+        env:
+          # Pass the GitHub Connection ARN as an environment variable to Terraform
+          TF_VAR_github_connection_arn: ${{ secrets.APP_RUNNER_GITHUB_CONNECTION_ARN }}
+          # WARNING: Directly passing sensitive JSON like this is NOT recommended for production.
+          # See explanation below and in the terraform code comments.
+          TF_VAR_app_secrets_json: ${{ secrets.APP_SECRETS_JSON }}
+
+
+      - name: Get App Runner Service URL
+        run: |
+          cd terraform
+          terraform output apprunner_service_url
+        shell: bash
