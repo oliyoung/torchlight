@@ -1,7 +1,12 @@
-import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
+import type { CreateTrainingPlanInput, TrainingPlan, JSON } from "@/lib/types";
 
 // TODO: Implement mock training plan generation logic
 import { generateMockTrainingPlan } from "@/lib/ai/generateTrainingPlan";
+import { generateTrainingPlanContent } from "@/lib/ai/generateTrainingPlanContent"; // Import the async generator
+
+// Import repository functions to inject
+import { getClientById } from "@/lib/repository/client";
+import { getGoalsByIds } from "@/lib/repository/goal";
 
 // TODO: Implement saving training plan to the database
 import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/trainingPlan";
@@ -14,10 +19,10 @@ export const createTrainingPlan = async (
     console.log("Creating training plan with input:", input);
 
     // 1. Prepare initial data (without generated content)
-    const initialTrainingPlanData = {
+    const initialTrainingPlanData: CreateTrainingPlanInput & { overview: string; planJson: JSON } = {
         ...input,
         overview: "", // Initialize with empty or placeholder
-        planJson: {}, // Initialize with empty or placeholder
+        planJson: { input: {}, output: {} } as JSON, // Initialize with empty object matching JSON type structure
     };
 
     // 2. Save initial training plan to repository
@@ -31,7 +36,15 @@ export const createTrainingPlan = async (
     // 3. Asynchronously generate content and update the training plan
     // Do not await this call, it runs in the background
     // The generateTrainingPlanContent function is responsible for updating the DB and publishing the subscription
-    generateTrainingPlanContent(newTrainingPlan.id, context?.user?.id ?? null, input.assistantIds ?? [], input.goalIds ?? []).catch(console.error);
+    generateTrainingPlanContent(
+        newTrainingPlan.id,
+        context?.user?.id ?? null,
+        input.assistantIds ?? [],
+        input.goalIds ?? [],
+        // Pass repository functions as dependencies
+        getClientById,
+        getGoalsByIds
+    ).catch(console.error);
 
     // 4. Return the initial training plan immediately
     return newTrainingPlan;

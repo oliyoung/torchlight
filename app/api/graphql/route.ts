@@ -4,7 +4,6 @@ import { PubSub } from 'graphql-subscriptions'
 import mutations from './mutations';
 import queries from './queries';
 import subscriptions from './subscriptions';
-import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 export interface GraphQLContext extends YogaInitialContext {

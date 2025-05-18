@@ -1,14 +1,11 @@
 import type { PubSub } from 'graphql-subscriptions';
-import type { TrainingPlan, Client, Goal } from '@/lib/types';
-// Need repository functions to fetch client and goals, and update training plan
-import { getClientById } from "@/lib/repository/client"; // Assuming getClientById is in client.ts
-import { getGoalsByIds } from "@/lib/repository/goal"; // Add this import
-import { getTrainingPlanById } from "@/lib/repository/trainingPlan"; // Import getTrainingPlanById
-import { updateTrainingPlan } from "@/lib/repository/trainingPlan"; // Need to add this
-import { readFileSync } from 'fs'; // Import file system module
+import type { Client, Goal } from '@/lib/types';
+import { getTrainingPlanById } from "@/lib/repository/trainingPlan";
+import { updateTrainingPlan } from "@/lib/repository/trainingPlan";
+import { readFileSync } from 'fs';
 
 // Ensure the correct PubSub event constant is used
-const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED'; // Use the same constant as the subscription
+const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
 
 // Placeholder for AI generation logic
 async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: string; planJson: any }> {
@@ -72,8 +69,16 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
     return { overview: mockOverview, planJson: mockPlanJson };
 }
 
-// Function to generate training plan content asynchronously
-export async function generateTrainingPlanContent(trainingPlanId: string, userId: string | null, assistantIds: string[], goalIds: string[]) {
+// Function to generate training plan content asynchronously with dependency injection
+export async function generateTrainingPlanContent(
+    trainingPlanId: string,
+    userId: string | null,
+    assistantIds: string[],
+    goalIds: string[],
+    // Injected dependencies
+    getClientById: (userId: string | null, clientId: string) => Promise<Client | null>,
+    getGoalsByIds: (userId: string | null, goalIds: string[]) => Promise<Goal[]>
+) {
     console.log(`Starting async generation for Training Plan ${trainingPlanId} for user ${userId}`);
 
     // Need the pubsub instance from the context in route.ts
@@ -101,7 +106,7 @@ export async function generateTrainingPlanContent(trainingPlanId: string, userId
     try {
         // 1. Fetch necessary data (using userId for authorization checks in repository)
         // Fetch the initial training plan to get the clientId
-        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId); // Use getTrainingPlanById
+        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId);
 
         if (!initialTrainingPlan || !initialTrainingPlan.clientId) {
             console.error(`Training plan ${trainingPlanId} not found or missing clientId.`);
@@ -109,8 +114,9 @@ export async function generateTrainingPlanContent(trainingPlanId: string, userId
         }
         const clientId = initialTrainingPlan.clientId; // Get clientId from the fetched plan
 
+        // Use injected functions
         const client = await getClientById(userId, clientId);
-        const goals = await getGoalsByIds(userId, goalIds); // Use the new function
+        const goals = await getGoalsByIds(userId, goalIds);
 
         if (!client || goals.length !== goalIds.length) {
             console.error(`Data fetching failed for training plan ${trainingPlanId}. Client or some goals not found.`);
@@ -147,7 +153,7 @@ export async function generateTrainingPlanContent(trainingPlanId: string, userId
         };
 
         // 5. Update the training plan record in the database
-        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, updateData); // Need to add updateTrainingPlan function
+        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, updateData);
 
         if (updatedTrainingPlan) {
             console.log(`Training plan ${trainingPlanId} updated successfully.`);
