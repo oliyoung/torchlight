@@ -1,5 +1,5 @@
 import { getClients, getClientById, getGoalsByClientId, getGoalById, getSessionLogsByClientId, getSessionLogById, getAssistants, getTrainingPlans } from "@/lib/repository";
-import type { Assistant, AssistantsInput, Client, Goal, SessionLog } from "@/lib/types";
+import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../route";
 
 export default {
