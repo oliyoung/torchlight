@@ -1,6 +1,10 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { Assistant, AssistantsInput } from "@/lib/types";
 
+export async function getAssistantsByIds(ids: Assistant['id'][]): Promise<Assistant[]> {
+    return []
+}
+
 export async function getAssistants(input: AssistantsInput): Promise<Assistant[]> {
     console.log('Fetching assistants with input:', input);
 

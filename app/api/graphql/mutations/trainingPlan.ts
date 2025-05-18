@@ -10,6 +10,8 @@ import { getGoalsByIds } from "@/lib/repository/goal";
 
 // TODO: Implement saving training plan to the database
 import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/trainingPlan";
+import { getAssistants } from "@/lib/repository";
+import { getAssistantsByIds } from "@/lib/repository/assistant";
 
 export const createTrainingPlan = async (
     _: unknown,
