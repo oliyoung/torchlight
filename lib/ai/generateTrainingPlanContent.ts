@@ -1,5 +1,5 @@
 import type { PubSub } from 'graphql-subscriptions';
-import type { Client, Goal } from '@/lib/types';
+import type { TrainingPlan, Client, Goal } from '@/lib/types';
 import { getTrainingPlanById } from "@/lib/repository/trainingPlan";
 import { updateTrainingPlan } from "@/lib/repository/trainingPlan";
 import { readFileSync } from 'fs';
@@ -69,30 +69,17 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
     return { overview: mockOverview, planJson: mockPlanJson };
 }
 
-// Function to generate training plan content asynchronously with dependency injection
+// Function to generate training plan content asynchronously
 export async function generateTrainingPlanContent(
     trainingPlanId: string,
     userId: string | null,
     assistantIds: string[],
-    goalIds: string[],
-    // Injected dependencies
-    getClientById: (userId: string | null, clientId: string) => Promise<Client | null>,
-    getGoalsByIds: (userId: string | null, goalIds: string[]) => Promise<Goal[]>
+    client: Client, // Accept Client object directly
+    goals: Goal[] // Accept Goal objects directly
 ) {
     console.log(`Starting async generation for Training Plan ${trainingPlanId} for user ${userId}`);
 
     // Need the pubsub instance from the context in route.ts
-    // For this async function, we'll need to pass it in or access it globally if possible.
-    // Given the current structure, passing it as an argument is the most explicit way.
-    // However, the call in the resolver doesn't pass pubsub. Let's assume for now pubsub is accessible via context globally or passed down.
-    // A better approach might be to structure this differently, perhaps a background job runner.
-    // For now, let's update the signature to accept pubsub.
-    // Reworking the function signature to accept pubsub:
-    // export async function generateTrainingPlanContent(trainingPlanId: string, userId: string | null, assistantIds: string[], goalIds: string[], pubsub: PubSub) {
-    // For simplicity in this iteration, let's assume pubsub is available globally or via a context equivalent in this async env.
-    // In a real app, you'd use a proper job queue (e.g., BullMQ, Faktory) and pass necessary data, not live PubSub.
-    // For the purpose of this mock, let's just import and use pubsub assuming it's accessible (will likely need refactoring later).
-
     // Temporarily import pubsub directly for the mock, though this is not ideal in production async jobs
     let pubsub: PubSub;
     try {
@@ -104,36 +91,31 @@ export async function generateTrainingPlanContent(
     }
 
     try {
-        // 1. Fetch necessary data (using userId for authorization checks in repository)
-        // Fetch the initial training plan to get the clientId
-        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId);
+        // 1. Fetch the initial training plan to get training plan specific data if needed
+        // Note: Client and Goals are now passed in, no need to fetch them here
+        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId); // Still need this for plan-specific fields if any
 
-        if (!initialTrainingPlan || !initialTrainingPlan.clientId) {
-            console.error(`Training plan ${trainingPlanId} not found or missing clientId.`);
-            return; // Cannot proceed without training plan and client ID
+        if (!initialTrainingPlan) {
+            console.error(`Training plan ${trainingPlanId} not found.`);
+            return; // Cannot proceed if the plan itself is not found
         }
-        const clientId = initialTrainingPlan.clientId; // Get clientId from the fetched plan
 
-        // Use injected functions
-        const client = await getClientById(userId, clientId);
-        const goals = await getGoalsByIds(userId, goalIds);
+        // Use the passed-in client and goals data directly
+        const clientData = client;
+        const goalsData = goals;
 
-        if (!client || goals.length !== goalIds.length) {
-            console.error(`Data fetching failed for training plan ${trainingPlanId}. Client or some goals not found.`);
-            // Optionally publish an error state or log failure
+        // Check if client or goals data is missing (should ideally be handled by the caller)
+        if (!clientData || goalsData.length !== initialTrainingPlan.goalIds?.length) { // Check if the number of goals matches what was requested initially
+            console.error(`Invalid data passed for training plan ${trainingPlanId}. Client or goals missing/mismatch.`);
             // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event
             return;
         }
-
-        // For now, use mock client/goal data for prompt preparation since getGoalsByIds is not yet implemented
-        const clientData = client;
-        const goalsData = goals;
 
         // 2. Prepare the prompt
         // Read the prompt template from the file
         const promptTemplate = readFileSync('lib/ai/prompts/training_plan.md', 'utf-8');
 
-        // Construct the specific prompt using the template and fetched data
+        // Construct the specific prompt using the template and passed-in data
         // This is a simplified example; a real implementation would involve
         // more sophisticated prompt engineering and data formatting.
         const prompt = `Based on the following prompt template and client data, generate a training plan:\n\n${promptTemplate}\n\nClient Data:\nName: ${clientData.firstName} ${clientData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
