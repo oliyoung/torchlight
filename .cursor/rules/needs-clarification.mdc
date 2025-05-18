@@ -1,0 +1,26 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Areas Needing Clarification
+
+Based on the current understanding of the Torchlight project, the following areas still require further definition or documentation as development progresses:
+
+1.  **Specific Feature Prioritization and Detailed Roadmap:** The exact order and scope of the next features to be built are being determined.
+
+2.  **CI/CD Setup and Requirements:** Plans for Continuous Integration and Continuous Deployment are a "TODO" and not yet defined.
+
+3.  **Detailed Error Handling, Logging, and Monitoring Conventions:** Specific patterns, tools, or requirements for logging, monitoring, and handling errors throughout the application haven't been detailed.
+
+4.  **Specific Plans for Future Third-Party Integrations:** Details, providers, or integration patterns for planned integrations like calendaring and live chat (or other potential services) are not yet known.
+
+5.  **Release Management Strategy:** How and when new versions of the application will be built, tagged, and deployed (versioning, release cadence, etc.) is not defined.
+
+6.  **Detailed Requirements for Future User Roles:** Specific permissions, capabilities, and flows for planned "Client" and "Admin" roles are not yet known.
+
+7.  **Complex Seed Data Requirements:** While initial seeding is possible, requirements for more complex or scenario-specific seed data might evolve.
+
+8.  **Contributor Contact/Support Information:** How contributors should seek help, ask questions, or submit work (e.g., preferred communication channels, code review process) is not specified.
+
+As these areas become defined, they should be documented, preferably in `@context.mdc` or a dedicated document in the `/docs` directory, and this list should be updated accordingly.

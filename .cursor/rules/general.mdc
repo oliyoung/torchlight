@@ -15,7 +15,7 @@ alwaysApply: true
 
 - Naming Conventions
 
-  - All components should go in src/components and be named like new-component.tsx
+  - All components go in /src/components and are named like new-component.tsx
   - Use lowercase with dashes for directories (e.g., components/auth-wizard).
   - Favor named exports for components.
 
@@ -33,8 +33,9 @@ alwaysApply: true
 
 - UI and Styling
 
-  - Use Shadcn UI, and Tailwind for components and styling.
+  - Only use Shadcn UI and Tailwind CSS for all UI and styling. Do not create custom component libraries or introduce other design systems.
   - Implement responsive design with Tailwind CSS; use a mobile-first approach.
+  - No Figma files, brand guidelines, or color palettes yet—use Shadcn and Tailwind defaults.
 
 - Performance Optimization
 
@@ -54,13 +55,9 @@ alwaysApply: true
   - Follow Next.js docs for Data Fetching, Rendering, and Routing.
   - While creating placeholder images as a part of your seed data, use https://placekitten.com/
   - Place both the /app and /components folders under a /src directory. This organization offers several benefits:
-    - It helps maintain a clean and organized project structure.
-    - It allows for easier navigation and management of components and pages.
-    - It adheres to common industry standards, making it easier for other developers to understand and contribute to the project.
-    - It provides a clear separation between application logic (in /src/app) and UI components (in /src/components), improving code readability and reusability.
-    - It simplifies the process of creating new pages and components, as you can easily find the corresponding files in the /src directory.
-    - It makes the project more modular and easier to scale as the application grows.
-    - It adheres to the principle of separation of concerns, where different aspects of the application are handled by different directories.
+    - Clean, organized, and scalable project structure.
+    - Clear separation between application logic (/src/app) and UI components (/src/components).
+    - Adheres to industry standards and separation of concerns.
 
 ## Components Organization
 
@@ -89,3 +86,41 @@ For example:
 - Shared Components: The /src/components folder should contain reusable components used across multiple pages or features.
 
 - Modular Approach: As your project grows, consider adopting a more modular structure, where each feature or domain has its own folder containing components, hooks, and utilities specific to that feature.
+
+## AI Features
+
+- All AI features (e.g., session summarization, next-step generation, progress analysis) must be stubbed/mocked for now. Return static or randomly generated data matching the schema shape.
+- Actual AI integration will use Model Context Protocol (MCP) with the TypeScript SDK. The specific LLM provider is still to be determined.
+- The AI integration layer is open for experimentation and prototyping.
+
+## Authentication & Authorization
+
+- Supabase Auth is used for authentication. Only the "Coach" role is implemented; "Client" and "Admin" roles will come after core features and AI integration.
+- All authenticated users are assumed to be coaches for now.
+
+## Environments & Data
+
+- Only two environments: local (development) and production. No staging environment.
+- Supabase is always running remotely; use the provided remote Supabase connection string in `.env` as `DATABASE_URL`. No local database setup or automation script is required at this time.
+
+## Testing & Quality
+
+- Prefer E2E and integration testing (Playwright) for most features.
+- Use Storybook for component-driven development and visual regression testing.
+- Use Jest and [Testing Library](mdc:https:/testing-library.com) for unit/component tests.
+- Prioritize tests that reflect real user interactions and flows.
+
+## Documentation
+
+- Use @context.mdc for all architectural decisions, assumptions, and new patterns. This file is both prompt context for LLMs and human-readable for engineers.
+- Add a /docs directory for deeper or feature-specific documentation as the project grows.
+- Use JSDoc/TSDoc in code for inline documentation.
+- Keep all documentation in-repo and markdown-based for accessibility and version control.
+
+## Security, Privacy, and Compliance
+
+- No explicit security, privacy, or compliance requirements (e.g., GDPR, SOC2) at this time, but always act as if such requirements are in place.
+  - Use secure coding practices.
+  - Protect all personal and sensitive data (encryption at rest and in transit).
+  - Minimize data exposure and follow the principle of least privilege.
+  - Be ready to support compliance needs in the future.

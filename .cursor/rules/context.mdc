@@ -15,7 +15,7 @@ alwaysApply: true
   - **Client**: Represents a person being coached, with personal details, goals, session logs, and training plans.
   - **Goal**: Linked to a client, tracks objectives, status, progress notes, and related session logs.
   - **SessionLog**: Records individual coaching sessions, notes, transcripts, summaries, action items, and links to goals.
-  - **Assistant**: AI or human coaching assistants, with sport, role, strengths, and prompt templates.
+  - **Assistant**: Represents AI coaching assistants. In the context of AI integration, Assistants are primarily used to define and store LLM prompts via the `promptTemplate` field, along with associated metadata like sport, role, and strengths.
   - **TrainingPlan**: Structured plans for clients, linked to assistants and goals, with plan data in JSON.
   - **AIMetadata**: Metadata for AI-generated content in session logs.
 - Relationships and field details are fully described in the GraphQL schema.

@@ -12,7 +12,7 @@ Coaches, trainers, and mentors who support clients over time and want better sys
 Coaches are stuck between unstructured tools (like Google Docs) and rigid systems (like spreadsheets or CRMs). They want a flexible workspace that understands how real growth happens—through repeated conversations, evolving goals, and context that builds over time.
 
 ## What is the most important customer benefit?
-A single place to see the arc of a client's development—linking notes, goals, sessions, and reflections—with optional AI tools that speed up planning and deepen insight.
+A single place to see the arc of a client's development—linking notes, goals, sessions, and reflections—with optional AI tools that speed up planning, deepen insight, extract key takeaways, and proactively identify potential challenges.
 
 ## How do you know what customers need?
 User interviews with coaches and support professionals revealed:
@@ -20,18 +20,22 @@ User interviews with coaches and support professionals revealed:
 - Fragmentation across too many tools
 - Time wasted summarizing sessions or rewriting plans
 - A desire for intelligent support without giving up control
+- The need for help in refining goals and identifying actionable steps
+- Challenges in spotting recurring patterns and potential risks early
 
 ## What does the customer experience look like?
 - Coach logs in and sees their client dashboard
 - Clicks into a session, adds notes, or uploads a transcript
-- Tags the goal it supports and sees updated progress
-- Uses the AI helper to generate a draft of next week's plan
+- AI extracts key takeaways and suggests action items from the session
+- Tags the goal it supports and sees updated progress, potentially refined with AI assistance
+- Uses the AI helper to generate a draft of next week's plan or analyze progress for recurring themes
+- Reviews AI-suggested prompts or potential client risks
 - Moves to the next client with confidence and clarity
 
 ## What makes this product different?
 - Built from the ground up for the coaching relationship
 - Combines freeform note-taking with structured goal-tracking
-- AI acts as a coach's assistant, not a replacement
+- AI acts as a coach's assistant, not a replacement—helping refine goals, extract insights, analyze themes, and flag risks
 - Designed for growth over time—not just task management
 
 
