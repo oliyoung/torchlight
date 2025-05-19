@@ -5,13 +5,17 @@ import Breadcrumbs from "@/components/breadcrumbs";
 import { Heading } from "@/components/ui/heading";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { useParams } from "next/navigation";
+import { logger } from "@/lib/logger";
 
 const TrainingPlanQuery = `
   query TrainingPlan($id: ID!) {
     trainingPlan(id: $id) {
       id
       title
-      clientId
+      client {
+        id
+        firstName
+      }
       createdAt
       overview
     }
@@ -34,12 +38,15 @@ export default function TrainingPlanDetailPage() {
 
 	if (!id) return <ErrorMessage message="No training plan ID provided." />;
 	if (fetching) return <div className="p-4">Loading training plan...</div>;
-	if (error)
+	logger.info({ data }, "Training plan data");
+	if (error || !data?.trainingPlan) {
+		logger.error({ error }, "Training plan not found");
 		return (
-			<ErrorMessage message={`Error loading training plan: ${error.message}`} />
+			<ErrorMessage
+				message={`Error loading training plan: ${error?.message}`}
+			/>
 		);
-	if (!data?.trainingPlan)
-		return <ErrorMessage message="Training plan not found." />;
+	}
 
 	const plan = data.trainingPlan;
 
@@ -49,7 +56,7 @@ export default function TrainingPlanDetailPage() {
 			<Heading>{plan.title}</Heading>
 			<div className="mt-4 space-y-2">
 				<div>
-					<span className="font-medium">Client ID:</span> {plan.clientId}
+					<span className="font-medium">Client:</span> {plan.client?.firstName}
 				</div>
 				<div>
 					<span className="font-medium">Created:</span>{" "}

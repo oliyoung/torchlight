@@ -79,7 +79,7 @@ type AIMetadata {
 type TrainingPlan {
 	id: ID!
 	assistants: [Assistant!]
-	goals: [Goal!]!
+	goals: [Goal!]
 	client: Client
 	title: String!
 	overview: String

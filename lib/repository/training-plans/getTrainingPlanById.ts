@@ -1,9 +1,11 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
 import { logger } from "@/lib/logger";
+import { getClientById } from "../client";
+import type { GraphQLContext } from "@/app/api/graphql/route";
 
 // Function to get a training plan by its ID
-export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | null> => {
+export const getTrainingPlanById = async (userId: string | null, id: string): Promise<TrainingPlan | null> => {
   logger.info({ id }, "Fetching training plan by ID");
 
   const { data: trainingPlan, error } = await supabaseServiceRole
@@ -23,10 +25,12 @@ export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | nu
     return null;
   }
 
+  const client = await getClientById(userId, trainingPlan.client_id);
+
   // Map the database response back to the GraphQL TrainingPlan type
   const fetchedTrainingPlan: TrainingPlan = {
     id: trainingPlan.id,
-    client: trainingPlan.client,
+    client,
     title: trainingPlan.title,
     overview: trainingPlan.overview,
     planJson: trainingPlan.plan_json,

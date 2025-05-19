@@ -5,6 +5,8 @@ import mutations from './mutations';
 import queries from './queries';
 import subscriptions from './subscriptions';
 import type { User } from '@supabase/supabase-js';
+import { getClientById } from "@/lib/repository/client";
+import { logger } from '@/lib/logger';
 
 export interface GraphQLContext extends YogaInitialContext {
   user: User | null;
@@ -29,6 +31,7 @@ const { handleRequest } = createYoga<GraphQLContext>({
       Subscription: {
         ...subscriptions,
       },
+
     }
   }),
   context: async () => {

@@ -1,5 +1,6 @@
 import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "../types";
 import { supabaseServiceRole } from "../supabase/serviceRoleClient";
+import { logger } from "../logger";
 
 
 export async function getAssistants(input: AssistantsInput): Promise<Assistant[]> {
@@ -14,7 +15,7 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching assistants:', error);
+    logger.error({ error }, 'Error fetching assistants');
     return [];
   }
   return data as Assistant[];
@@ -43,7 +44,7 @@ export async function createClient(userId: string | null, input: Partial<Client>
     .single();
 
   if (error) {
-    console.error('Error Creating clients:', error);
+    logger.error({ error }, 'Error Creating clients');
     return {} as Client;
   }
   return data as Client;
@@ -57,13 +58,15 @@ export async function getClients(userId: string | null): Promise<Client[]> {
     .eq('user_id', userId);
 
   if (error) {
-    console.error('Error fetching clients:', error);
+    logger.error({ error }, 'Error fetching clients');
     return [];
   }
   return data as Client[];
 }
 
 export async function getClientById(userId: string | null, clientId: Client['id']): Promise<Client | null> {
+  logger.info({ userId, clientId }, 'Fetching client by ID');
+
   const { data, error } = await supabaseServiceRole
     .from('clients')
     .select('*, firstName:first_name, userId:user_id, lastName:last_name, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
@@ -72,7 +75,7 @@ export async function getClientById(userId: string | null, clientId: Client['id'
     .single();
 
   if (error) {
-    console.error('Error fetching client:', error);
+    logger.error({ error }, 'Error fetching client');
     return null;
   }
 
@@ -88,7 +91,7 @@ export async function getGoalById(userId: string | null, goalId: Goal['id']): Pr
     .single();
 
   if (error) {
-    console.error('Error fetching goal:', error);
+    logger.error({ error }, 'Error fetching goal');
     return null;
   }
   return data as Goal;
@@ -100,7 +103,7 @@ export async function getGoalsByClientId(userId: string | null, clientId: Client
     .select('*')
     .eq('client_id', clientId);
   if (error) {
-    console.error('Error fetching goals:', error);
+    logger.error({ error }, 'Error fetching goals');
     return [];
   }
   return data as Goal[];

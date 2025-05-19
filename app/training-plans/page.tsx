@@ -8,7 +8,7 @@ import { ErrorMessage } from "@/components/ui/error-message";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
-
+import { logger } from "@/lib/logger";
 const TrainingPlansQuery = `
 	query {
 		trainingPlans {
@@ -37,6 +37,8 @@ function TrainingPlansList() {
 				message={`Error loading training plans: ${error.message}`}
 			/>
 		);
+
+	logger.info({ data }, "Training plans data");
 
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">

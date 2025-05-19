@@ -1,6 +1,7 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
 import { logger } from "@/lib/logger";
+import { getClientById } from "../getClientById";
 
 // Function to get training plans for a specific user (and optionally client)
 export async function getTrainingPlans(userId: string | null, clientId: string | null): Promise<TrainingPlan[]> {
@@ -12,7 +13,7 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
 
   let query = supabaseServiceRole
     .from('training_plans')
-    .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
+    .select('*, clientId:client_id, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('user_id', userId); // Filter by user ID
 
   if (clientId) {
@@ -27,12 +28,16 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
   }
 
   // Map database response array to TrainingPlan type array
-  const fetchedTrainingPlans: TrainingPlan[] = data.map(plan => ({
-    ...plan,
-    createdAt: new Date(plan.created_at), // Assuming timestamp strings
-    updatedAt: new Date(plan.updated_at), // Assuming timestamp strings
-    deletedAt: plan.deleted_at ? new Date(plan.deleted_at) : null, // Handle nullable deleted_at
-  })) as TrainingPlan[]; // Type assertion
+  const fetchedTrainingPlans: TrainingPlan[] = data.map(plan => {
+    const client = getClientById(userId, plan.client_id);
+    return {
+      ...plan,
+      client,
+      createdAt: new Date(plan.created_at), // Assuming timestamp strings
+      updatedAt: new Date(plan.updated_at), // Assuming timestamp strings
+      deletedAt: plan.deleted_at ? new Date(plan.deleted_at) : null, // Handle nullable deleted_at
+    }
+  }) as TrainingPlan[]; // Type assertion
 
   logger.info({ fetchedTrainingPlans }, 'Successfully fetched training plans');
   return fetchedTrainingPlans;
