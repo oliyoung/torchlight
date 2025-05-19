@@ -39,6 +39,6 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
     }
   }) as TrainingPlan[]; // Type assertion
 
-  logger.info({ fetchedTrainingPlans }, 'Successfully fetched training plans');
+  logger.info({}, 'Successfully fetched training plans');
   return fetchedTrainingPlans;
 }

@@ -66,6 +66,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 	const plan = data.trainingPlan;
 	const planJson = plan.planJson || {};
 	const programOverview = planJson.programOverview || {};
+	const sport = programOverview.sport || "basketball";
 	const monitoringStrategies = planJson.monitoringStrategies || [];
 	const progressionGuidelines = planJson.progressionGuidelines || [];
 	const recoveryRecommendations = planJson.recoveryRecommendations || [];
@@ -148,7 +149,10 @@ const TrainingPlanDetailPage: React.FC = () => {
 							</p>
 						</div>
 					)}
-					<TrainingPlanAssistantsList assistants={plan.assistants} />
+					<TrainingPlanAssistantsList
+						sport={sport}
+						assistants={plan.assistants}
+					/>
 					<TrainingPlanGoalsList goals={plan.goals} />
 					<TrainingPlanSessionLogsList sessionLogs={plan.sessionLogs} />
 				</div>

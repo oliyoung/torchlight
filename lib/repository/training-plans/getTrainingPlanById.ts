@@ -40,7 +40,7 @@ export const getTrainingPlanById = async (userId: string | null, id: string): Pr
     sourcePrompt: trainingPlan.source_prompt || null,
   };
 
-  logger.info({ fetchedTrainingPlan }, "Successfully fetched training plan");
+  logger.info({}, "Successfully fetched training plan");
 
   return fetchedTrainingPlan;
 };
