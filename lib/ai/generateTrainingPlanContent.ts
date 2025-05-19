@@ -1,15 +1,16 @@
 import type { PubSub } from 'graphql-subscriptions';
 import type { TrainingPlan, Client, Goal, Assistant } from '@/lib/types';
-import { getTrainingPlanById } from "@/lib/repository/trainingPlan";
-import { updateTrainingPlan } from "@/lib/repository/trainingPlan";
-import { readFileSync } from 'fs';
+import { getTrainingPlanById } from "@/lib/repository/training-plans/getTrainingPlanById";
+import { updateTrainingPlan } from "@/lib/repository/training-plans/updateTrainingPlan";
+import { readFileSync } from 'node:fs';
+import { logger } from '../logger';
 
 // Ensure the correct PubSub event constant is used
 const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
 
 // Placeholder for AI generation logic
-async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: string; planJson: any }> {
-    logger.info("Simulating LLM call with prompt:", prompt);
+async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: string; planJson: unknown }> {
+    logger.info({ prompt }, "Simulating LLM call with prompt");
     // In a real implementation, this would call the AI provider (e.g., Anthropic SDK or MCP)
     // Based on the prompt, generate mock overview and planJson
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
@@ -77,7 +78,7 @@ export async function generateTrainingPlanContent(
     client: Client, // Accept Client object directly
     goals: Goal[] // Accept Goal objects directly
 ) {
-    logger.info(`Starting async generation for Training Plan ${trainingPlanId} for user ${userId}`);
+    logger.info({ trainingPlanId, userId }, "Starting async generation for Training Plan");
 
     // Need the pubsub instance from the context in route.ts
     // Temporarily import pubsub directly for the mock, though this is not ideal in production async jobs
@@ -86,7 +87,7 @@ export async function generateTrainingPlanContent(
         const { pubsub: importedPubsub } = await import("@/app/api/graphql/route");
         pubsub = importedPubsub;
     } catch (e) {
-        console.error("Failed to import pubsub in async job:", e);
+        logger.error({ e }, "Failed to import pubsub in async job");
         return; // Cannot proceed without pubsub
     }
 
@@ -96,17 +97,16 @@ export async function generateTrainingPlanContent(
         const initialTrainingPlan = await getTrainingPlanById(trainingPlanId); // Still need this for plan-specific fields if any
 
         if (!initialTrainingPlan) {
-            console.error(`Training plan ${trainingPlanId} not found.`);
+            logger.error({ trainingPlanId }, "Training plan not found");
             return; // Cannot proceed if the plan itself is not found
         }
 
         // Use the passed-in client and goals data directly
         const clientData = client;
         const goalsData = goals;
-
         // Check if client or goals data is missing (should ideally be handled by the caller)
-        if (!clientData || goalsData.length !== initialTrainingPlan.goalIds?.length) { // Check if the number of goals matches what was requested initially
-            console.error(`Invalid data passed for training plan ${trainingPlanId}. Client or goals missing/mismatch.`);
+        if (!clientData || goalsData.length !== initialTrainingPlan.goals?.length) { // Check if the number of goals matches what was requested initially
+            logger.error({ trainingPlanId }, "Invalid data passed for training plan. Client or goals missing/mismatch.");
             // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event
             return;
         }
@@ -126,31 +126,42 @@ export async function generateTrainingPlanContent(
         const { overview, planJson } = await callLLMForTrainingPlan(prompt);
 
         // 4. Prepare data for update
+        const aiTitle = (planJson as any)?.programOverview?.title || '';
         const updateData = {
+            title: aiTitle,
             overview: overview,
             planJson: planJson,
             generatedBy: "Mock AI Service", // Indicate source
             sourcePrompt: prompt,
             // Add any other fields to update, e.g., status to 'generated'
         };
-
         // 5. Update the training plan record in the database
-        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, updateData);
+        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, {
+            ...updateData,
+            planJson: JSON.parse(JSON.stringify(updateData.planJson)) // Convert unknown to JSON type
+        });
 
         if (updatedTrainingPlan) {
             logger.info(`Training plan ${trainingPlanId} updated successfully.`);
             // 6. Publish update via PubSub
             // Include clientId in the payload for subscription filtering
-            pubsub.publish(TRAINING_PLAN_GENERATED, { trainingPlanGenerated: updatedTrainingPlan, clientId: updatedTrainingPlan.clientId });
-            logger.info(`Published update for training plan ${trainingPlanId}.`);
+            if (updatedTrainingPlan.client?.id) {
+                pubsub.publish(TRAINING_PLAN_GENERATED, {
+                    trainingPlanGenerated: updatedTrainingPlan,
+                    clientId: updatedTrainingPlan.client.id
+                });
+                logger.info(`Published update for training plan ${trainingPlanId}.`);
+            } else {
+                logger.warn({ trainingPlanId }, "Cannot publish update - client ID is missing");
+            }
         } else {
-            console.error(`Failed to update training plan ${trainingPlanId} after generation.`);
+            logger.error({ trainingPlanId }, "Failed to update training plan after generation.");
             // Optionally publish a generation failed event
             // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event with relevant ID/error
         }
 
     } catch (error) {
-        console.error(`Error during async training plan generation for ${trainingPlanId}:`, error);
+        logger.error({ error, trainingPlanId }, "Error during async training plan generation");
         // Optionally publish an error state via PubSub
         // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event with relevant ID/error
     }

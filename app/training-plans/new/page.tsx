@@ -21,7 +21,6 @@ mutation CreateTrainingPlan($input: CreateTrainingPlanInput!) {
 `;
 
 const trainingPlanSchema = z.object({
-	title: z.string().min(1, "Title is required"),
 	clientId: z.string().min(1, "Client ID is required"),
 });
 
@@ -44,7 +43,6 @@ const NewTrainingPlanForm: React.FC = () => {
 		setSuccess(false);
 		const { error } = await executeMutation({
 			input: {
-				title: values.title,
 				clientId: values.clientId,
 			},
 		});
@@ -64,20 +62,6 @@ const NewTrainingPlanForm: React.FC = () => {
 			{success && (
 				<SuccessMessage message="Training plan created successfully!" />
 			)}
-			<div>
-				<label
-					htmlFor="title"
-					className="block text-sm font-medium text-gray-700 mb-1"
-				>
-					Title
-				</label>
-				<Input id="title" {...register("title")} />
-				{errors.title && (
-					<span className="text-xs text-destructive">
-						{errors.title.message}
-					</span>
-				)}
-			</div>
 			<div>
 				<Controller
 					name="clientId"

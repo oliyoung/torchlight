@@ -1,7 +1,6 @@
-import type { CreateTrainingPlanInput, TrainingPlan, JSON, Client, Goal } from "@/lib/types";
+import type { CreateTrainingPlanInput, TrainingPlan, Client, Goal } from "@/lib/types";
 
 // TODO: Implement mock training plan generation logic
-import { generateMockTrainingPlan } from "@/lib/ai/generateTrainingPlan";
 import { generateTrainingPlanContent } from "@/lib/ai/generateTrainingPlanContent"; // Import the async generator
 
 // Import repository functions
@@ -9,22 +8,22 @@ import { getClientById } from "@/lib/repository/client";
 import { getGoalsByIds } from "@/lib/repository/goal";
 
 // TODO: Implement saving training plan to the database
-import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/trainingPlan";
-import { getAssistants } from "@/lib/repository";
-import { getAssistantsByIds } from "@/lib/repository/assistant";
+import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/training-plans/createTrainingPlan";
+import { logger } from "@/lib/logger";
+import type { GraphQLContext } from "../route";
 
 export const createTrainingPlan = async (
     _: unknown,
     { input }: { input: CreateTrainingPlanInput },
-    context: any
+    context: GraphQLContext
 ): Promise<TrainingPlan> => {
-    logger.info("Creating training plan with input:", input);
+    logger.info({ input }, "Creating training plan with input");
 
     // 1. Prepare initial data (without generated content)
     const initialTrainingPlanData: CreateTrainingPlanInput & { overview: string; planJson: JSON } = {
         ...input,
         overview: "", // Initialize with empty or placeholder
-        planJson: { input: {}, output: {} } as JSON, // Initialize with empty object matching JSON type structure
+        planJson: { input: {}, output: {} } as unknown as JSON, // Initialize with empty object matching JSON type structure
     };
 
     // 2. Save initial training plan to repository

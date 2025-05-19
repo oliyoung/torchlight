@@ -167,7 +167,6 @@ input AISummarizeSessionLogInput {
 
 input CreateTrainingPlanInput {
 	clientId: ID!
-	title: String!
 	assistantIds: [ID!]
 	goalIds: [ID!]
 }

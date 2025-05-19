@@ -1,14 +1,5 @@
-import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
-import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "@/lib/types";
-
-// This file will now re-export functions from dedicated repository files.
-// All function definitions are being moved out of this file.
-
-export { createClient, getClients, getClientById } from "./client";
-export { getGoalById, getGoalsByClientId } from "./goal";
-export { getSessionLogsByClientId, getSessionLogById } from "./sessionLog";
-export { createTrainingPlan, getTrainingPlanById, getTrainingPlansByClientId, getTrainingPlans } from "./trainingPlan";
-export { getAssistants } from "./assistant";
+import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "../types";
+import { supabaseServiceRole } from "../supabase/serviceRoleClient";
 
 export async function getTrainingPlans(userId: string | null, clientId: string | null): Promise<TrainingPlan[]> {
   if (!userId) return [];
@@ -48,7 +39,7 @@ export async function createTrainingPlan(userId: string | null, input: Partial<T
   const { data, error } = await supabaseServiceRole
     .from('training_plans')
     .insert({
-      client_id: input.clientId,
+      client_id: input.client?.id,
       title: input.title,
       overview: input.overview,
     })

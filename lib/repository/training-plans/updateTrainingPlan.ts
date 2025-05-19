@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 export const updateTrainingPlan = async (
   userId: string | null,
   trainingPlanId: string,
-  data: { overview?: string; planJson?: JSON; generatedBy?: string | null; sourcePrompt?: string | null },
+  data: { title?: string; overview?: string; planJson?: JSON; generatedBy?: string | null; sourcePrompt?: string | null },
 ): Promise<TrainingPlan | null> => {
   logger.info({ data, trainingPlanId }, "Updating training plan");
 
@@ -28,15 +28,18 @@ export const updateTrainingPlan = async (
     return null;
   }
 
+  const updateFields: Record<string, unknown> = {
+    overview: data.overview,
+    plan_json: data.planJson, // Store JSON data directly
+    generated_by: data.generatedBy, // Optional: if you pass this from the resolver
+    source_prompt: data.sourcePrompt, // Optional: if you pass this from the resolver
+    // updated_at will be automatically managed by Supabase if configured
+  };
+  if (data.title !== undefined) updateFields.title = data.title;
+
   const { data: updatedPlan, error } = await supabaseServiceRole
     .from('training_plans')
-    .update({
-      overview: data.overview,
-      plan_json: data.planJson, // Store JSON data directly
-      generated_by: data.generatedBy, // Optional: if you pass this from the resolver
-      source_prompt: data.sourcePrompt, // Optional: if you pass this from the resolver
-      // updated_at will be automatically managed by Supabase if configured
-    })
+    .update(updateFields)
     .eq('id', trainingPlanId)
     .select()
     .single();

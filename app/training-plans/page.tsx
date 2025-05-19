@@ -14,7 +14,10 @@ const TrainingPlansQuery = `
 		trainingPlans {
 			id
 			title
-			clientId
+			client {
+				id
+				firstName
+			}
 			createdAt
 		}
 	}
@@ -49,7 +52,9 @@ function TrainingPlansList() {
 						{plan.title}
 					</Link>
 					<div className="text-xs text-muted-foreground">
-						Client ID: {plan.clientId}
+						<Link href={`/clients/${plan.client?.id}`}>
+							{plan.client?.firstName}
+						</Link>
 					</div>
 					<div className="text-xs text-muted-foreground">
 						Created: {new Date(plan.createdAt).toLocaleDateString()}

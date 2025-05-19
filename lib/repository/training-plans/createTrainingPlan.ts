@@ -15,7 +15,7 @@ export const createTrainingPlan = async (
     .insert([
       {
         client_id: data.clientId,
-        title: data.title,
+        title: '', // Set empty string for initial creation
         overview: data.overview,
         plan_json: data.planJson, // Store JSON data directly
         assistant_ids: data.assistantIds, // Assuming these are stored as an array type or JSONB
