@@ -2,10 +2,10 @@ import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { SessionLog, Client } from "@/lib/types";
 
 export async function getSessionLogsByClientId(userId: string | null, clientId: Client['id']): Promise<SessionLog[]> {
-    console.log('Fetching session logs for client ID:', clientId, 'for user:', userId);
+    logger.info('Fetching session logs for client ID:', clientId, 'for user:', userId);
 
     if (!userId) {
-        console.log('getSessionLogsByClientId: No user ID provided.');
+        logger.info('getSessionLogsByClientId: No user ID provided.');
         return [];
     }
 
@@ -19,7 +19,7 @@ export async function getSessionLogsByClientId(userId: string | null, clientId: 
         .single();
 
     if (!client) {
-        console.log(`Client with ID ${clientId} not found for user ${userId}, cannot fetch session logs.`);
+        logger.info(`Client with ID ${clientId} not found for user ${userId}, cannot fetch session logs.`);
         return []; // Return empty array if client not found or doesn't belong to user
     }
 
@@ -43,15 +43,15 @@ export async function getSessionLogsByClientId(userId: string | null, clientId: 
         // Assuming other fields like client and goals need resolving separately or are implicitly joined
     })) as SessionLog[]; // Type assertion
 
-    console.log(`Successfully fetched ${fetchedSessionLogs.length} session logs for client ID ${clientId} for user ${userId}.`);
+    logger.info(`Successfully fetched ${fetchedSessionLogs.length} session logs for client ID ${clientId} for user ${userId}.`);
     return fetchedSessionLogs;
 }
 
 export async function getSessionLogById(userId: string | null, sessionLogId: SessionLog['id']): Promise<SessionLog | null> {
-    console.log('Fetching session log by ID:', sessionLogId, 'for user:', userId);
+    logger.info('Fetching session log by ID:', sessionLogId, 'for user:', userId);
 
     if (!userId) {
-        console.log('getSessionLogById: No user ID provided.');
+        logger.info('getSessionLogById: No user ID provided.');
         return null;
     }
 
@@ -67,13 +67,13 @@ export async function getSessionLogById(userId: string | null, sessionLogId: Ses
     }
 
     if (!sessionLog) {
-        console.log(`Session log with ID ${sessionLogId} not found for user ${userId}.`);
+        logger.info(`Session log with ID ${sessionLogId} not found for user ${userId}.`);
         return null;
     }
 
     // Additional check to ensure the session log's client belongs to the user
     if (!sessionLog.client || sessionLog.client.user_id !== userId) {
-        console.log(`Session log with ID ${sessionLogId} does not belong to user ${userId}.`);
+        logger.info(`Session log with ID ${sessionLogId} does not belong to user ${userId}.`);
         return null; // Return null if the session log does not belong to the user
     }
 
@@ -91,6 +91,6 @@ export async function getSessionLogById(userId: string | null, sessionLogId: Ses
     // Remove the nested client object as it might not be expected directly in the SessionLog type in GraphQL
     delete (fetchedSessionLog as any).client;
 
-    console.log('Successfully fetched session log:', fetchedSessionLog);
+    logger.info('Successfully fetched session log:', fetchedSessionLog);
     return fetchedSessionLog;
 }

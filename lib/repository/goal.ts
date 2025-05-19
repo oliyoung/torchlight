@@ -2,10 +2,10 @@ import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { Goal, Client } from "@/lib/types";
 
 export async function getGoalById(userId: string | null, goalId: Goal['id']): Promise<Goal | null> {
-    console.log('Fetching goal by ID:', goalId, 'for user:', userId);
+    logger.info('Fetching goal by ID:', goalId, 'for user:', userId);
 
     if (!userId) {
-        console.log('getGoalById: No user ID provided.');
+        logger.info('getGoalById: No user ID provided.');
         return null;
     }
 
@@ -22,7 +22,7 @@ export async function getGoalById(userId: string | null, goalId: Goal['id']): Pr
     }
 
     if (!data) {
-        console.log(`Goal with ID ${goalId} not found for user ${userId}.`);
+        logger.info(`Goal with ID ${goalId} not found for user ${userId}.`);
         return null;
     }
 
@@ -35,15 +35,15 @@ export async function getGoalById(userId: string | null, goalId: Goal['id']): Pr
         // Assuming other fields like client and sessionLogs need resolving separately or are implicitly joined by Supabase
     } as Goal; // Type assertion for now, proper mapping might be needed
 
-    console.log('Successfully fetched goal:', fetchedGoal);
+    logger.info('Successfully fetched goal:', fetchedGoal);
     return fetchedGoal;
 }
 
 export async function getGoalsByClientId(userId: string | null, clientId: Client['id']): Promise<Goal[]> {
-    console.log('Fetching goals for client ID:', clientId, 'for user:', userId);
+    logger.info('Fetching goals for client ID:', clientId, 'for user:', userId);
 
     if (!userId) {
-        console.log('getGoalsByClientId: No user ID provided.');
+        logger.info('getGoalsByClientId: No user ID provided.');
         return [];
     }
 
@@ -57,7 +57,7 @@ export async function getGoalsByClientId(userId: string | null, clientId: Client
         .single();
 
     if (!client) {
-        console.log(`Client with ID ${clientId} not found for user ${userId}, cannot fetch goals.`);
+        logger.info(`Client with ID ${clientId} not found for user ${userId}, cannot fetch goals.`);
         return []; // Return empty array if client not found or doesn't belong to user
     }
 
@@ -80,21 +80,21 @@ export async function getGoalsByClientId(userId: string | null, clientId: Client
         // Assuming other fields like client and sessionLogs need resolving separately or are implicitly joined by Supabase
     })) as Goal[]; // Type assertion for now, proper mapping might be needed
 
-    console.log(`Successfully fetched ${fetchedGoals.length} goals for client ID ${clientId} for user ${userId}.`);
+    logger.info(`Successfully fetched ${fetchedGoals.length} goals for client ID ${clientId} for user ${userId}.`);
     return fetchedGoals;
 }
 
 // Function to get goals by a list of IDs
 export async function getGoalsByIds(userId: string | null, goalIds: string[]): Promise<Goal[]> {
-    console.log('Fetching goals by IDs:', goalIds, 'for user:', userId);
+    logger.info('Fetching goals by IDs:', goalIds, 'for user:', userId);
 
     if (!userId) {
-        console.log('getGoalsByIds: No user ID provided.');
+        logger.info('getGoalsByIds: No user ID provided.');
         return [];
     }
 
     if (goalIds.length === 0) {
-        console.log('getGoalsByIds: No goal IDs provided.');
+        logger.info('getGoalsByIds: No goal IDs provided.');
         return [];
     }
 
@@ -118,6 +118,6 @@ export async function getGoalsByIds(userId: string | null, goalIds: string[]): P
         // Assuming other fields like client and sessionLogs need resolving separately or are implicitly joined by Supabase
     })) as Goal[]; // Type assertion for now, proper mapping might be needed
 
-    console.log(`Successfully fetched ${fetchedGoals.length} goals by IDs ${goalIds} for user ${userId}.`);
+    logger.info(`Successfully fetched ${fetchedGoals.length} goals by IDs ${goalIds} for user ${userId}.`);
     return fetchedGoals;
 }

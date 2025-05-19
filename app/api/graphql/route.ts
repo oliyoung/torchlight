@@ -33,7 +33,7 @@ const { handleRequest } = createYoga<GraphQLContext>({
   }),
   context: async () => {
     // const { data: { user } } = await supabase.auth.getUser()
-    // console.log(user);
+    // logger.info(user);
     const user = { id: '123' }
     return ({ user, pubsub });
   },

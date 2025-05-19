@@ -1,9 +1,10 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 // Function to get a training plan by its ID
 export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | null> => {
-  console.log("Fetching training plan by ID:", id);
+  logger.info({ id }, "Fetching training plan by ID");
 
   const { data: trainingPlan, error } = await supabaseServiceRole
     .from('training_plans')
@@ -12,13 +13,13 @@ export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | nu
     .single();
 
   if (error) {
-    console.error(`Error fetching training plan with ID ${id}:`, error);
+    logger.error({ error, id }, "Error fetching training plan with ID");
     // Depending on error type, might throw or return null. Returning null for not found is common.
     return null;
   }
 
   if (!trainingPlan) {
-    console.log(`Training plan with ID ${id} not found.`);
+    logger.info({ id }, `Training plan with ID ${id} not found.`);
     return null;
   }
 
@@ -38,7 +39,7 @@ export const getTrainingPlanById = async (id: string): Promise<TrainingPlan | nu
     sourcePrompt: trainingPlan.source_prompt || null,
   };
 
-  console.log("Successfully fetched training plan:", fetchedTrainingPlan);
+  logger.info({ fetchedTrainingPlan }, "Successfully fetched training plan");
 
   return fetchedTrainingPlan;
 };

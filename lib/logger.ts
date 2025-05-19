@@ -7,3 +7,12 @@ export const logger = pino({
       ? { target: "pino-pretty" }
       : undefined,
 });
+
+/**
+ * Create a logger bound to a request context (e.g., requestId, userId).
+ * Usage: const reqLogger = createRequestLogger({ requestId, userId });
+ *        reqLogger.info("Something happened");
+ */
+export function createRequestLogger(context: Record<string, unknown>) {
+  return logger.child(context);
+}

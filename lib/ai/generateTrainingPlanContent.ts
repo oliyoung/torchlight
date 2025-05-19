@@ -9,7 +9,7 @@ const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
 
 // Placeholder for AI generation logic
 async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: string; planJson: any }> {
-    console.log("Simulating LLM call with prompt:", prompt);
+    logger.info("Simulating LLM call with prompt:", prompt);
     // In a real implementation, this would call the AI provider (e.g., Anthropic SDK or MCP)
     // Based on the prompt, generate mock overview and planJson
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
@@ -77,7 +77,7 @@ export async function generateTrainingPlanContent(
     client: Client, // Accept Client object directly
     goals: Goal[] // Accept Goal objects directly
 ) {
-    console.log(`Starting async generation for Training Plan ${trainingPlanId} for user ${userId}`);
+    logger.info(`Starting async generation for Training Plan ${trainingPlanId} for user ${userId}`);
 
     // Need the pubsub instance from the context in route.ts
     // Temporarily import pubsub directly for the mock, though this is not ideal in production async jobs
@@ -120,7 +120,7 @@ export async function generateTrainingPlanContent(
         // more sophisticated prompt engineering and data formatting.
         const prompt = `Based on the following prompt template and client data, generate a training plan:\n\n${promptTemplate}\n\nClient Data:\nName: ${clientData.firstName} ${clientData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
 
-        console.log("Generated Prompt:", prompt);
+        logger.info("Generated Prompt:", prompt);
 
         // 3. Simulate AI call
         const { overview, planJson } = await callLLMForTrainingPlan(prompt);
@@ -138,11 +138,11 @@ export async function generateTrainingPlanContent(
         const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, updateData);
 
         if (updatedTrainingPlan) {
-            console.log(`Training plan ${trainingPlanId} updated successfully.`);
+            logger.info(`Training plan ${trainingPlanId} updated successfully.`);
             // 6. Publish update via PubSub
             // Include clientId in the payload for subscription filtering
             pubsub.publish(TRAINING_PLAN_GENERATED, { trainingPlanGenerated: updatedTrainingPlan, clientId: updatedTrainingPlan.clientId });
-            console.log(`Published update for training plan ${trainingPlanId}.`);
+            logger.info(`Published update for training plan ${trainingPlanId}.`);
         } else {
             console.error(`Failed to update training plan ${trainingPlanId} after generation.`);
             // Optionally publish a generation failed event

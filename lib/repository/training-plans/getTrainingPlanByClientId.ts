@@ -1,9 +1,10 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 // Function to get all training plans for a specific client ID
 export const getTrainingPlansByClientId = async (clientId: string): Promise<TrainingPlan[]> => {
-  console.log("Fetching training plans for client ID:", clientId);
+  logger.info("Fetching training plans for client ID:", clientId);
 
   const { data: trainingPlans, error } = await supabaseServiceRole
     .from('training_plans')
@@ -31,7 +32,7 @@ export const getTrainingPlansByClientId = async (clientId: string): Promise<Trai
     sourcePrompt: plan.source_prompt || null,
   }));
 
-  console.log(`Successfully fetched ${fetchedTrainingPlans.length} training plans for client ID ${clientId}.`);
+  logger.info(`Successfully fetched ${fetchedTrainingPlans.length} training plans for client ID ${clientId}.`);
 
   return fetchedTrainingPlans;
 };

@@ -1,12 +1,12 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
-
+import { logger } from "@/lib/logger";
 
 // Function to get training plans for a specific user (and optionally client)
 export async function getTrainingPlans(userId: string | null, clientId: string | null): Promise<TrainingPlan[]> {
-  console.log('Fetching training plans for user:', userId, 'and client:', clientId);
+  logger.info({ userId, clientId }, 'Fetching training plans for user');
   if (!userId) {
-    console.log('getTrainingPlans: No user ID provided.');
+    logger.info({ clientId }, 'getTrainingPlans: No user ID provided.');
     return [];
   }
 
@@ -22,7 +22,7 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
   const { data, error } = await query;
 
   if (error) {
-    console.error(`Error fetching training plans for user ${userId}:`, error);
+    logger.error({ error, userId }, 'Error fetching training plans for user');
     return [];
   }
 
@@ -34,6 +34,6 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
     deletedAt: plan.deleted_at ? new Date(plan.deleted_at) : null, // Handle nullable deleted_at
   })) as TrainingPlan[]; // Type assertion
 
-  console.log(`Successfully fetched ${fetchedTrainingPlans.length} training plans for user ${userId}.`);
+  logger.info({ fetchedTrainingPlans }, 'Successfully fetched training plans');
   return fetchedTrainingPlans;
 }

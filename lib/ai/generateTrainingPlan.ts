@@ -3,7 +3,7 @@ export const generateMockTrainingPlan = (
     assistantIds: string[],
     goalIds: string[],
 ): { overview: string; planJson: Record<string, unknown> } => {
-    console.log("Generating mock training plan for:", { clientId, assistantIds, goalIds });
+    logger.info("Generating mock training plan for:", { clientId, assistantIds, goalIds });
 
     // Basic mock logic
     const overview = `Mock training plan generated for client ${clientId} based on goals ${goalIds.join(", ")} and assistants ${assistantIds.join(", ")}.`;

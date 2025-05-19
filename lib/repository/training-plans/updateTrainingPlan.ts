@@ -1,5 +1,6 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 // Function to update a training plan in the database
 export const updateTrainingPlan = async (
@@ -7,10 +8,10 @@ export const updateTrainingPlan = async (
   trainingPlanId: string,
   data: { overview?: string; planJson?: JSON; generatedBy?: string | null; sourcePrompt?: string | null },
 ): Promise<TrainingPlan | null> => {
-  console.log("Updating training plan", trainingPlanId, "with data:", data);
+  logger.info({ data, trainingPlanId }, "Updating training plan");
 
   if (!userId) {
-    console.log('updateTrainingPlan: No user ID provided.');
+    logger.info('updateTrainingPlan: No user ID provided.');
     return null;
   }
 
@@ -23,7 +24,7 @@ export const updateTrainingPlan = async (
     .single();
 
   if (!existingPlan) {
-    console.log(`Training plan with ID ${trainingPlanId} not found for user ${userId}, cannot update.`);
+    logger.info({ trainingPlanId, userId }, `Training plan with ID ${trainingPlanId} not found for user ${userId}, cannot update.`);
     return null;
   }
 
@@ -41,12 +42,12 @@ export const updateTrainingPlan = async (
     .single();
 
   if (error) {
-    console.error(`Error updating training plan ${trainingPlanId}:`, error);
+    logger.error({ error, trainingPlanId }, "Error updating training plan");
     throw new Error(`Failed to update training plan: ${error.message}`);
   }
 
   if (!updatedPlan) {
-    console.error(`Update operation for training plan ${trainingPlanId} returned no data.`);
+    logger.error({ trainingPlanId }, "Update operation for training plan returned no data.");
     return null; // Should not happen if there's no error, but good practice
   }
 
@@ -66,7 +67,7 @@ export const updateTrainingPlan = async (
     sourcePrompt: updatedPlan.source_prompt || null, // Handle potential nulls
   };
 
-  console.log("Successfully updated training plan:", trainingPlan);
+  logger.info({ trainingPlan }, "Successfully updated training plan");
 
   return trainingPlan;
 };

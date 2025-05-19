@@ -1,12 +1,13 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
+import { logger } from "@/lib/logger";
 
 // Function to create a new training plan in the database
 export const createTrainingPlan = async (
   userId: string | null,
   data: CreateTrainingPlanInput & { overview: string; planJson: JSON },
 ): Promise<TrainingPlan> => {
-  console.log("Saving training plan to database:", data);
+  logger.info({ data }, "Saving training plan to database");
 
   // Map the input data to the database schema (assuming snake_case)
   const { data: newTrainingPlan, error } = await supabaseServiceRole
@@ -28,7 +29,7 @@ export const createTrainingPlan = async (
     .single(); // Select the newly inserted row
 
   if (error) {
-    console.error("Error saving training plan:", error);
+    logger.error({ error }, "Error saving training plan");
     throw new Error(`Failed to create training plan: ${error.message}`);
   }
 
@@ -49,7 +50,7 @@ export const createTrainingPlan = async (
     sourcePrompt: newTrainingPlan.source_prompt || null, // Handle potential nulls
   };
 
-  console.log("Successfully saved training plan:", createdTrainingPlan);
+  logger.info({ createdTrainingPlan }, "Successfully saved training plan");
 
   return createdTrainingPlan;
 };

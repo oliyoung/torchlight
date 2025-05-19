@@ -18,7 +18,7 @@ export const createTrainingPlan = async (
     { input }: { input: CreateTrainingPlanInput },
     context: any
 ): Promise<TrainingPlan> => {
-    console.log("Creating training plan with input:", input);
+    logger.info("Creating training plan with input:", input);
 
     // 1. Prepare initial data (without generated content)
     const initialTrainingPlanData: CreateTrainingPlanInput & { overview: string; planJson: JSON } = {

@@ -17,7 +17,7 @@ async function main() {
     const sql = readFileSync(join(__dirname, '../fixtures.sql'), 'utf-8');
     try {
         await client.query(sql);
-        console.log('Database seeded successfully.');
+        logger.info('Database seeded successfully.');
     } catch (err) {
         console.error('Error seeding database:', err);
     } finally {

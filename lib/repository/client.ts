@@ -63,7 +63,7 @@ export async function getClientById(userId: string | null, clientId: Client['id'
     }
 
     if (!data) {
-        console.log(`Client with ID ${clientId} not found for user ${userId}.`);
+        logger.info(`Client with ID ${clientId} not found for user ${userId}.`);
         return null;
     }
 

@@ -16,7 +16,7 @@ const Auth = () => {
 			password,
 		});
 		if (error) console.error("Error signing up:", error.message);
-		else console.log("User signed up:", user);
+		else logger.info("User signed up:", user);
 	};
 
 	const handleSignIn = async () => {
@@ -28,7 +28,7 @@ const Auth = () => {
 			password,
 		});
 		if (error) console.error("Error signing in:", error.message);
-		else console.log("User signed in:", user);
+		else logger.info("User signed in:", user);
 	};
 
 	return (

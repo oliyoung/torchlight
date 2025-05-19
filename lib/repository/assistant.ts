@@ -6,7 +6,7 @@ export async function getAssistantsByIds(ids: Assistant['id'][]): Promise<Assist
 }
 
 export async function getAssistants(input: AssistantsInput): Promise<Assistant[]> {
-    console.log('Fetching assistants with input:', input);
+    logger.info('Fetching assistants with input:', input);
 
     const { filter } = input ?? {};
     const { sport, role, strengths } = filter ?? {};
@@ -34,6 +34,6 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
         // Assuming promptTemplate and bio are returned directly
     })) as Assistant[]; // Type assertion
 
-    console.log(`Successfully fetched ${fetchedAssistants.length} assistants.`);
+    logger.info(`Successfully fetched ${fetchedAssistants.length} assistants.`);
     return fetchedAssistants;
 }
