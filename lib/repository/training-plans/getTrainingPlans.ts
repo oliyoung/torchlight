@@ -12,7 +12,7 @@ export async function getTrainingPlans(userId: string | null, clientId: string |
 
   let query = supabaseServiceRole
     .from('training_plans')
-    .select('*')
+    .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
     .eq('user_id', userId); // Filter by user ID
 
   if (clientId) {

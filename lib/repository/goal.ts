@@ -1,5 +1,6 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { Goal, Client } from "@/lib/types";
+import { logger } from "../logger";
 
 export async function getGoalById(userId: string | null, goalId: Goal['id']): Promise<Goal | null> {
     logger.info('Fetching goal by ID:', goalId, 'for user:', userId);
@@ -86,7 +87,7 @@ export async function getGoalsByClientId(userId: string | null, clientId: Client
 
 // Function to get goals by a list of IDs
 export async function getGoalsByIds(userId: string | null, goalIds: string[]): Promise<Goal[]> {
-    logger.info('Fetching goals by IDs:', goalIds, 'for user:', userId);
+    logger.info({ goalIds, userId }, 'Fetching goals by IDs');
 
     if (!userId) {
         logger.info('getGoalsByIds: No user ID provided.');

@@ -106,9 +106,7 @@ export async function generateTrainingPlanContent(
         const goalsData = goals;
         // Check if client or goals data is missing (should ideally be handled by the caller)
         if (!clientData || goalsData.length !== initialTrainingPlan.goals?.length) { // Check if the number of goals matches what was requested initially
-            logger.error({ trainingPlanId }, "Invalid data passed for training plan. Client or goals missing/mismatch.");
-            // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event
-            return;
+            logger.warn({ trainingPlanId }, "Invalid data passed for training plan. Client or goals missing/mismatch.");
         }
 
         // 2. Prepare the prompt

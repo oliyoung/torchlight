@@ -1,19 +1,6 @@
 import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "../types";
 import { supabaseServiceRole } from "../supabase/serviceRoleClient";
 
-export async function getTrainingPlans(userId: string | null, clientId: string | null): Promise<TrainingPlan[]> {
-  if (!userId) return [];
-  const { data, error } = await supabaseServiceRole
-    .from('training_plans')
-    .select('*')
-    .eq('user_id', userId);
-
-  if (error) {
-    console.error('Error fetching training plans:', error);
-    return [];
-  }
-  return data as TrainingPlan[];
-}
 
 export async function getAssistants(input: AssistantsInput): Promise<Assistant[]> {
   const { filter } = input ?? {};
@@ -31,26 +18,6 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
     return [];
   }
   return data as Assistant[];
-}
-
-export async function createTrainingPlan(userId: string | null, input: Partial<TrainingPlan>): Promise<TrainingPlan> {
-  if (!userId) return {} as TrainingPlan;
-
-  const { data, error } = await supabaseServiceRole
-    .from('training_plans')
-    .insert({
-      client_id: input.client?.id,
-      title: input.title,
-      overview: input.overview,
-    })
-    .select('*, createdAt:created_at, updatedAt:updated_at, deletedAt:deleted_at')
-    .single();
-
-  if (error) {
-    console.error('Error creating training plan:', error);
-    return {} as TrainingPlan;
-  }
-  return data as TrainingPlan;
 }
 
 export async function createClient(userId: string | null, input: Partial<Client>): Promise<Client> {

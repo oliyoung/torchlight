@@ -14,8 +14,8 @@ export const createTrainingPlan = async (
     .from('training_plans') // Assuming your table name is 'training_plans'
     .insert([
       {
+        user_id: userId,
         client_id: data.clientId,
-        overview: data.overview,
         plan_json: data.planJson, // Store JSON data directly
         // generated_by: data.generatedBy, // Optional: if you pass this from the resolver
         // source_prompt: data.sourcePrompt, // Optional: if you pass this from the resolver

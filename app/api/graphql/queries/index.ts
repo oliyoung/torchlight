@@ -1,6 +1,7 @@
-import { getClients, getClientById, getGoalsByClientId, getGoalById, getSessionLogsByClientId, getSessionLogById, getAssistants, getTrainingPlans } from "@/lib/repository";
+import { getClients, getClientById, getGoalsByClientId, getGoalById, getSessionLogsByClientId, getSessionLogById, getAssistants } from "@/lib/repository";
 import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../route";
+import { getTrainingPlans } from "@/lib/repository/training-plans/getTrainingPlans";
 
 export default {
   trainingPlans: async (_parent: unknown, args: { clientId: string }, context: GraphQLContext): Promise<TrainingPlan[]> =>
