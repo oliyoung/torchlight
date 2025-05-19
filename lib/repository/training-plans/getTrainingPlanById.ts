@@ -25,12 +25,9 @@ export const getTrainingPlanById = async (userId: string | null, id: string): Pr
     return null;
   }
 
-  const client = await getClientById(userId, trainingPlan.client_id);
-
   // Map the database response back to the GraphQL TrainingPlan type
   const fetchedTrainingPlan: TrainingPlan = {
     id: trainingPlan.id,
-    client,
     title: trainingPlan.title,
     overview: trainingPlan.overview,
     planJson: trainingPlan.plan_json,

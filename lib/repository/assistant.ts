@@ -1,5 +1,6 @@
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { Assistant, AssistantsInput } from "@/lib/types";
+import { logger } from "../logger";
 
 export async function getAssistantsByIds(ids: Assistant['id'][]): Promise<Assistant[]> {
     return []
@@ -36,4 +37,26 @@ export async function getAssistants(input: AssistantsInput): Promise<Assistant[]
 
     logger.info(`Successfully fetched ${fetchedAssistants.length} assistants.`);
     return fetchedAssistants;
+}
+
+export async function getAssistantsByTrainingPlanId(trainingPlanId: number): Promise<Assistant[]> {
+    const { data, error } = await supabaseServiceRole
+        .from('training_plan_assistants')
+        .select('assistant_id')
+        .eq('training_plan_id', trainingPlanId);
+    if (error) {
+        logger.error('Error fetching assistant IDs for training plan:', error);
+        return [];
+    }
+    const assistantIds = (data ?? []).map((row: { assistant_id: number }) => row.assistant_id);
+    if (assistantIds.length === 0) return [];
+    const { data: assistants, error: assistantsError } = await supabaseServiceRole
+        .from('assistants')
+        .select('*')
+        .in('id', assistantIds);
+    if (assistantsError) {
+        logger.error('Error fetching assistants:', assistantsError);
+        return [];
+    }
+    return (assistants ?? []) as Assistant[];
 }

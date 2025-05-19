@@ -122,3 +122,31 @@ export async function getGoalsByIds(userId: string | null, goalIds: string[]): P
     logger.info(`Successfully fetched ${fetchedGoals.length} goals by IDs ${goalIds} for user ${userId}.`);
     return fetchedGoals;
 }
+
+export async function getGoalsByTrainingPlanId(trainingPlanId: number): Promise<Goal[]> {
+    const { data, error } = await supabaseServiceRole
+        .from('training_plan_goals')
+        .select('goal_id')
+        .eq('training_plan_id', trainingPlanId);
+    if (error) {
+        logger.error('Error fetching goal IDs for training plan:', error);
+        return [];
+    }
+    const goalIds = (data ?? []).map((row: { goal_id: number }) => row.goal_id);
+    if (goalIds.length === 0) return [];
+    const { data: goals, error: goalsError } = await supabaseServiceRole
+        .from('goals')
+        .select('*')
+        .in('id', goalIds);
+    if (goalsError) {
+        logger.error('Error fetching goals:', goalsError);
+        return [];
+    }
+    // Map to Goal type as in getGoalsByIds
+    return (goals ?? []).map(goal => ({
+        ...goal,
+        createdAt: new Date(goal.created_at),
+        updatedAt: new Date(goal.updated_at),
+        deletedAt: goal.deleted_at ? new Date(goal.deleted_at) : null,
+    })) as Goal[];
+}

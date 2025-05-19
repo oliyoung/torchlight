@@ -7,6 +7,8 @@ import subscriptions from './subscriptions';
 import type { User } from '@supabase/supabase-js';
 import { getClientById } from "@/lib/repository/client";
 import { logger } from '@/lib/logger';
+import { getAssistantsByTrainingPlanId } from "@/lib/repository/assistant";
+import { getGoalsByTrainingPlanId } from "@/lib/repository/goal";
 
 export interface GraphQLContext extends YogaInitialContext {
   user: User | null;
@@ -31,7 +33,19 @@ const { handleRequest } = createYoga<GraphQLContext>({
       Subscription: {
         ...subscriptions,
       },
-
+      TrainingPlan: {
+        client: async (parent, _args, context) => {
+          const clientId = parent.client_id || parent.client?.id;
+          if (!clientId) return null;
+          return getClientById(context?.user?.id ?? null, clientId);
+        },
+        assistants: async (parent) => {
+          return getAssistantsByTrainingPlanId(Number(parent.id));
+        },
+        goals: async (parent) => {
+          return getGoalsByTrainingPlanId(Number(parent.id));
+        },
+      },
     }
   }),
   context: async () => {
