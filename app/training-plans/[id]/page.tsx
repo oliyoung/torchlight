@@ -4,13 +4,14 @@ import { useQuery } from "urql";
 import Breadcrumbs from "@/components/breadcrumbs";
 import { Heading } from "@/components/ui/heading";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { useParams } from "next/navigation";
 import { logger } from "@/lib/logger";
 import type { Assistant, Goal } from "@/lib/types";
 import Link from "next/link";
 import { TrainingPlanAssistantsList } from "@/components/training-plan-assistants-list";
 import { TrainingPlanGoalsList } from "@/components/training-plan-goals-list";
 import { TrainingPlanSessionLogsList } from "@/components/training-plan-session-logs-list";
+import { useStringParamId } from "@/hooks/use-string-param-id";
+import { Loading } from "@/components/ui/loading";
 
 const TrainingPlanQuery = `
   query TrainingPlan($id: ID!) {
@@ -43,13 +44,7 @@ const TrainingPlanQuery = `
 `;
 
 const TrainingPlanDetailPage: React.FC = () => {
-	const params = useParams();
-	const id =
-		typeof params.id === "string"
-			? params.id
-			: Array.isArray(params.id)
-				? params.id[0]
-				: "";
+	const id = useStringParamId();
 	const [{ data, fetching, error }] = useQuery({
 		query: TrainingPlanQuery,
 		variables: { id },
@@ -57,8 +52,8 @@ const TrainingPlanDetailPage: React.FC = () => {
 	});
 
 	if (!id) return <ErrorMessage message="No training plan ID provided." />;
-	if (fetching) return <div className="p-4">Loading training plan...</div>;
-	logger.info({ data }, "Training plan data");
+	if (fetching) return <Loading message="Loading training plan..." />;
+
 	if (error || !data?.trainingPlan) {
 		logger.error({ error }, "Training plan not found");
 		return (
