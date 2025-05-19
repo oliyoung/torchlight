@@ -126,7 +126,7 @@ export async function generateTrainingPlanContent(
         const { overview, planJson } = await callLLMForTrainingPlan(prompt);
 
         // 4. Prepare data for update
-        const aiTitle = (planJson as any)?.programOverview?.title || '';
+        const aiTitle = (planJson as unknown as { programOverview: { title: string } })?.programOverview?.title || '';
         const updateData = {
             title: aiTitle,
             overview: overview,

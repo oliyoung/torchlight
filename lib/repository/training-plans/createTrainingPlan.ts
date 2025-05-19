@@ -15,12 +15,8 @@ export const createTrainingPlan = async (
     .insert([
       {
         client_id: data.clientId,
-        title: '', // Set empty string for initial creation
         overview: data.overview,
         plan_json: data.planJson, // Store JSON data directly
-        assistant_ids: data.assistantIds, // Assuming these are stored as an array type or JSONB
-        goal_ids: data.goalIds, // Assuming these are stored as an array type or JSONB
-        // Supabase often auto-manages created_at, updated_at, id
         // generated_by: data.generatedBy, // Optional: if you pass this from the resolver
         // source_prompt: data.sourcePrompt, // Optional: if you pass this from the resolver
       },
@@ -31,6 +27,29 @@ export const createTrainingPlan = async (
   if (error) {
     logger.error({ error }, "Error saving training plan");
     throw new Error(`Failed to create training plan: ${error.message}`);
+  }
+
+  // Insert into join tables for assistants and goals
+  const trainingPlanId = newTrainingPlan.id;
+  if (data.assistantIds && data.assistantIds.length > 0) {
+    await supabaseServiceRole
+      .from('training_plan_assistants')
+      .insert(
+        data.assistantIds.map((assistantId) => ({
+          training_plan_id: trainingPlanId,
+          assistant_id: assistantId,
+        }))
+      );
+  }
+  if (data.goalIds && data.goalIds.length > 0) {
+    await supabaseServiceRole
+      .from('training_plan_goals')
+      .insert(
+        data.goalIds.map((goalId) => ({
+          training_plan_id: trainingPlanId,
+          goal_id: goalId,
+        }))
+      );
   }
 
   // Map the database response back to the GraphQL TrainingPlan type (assuming camelCase in GraphQL)
