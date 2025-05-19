@@ -18,8 +18,6 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
-export type JSON = Scalars['JSON'];
-
 export type AiAnalyzeProgressInput = {
   clientId: Scalars['ID']['input'];
   endDate: Scalars['DateTime']['input'];
@@ -338,12 +336,12 @@ export type SubscriptionTrainingPlanGeneratedArgs = {
 
 export type TrainingPlan = {
   __typename?: 'TrainingPlan';
-  assistantIds?: Maybe<Array<Scalars['ID']['output']>>;
-  clientId: Scalars['ID']['output'];
+  assistants?: Maybe<Array<Assistant>>;
+  client?: Maybe<Client>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
-  goalIds?: Maybe<Array<Scalars['ID']['output']>>;
+  goals: Array<Goal>;
   id: Scalars['ID']['output'];
   overview?: Maybe<Scalars['String']['output']>;
   planJson: Scalars['JSON']['output'];
@@ -628,12 +626,12 @@ export type SubscriptionResolvers<ContextType = GraphQLContext, ParentType exten
 };
 
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
-  assistantIds?: Resolver<Maybe<Array<ResolversTypes['ID']>>, ParentType, ContextType>;
-  clientId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  assistants?: Resolver<Maybe<Array<ResolversTypes['Assistant']>>, ParentType, ContextType>;
+  client?: Resolver<Maybe<ResolversTypes['Client']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  goalIds?: Resolver<Maybe<Array<ResolversTypes['ID']>>, ParentType, ContextType>;
+  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   overview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   planJson?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
