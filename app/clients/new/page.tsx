@@ -1,14 +1,16 @@
 "use client";
-import type * as React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "urql";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { Input } from "@/components/ui/input";
+import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type * as React from "react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
+import { useMutation } from "urql";
+import { z } from "zod";
 
 const CreateClientMutation = `
   mutation CreateClient($input: CreateClientInput!) {
@@ -20,6 +22,7 @@ const clientSchema = z.object({
 	firstName: z.string().min(1, "First name is required"),
 	lastName: z.string().min(1, "Last name is required"),
 	email: z.string().min(1, "Email is required").email("Invalid email address"),
+	sport: z.string().min(1, "Sport is required"),
 	tags: z.string().optional(),
 	notes: z.string().optional(),
 	birthday: z.string().optional(),
@@ -32,6 +35,7 @@ const NewClientForm: React.FC = () => {
 		register,
 		handleSubmit,
 		reset,
+		control,
 		formState: { errors },
 	} = useForm<FormValues>({
 		resolver: zodResolver(clientSchema),
@@ -52,6 +56,7 @@ const NewClientForm: React.FC = () => {
 				firstName: values.firstName,
 				lastName: values.lastName,
 				email: values.email,
+				sport: values.sport,
 				tags: tagsArray,
 				notes: values.notes || "",
 				birthday: values.birthday || "",
@@ -128,6 +133,20 @@ const NewClientForm: React.FC = () => {
 						{errors.email.message}
 					</span>
 				)}
+			</div>
+			<div>
+				<Controller
+					name="sport"
+					control={control}
+					render={({ field }) => (
+						<SportSelect
+							label="Primary Sport"
+							value={field.value}
+							onChange={field.onChange}
+							error={errors.sport?.message}
+						/>
+					)}
+				/>
 			</div>
 			<div>
 				<label

@@ -28,6 +28,7 @@ type Client {
 	email: String!
 	tags: [String!]
 	notes: String
+	sport: String!
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	deletedAt: DateTime
@@ -122,6 +123,7 @@ input CreateClientInput {
 	email: String!
 	tags: [String!]
 	notes: String
+	sport: String!
 }
 
 input UpdateClientInput {
@@ -130,6 +132,7 @@ input UpdateClientInput {
 	email: String
 	tags: [String!]
 	notes: String
+	sport: String
 }
 
 input CreateGoalInput {

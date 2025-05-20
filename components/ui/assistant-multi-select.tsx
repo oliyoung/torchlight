@@ -31,6 +31,7 @@ interface AssistantMultiSelectProps {
 	sport: string;
 	selectedAssistantIds: string[];
 	onChange: (assistantIds: string[]) => void;
+	strength?: string;
 	disabled?: boolean;
 	placeholder?: string;
 	error?: string;
@@ -38,8 +39,8 @@ interface AssistantMultiSelectProps {
 }
 
 const AssistantsBySportQuery = `
-  query AssistantsBySport($sport: String!) {
-    assistants(input: { filter: { sport: $sport } }) {
+  query AssistantsBySport($sport: String!, $strength: String) {
+    assistants(input: { filter: { sport: $sport, strengths: [$strength] } }) {
       id
       name
       sport
@@ -54,6 +55,7 @@ export function AssistantMultiSelect({
 	sport,
 	selectedAssistantIds,
 	onChange,
+	strength,
 	disabled = false,
 	placeholder = "Select assistants",
 	error,
@@ -65,7 +67,7 @@ export function AssistantMultiSelect({
 		assistants: Assistant[];
 	}>({
 		query: AssistantsBySportQuery,
-		variables: { sport },
+		variables: { sport, strength },
 		pause: !sport,
 	});
 

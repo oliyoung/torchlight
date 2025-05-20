@@ -1,5 +1,5 @@
 "use client";
-import Breadcrumbs from "@/components/breadcrumbs";
+import Breadcrumbs, { type BreadcrumbItemType } from "@/components/breadcrumbs";
 import { AssistantMultiSelect } from "@/components/ui/assistant-multi-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +12,15 @@ import {
 } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ErrorMessage } from "@/components/ui/error-message";
+import { GoalTitleSelect } from "@/components/ui/goal-title-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "urql";
 import { z } from "zod";
 
@@ -30,6 +30,7 @@ const ClientQuery = `
       id
       firstName
       lastName
+      sport
     }
   }
 `;
@@ -70,10 +71,9 @@ const UpdateGoalMutation = `
 const goalSchema = z.object({
 	title: z.string().min(1, "Title is required"),
 	description: z.string().optional(),
-	sport: z.string().min(1, "Sport is required"),
 	dueDate: z.date().optional(),
 	assistantIds: z.array(z.string()).optional(),
-	createTrainingPlan: z.boolean().default(true),
+	createTrainingPlan: z.boolean(),
 });
 
 type FormValues = z.infer<typeof goalSchema>;
@@ -110,10 +110,10 @@ export default function NewGoalPage() {
 		},
 	});
 
-	const selectedSport = watch("sport");
 	const createTrainingPlan = watch("createTrainingPlan");
+	const clientSport = clientData?.client?.sport || "";
 
-	const onSubmit = async (values: FormValues) => {
+	const onSubmit: SubmitHandler<FormValues> = async (values) => {
 		setSuccess(false);
 
 		try {
@@ -123,7 +123,7 @@ export default function NewGoalPage() {
 					clientId,
 					title: values.title,
 					description: values.description || "",
-					sport: values.sport,
+					sport: clientSport, // Always use the client's sport
 					dueDate: values.dueDate,
 					// Don't send training plan IDs yet as they don't exist
 				},
@@ -167,21 +167,31 @@ export default function NewGoalPage() {
 		? `for ${clientData.client.firstName} ${clientData.client.lastName}`
 		: "";
 
+	if (clientFetching) {
+		return <div className="container py-6">Loading client data...</div>;
+	}
+
+	if (clientError) {
+		return <div className="container py-6">Error loading client data</div>;
+	}
+
+	const breadcrumbItems: BreadcrumbItemType[] = [
+		{ href: "/clients", label: "Clients" },
+		{ href: `/clients/${clientId}`, label: clientName || "Client" },
+		{ href: "#", label: "New Goal", current: true },
+	];
+
 	return (
 		<div className="container py-6">
-			<Breadcrumbs
-				breadcrumbs={[
-					{ href: "/clients", label: "Clients" },
-					{ href: `/clients/${clientId}`, label: clientName || "Client" },
-					{ href: "#", label: "New Goal", current: true },
-				]}
-			/>
+			<div className="mb-4">
+				<Breadcrumbs breadcrumbs={breadcrumbItems} />
+			</div>
 
 			<Card className="max-w-2xl mx-auto mt-8">
 				<CardHeader>
 					<CardTitle>Create New Goal {clientName}</CardTitle>
 					<CardDescription>
-						Define a sport-specific goal and optionally create a supporting
+						Define a goal for {clientSport} and optionally create a supporting
 						training plan
 					</CardDescription>
 				</CardHeader>
@@ -202,18 +212,43 @@ export default function NewGoalPage() {
 						)}
 
 						<div className="space-y-2">
-							<Label htmlFor="title">Goal Title</Label>
-							<Input
-								id="title"
-								{...register("title")}
-								placeholder="E.g., Improve shooting accuracy"
+							<Controller
+								name="title"
+								control={control}
+								render={({ field }) => (
+									<GoalTitleSelect
+										label="Goal Title"
+										value={field.value}
+										onChange={field.onChange}
+										sport={clientSport}
+										error={errors.title?.message}
+										disabled={!clientSport}
+									/>
+								)}
 							/>
-							{errors.title && (
-								<span className="text-xs text-destructive">
-									{errors.title.message}
-								</span>
-							)}
 						</div>
+
+						{clientSport && createTrainingPlan && (
+							<div className="space-y-2">
+								<Controller
+									name="assistantIds"
+									control={control}
+									render={({ field }) => (
+										<AssistantMultiSelect
+											label="Select Sport-Specific Assistants"
+											sport={clientSport}
+											strength={watch("title")}
+											selectedAssistantIds={field.value || []}
+											onChange={field.onChange}
+											placeholder="Select assistants for this goal's training plan"
+										/>
+									)}
+								/>
+								<p className="text-xs text-muted-foreground">
+									Select at least one assistant specialized in this goal
+								</p>
+							</div>
+						)}
 
 						<div className="space-y-2">
 							<Label htmlFor="description">Description</Label>
@@ -222,21 +257,6 @@ export default function NewGoalPage() {
 								{...register("description")}
 								placeholder="Describe the goal in detail"
 								className="resize-none h-24"
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<Controller
-								name="sport"
-								control={control}
-								render={({ field }) => (
-									<SportSelect
-										label="Sport"
-										value={field.value}
-										onChange={field.onChange}
-										error={errors.sport?.message}
-									/>
-								)}
 							/>
 						</div>
 
@@ -271,30 +291,6 @@ export default function NewGoalPage() {
 								activities and exercises
 							</p>
 						</div>
-
-						{createTrainingPlan && selectedSport && (
-							<div className="space-y-2">
-								<Controller
-									name="assistantIds"
-									control={control}
-									render={({ field }) => (
-										<AssistantMultiSelect
-											label="Select Sport-Specific Assistants"
-											sport={selectedSport}
-											selectedAssistantIds={field.value || []}
-											onChange={field.onChange}
-											placeholder="Select assistants for this goal's training plan"
-										/>
-									)}
-								/>
-								{(field.value?.length || 0) === 0 && (
-									<p className="text-xs text-muted-foreground">
-										Select at least one assistant to help design this training
-										plan
-									</p>
-								)}
-							</div>
-						)}
 					</form>
 				</CardContent>
 				<CardFooter>
@@ -302,7 +298,10 @@ export default function NewGoalPage() {
 						type="submit"
 						form="new-goal-form"
 						disabled={
-							isSubmitting || goalResult.fetching || trainingPlanResult.fetching
+							isSubmitting ||
+							goalResult.fetching ||
+							trainingPlanResult.fetching ||
+							!clientSport
 						}
 						className="w-full"
 					>
