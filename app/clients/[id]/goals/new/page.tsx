@@ -19,7 +19,7 @@ import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "urql";
 import { z } from "zod";
@@ -173,7 +173,7 @@ export default function NewGoalPage() {
 				breadcrumbs={[
 					{ href: "/clients", label: "Clients" },
 					{ href: `/clients/${clientId}`, label: clientName || "Client" },
-					{ href: `#`, label: "New Goal", current: true },
+					{ href: "#", label: "New Goal", current: true },
 				]}
 			/>
 

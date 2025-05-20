@@ -6,8 +6,8 @@ import { DayPicker } from "react-day-picker";
 import { cn } from "../../lib/utils";
 
 export function Calendar({
-	className,
-	classNames,
+	className = "",
+	classNames = {},
 	showOutsideDays = true,
 	...props
 }) {
@@ -15,6 +15,7 @@ export function Calendar({
 		<DayPicker
 			showOutsideDays={showOutsideDays}
 			className={cn("p-3", className)}
+			classNames={classNames}
 			{...props}
 		/>
 	);
