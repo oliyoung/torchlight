@@ -108,7 +108,7 @@ export class GoalRepository extends EntityRepository<Goal> {
    */
   async createGoal(
     userId: string | null,
-    input: CreateGoalInput,
+    input: CreateGoalInput & { trainingPlanIds?: string[] },
   ): Promise<Goal | null> {
     if (!userId) return null;
 
@@ -157,7 +157,7 @@ export class GoalRepository extends EntityRepository<Goal> {
 
     try {
       // Map the input fields to our database schema
-      const dbGoal: Record<string, any> = {};
+      const dbGoal: Record<string, unknown> = {};
 
       if (input.title !== undefined) dbGoal.title = input.title;
       if (input.description !== undefined) dbGoal.description = input.description;
@@ -173,7 +173,7 @@ export class GoalRepository extends EntityRepository<Goal> {
       // If we have training plan IDs and the goal was updated successfully
       if (updatedGoal && input.trainingPlanIds !== undefined) {
         // Replace all training plan relationships
-        await this.replaceTrainingPlans(goalId, input.trainingPlanIds);
+        await this.replaceTrainingPlans(goalId, input.trainingPlanIds || []);
       }
 
       return updatedGoal;
