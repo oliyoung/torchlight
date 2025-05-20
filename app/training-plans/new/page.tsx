@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/card";
 import { ClientCombobox } from "@/components/ui/client-combobox";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Heading } from "@/components/ui/heading";
+import { GoalMultiSelect } from "@/components/ui/goal-multi-select";
 import { Loading } from "@/components/ui/loading";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import type * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { useMutation, useQuery } from "urql";
@@ -35,12 +35,30 @@ const ClientQuery = `
       id
       firstName
       lastName
+      goals {
+        id
+        title
+        description
+        status
+      }
+    }
+  }
+`;
+
+const ClientGoalsQuery = `
+  query ClientGoals($clientId: ID!) {
+    goals(clientId: $clientId) {
+      id
+      title
+      description
+      status
     }
   }
 `;
 
 const trainingPlanSchema = z.object({
 	clientId: z.string().min(1, "Client ID is required"),
+	goalIds: z.array(z.string()).optional(),
 });
 
 type FormValues = z.infer<typeof trainingPlanSchema>;
@@ -53,23 +71,38 @@ const NewTrainingPlanForm: React.FC = () => {
 	const [{ data: clientData, fetching: clientFetching, error: clientError }] =
 		useQuery({
 			query: ClientQuery,
-			variables: { id: clientId },
+			variables: { id: clientId || "" },
 			pause: !clientId,
 		});
+
+	const selectedClientIdRef = useRef<string | null>(clientId);
+	const [{ data: goalsData, fetching: goalsFetching }] = useQuery({
+		query: ClientGoalsQuery,
+		variables: { clientId: selectedClientIdRef.current || "" },
+	});
 
 	const {
 		register,
 		handleSubmit,
 		reset,
 		setValue,
+		watch,
 		formState: { errors, isSubmitting },
 		control,
 	} = useForm<FormValues>({
 		resolver: zodResolver(trainingPlanSchema),
 		defaultValues: {
 			clientId: clientId || "",
+			goalIds: [],
 		},
 	});
+
+	const selectedClientId = watch("clientId");
+
+	// Update the ref when selectedClientId changes
+	useEffect(() => {
+		selectedClientIdRef.current = selectedClientId;
+	}, [selectedClientId]);
 
 	// Set client ID from query param if it exists
 	useEffect(() => {
@@ -86,6 +119,7 @@ const NewTrainingPlanForm: React.FC = () => {
 		const { data, error } = await executeMutation({
 			input: {
 				clientId: values.clientId,
+				goalIds: values.goalIds || [],
 			},
 		});
 
@@ -102,6 +136,10 @@ const NewTrainingPlanForm: React.FC = () => {
 	const clientName = clientData?.client
 		? `for ${clientData.client.firstName} ${clientData.client.lastName}`
 		: "";
+
+	// Get client's goals
+	const goals = goalsData?.goals || [];
+	const isLoadingGoals = !!selectedClientId && goalsFetching;
 
 	if (clientFetching && clientId) {
 		return <Loading message="Loading client information..." />;
@@ -138,13 +176,47 @@ const NewTrainingPlanForm: React.FC = () => {
 								<ClientCombobox
 									label="Client"
 									value={field.value}
-									onChange={field.onChange}
+									onChange={(value) => {
+										field.onChange(value);
+										// Reset goals when client changes
+										setValue("goalIds", []);
+									}}
 									error={errors.clientId?.message}
 									disabled={!!clientId} // Disable if clientId is provided in URL
 								/>
 							)}
 						/>
 					</div>
+
+					{selectedClientId && (
+						<div>
+							<Controller
+								name="goalIds"
+								control={control}
+								render={({ field }) => (
+									<GoalMultiSelect
+										label="Client Goals"
+										goals={goals}
+										selectedGoalIds={field.value || []}
+										onChange={field.onChange}
+										placeholder="Select client goals to include"
+										disabled={isLoadingGoals}
+										error={errors.goalIds?.message}
+									/>
+								)}
+							/>
+							{isLoadingGoals && (
+								<p className="text-sm text-muted-foreground mt-2">
+									Loading client goals...
+								</p>
+							)}
+							{!isLoadingGoals && goals.length === 0 && (
+								<p className="text-sm text-muted-foreground mt-2">
+									This client has no goals yet
+								</p>
+							)}
+						</div>
+					)}
 				</form>
 			</CardContent>
 			<CardFooter>
