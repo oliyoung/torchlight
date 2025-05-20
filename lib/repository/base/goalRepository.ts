@@ -1,11 +1,11 @@
-import { logger } from "@/lib/logger";
+import { logger } from "../../../lib/logger";
 import type {
   Client,
   CreateGoalInput,
   Goal,
   UpdateGoalInput,
-} from "@/lib/types";
-import { GoalStatus } from "@/lib/types";
+} from "../../../lib/types";
+import { GoalStatus } from "../../../lib/types";
 import { type EntityMapping, EntityRepository } from "./entityRepository";
 import { RelationRepository } from "./relationRepository";
 
