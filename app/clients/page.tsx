@@ -1,17 +1,18 @@
 "use client";
-import React from "react";
-import { useQuery } from "urql";
 import Breadcrumbs from "@/components/breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
 import type { Client } from "@/lib/types";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
+import React from "react";
+import { useQuery } from "urql";
 const ClientsQuery = `
 	query {
 		clients {
 			id
+			sport
 			firstName
 			lastName
 			email
@@ -41,7 +42,7 @@ function ClientsList() {
 					>
 						{client.firstName} {client.lastName}
 					</Link>
-					<div className="text-xs text-muted-foreground">{client.email}</div>
+					<p className="text-xs text-muted-foreground">{client.sport}</p>
 				</div>
 			))}
 		</div>
