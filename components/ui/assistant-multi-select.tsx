@@ -3,7 +3,9 @@ import { Check, ChevronsUpDown, X } from "lucide-react";
 import * as React from "react";
 import { useQuery } from "urql";
 
-import { Button } from "@/components/ui/button";
+import { cn } from "../../lib/utils";
+import { Badge } from "./badge";
+import { Button } from "./button";
 import {
 	Command,
 	CommandEmpty,
@@ -11,15 +13,9 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from "@/components/ui/command";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { Badge } from "./badge";
+} from "./command";
 import { Label } from "./label";
+import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { ScrollArea } from "./scroll-area";
 
 interface Assistant {
