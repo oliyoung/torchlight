@@ -31,12 +31,10 @@ function TrainingPlansList() {
 	});
 
 	if (fetching) return <div className="p-4">Loading training plans...</div>;
-	if (error)
-		return (
-			<ErrorMessage
-				message={`Error loading training plans: ${error.message}`}
-			/>
-		);
+	if (error) {
+		logger.error({ error, data }, "Training plan not found");
+		return <ErrorMessage message={`Error loading training plans`} />;
+	}
 
 	logger.info({ data }, "Training plans data");
 

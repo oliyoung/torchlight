@@ -1,11 +1,15 @@
 import type { Client } from "@/lib/types";
 import type { GraphQLContext } from "../route";
-import { createClient as createClientInRepo } from "@/lib/repository";
+import { clientRepository } from "@/lib/repository";
 
 export const createClient = async (
     _: unknown,
     args: { input: Partial<Client> },
     context: GraphQLContext
 ): Promise<Client> => {
-    return createClientInRepo(context?.user?.id ?? null, args.input);
+    const client = await clientRepository.createClient(context?.user?.id ?? null, args.input);
+    if (!client) {
+        throw new Error("Failed to create client");
+    }
+    return client;
 };

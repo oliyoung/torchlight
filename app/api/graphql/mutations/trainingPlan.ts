@@ -3,12 +3,8 @@ import type { CreateTrainingPlanInput, TrainingPlan, Client, Goal } from "@/lib/
 // TODO: Implement mock training plan generation logic
 import { generateTrainingPlanContent } from "@/lib/ai/generateTrainingPlanContent"; // Import the async generator
 
-// Import repository functions
-import { getClientById } from "@/lib/repository/client";
-import { getGoalsByIds } from "@/lib/repository/goal";
-
-// TODO: Implement saving training plan to the database
-import { createTrainingPlan as createTrainingPlanInRepo } from "@/lib/repository/training-plans/createTrainingPlan";
+// Import repository instances
+import { clientRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";
 import { logger } from "@/lib/logger";
 import type { GraphQLContext } from "../route";
 
@@ -27,7 +23,7 @@ export const createTrainingPlan = async (
     };
 
     // 2. Save initial training plan to repository
-    const newTrainingPlan = await createTrainingPlanInRepo(context?.user?.id ?? null, initialTrainingPlanData);
+    const newTrainingPlan = await trainingPlanRepository.createTrainingPlan(context?.user?.id ?? null, initialTrainingPlanData);
 
     // Check if training plan was successfully created
     if (!newTrainingPlan || !newTrainingPlan.id) {
@@ -35,8 +31,8 @@ export const createTrainingPlan = async (
     }
 
     // 3. Fetch client and goals data needed for content generation
-    const client = await getClientById(context?.user?.id ?? null, input.clientId);
-    const goals = await getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
+    const client = await clientRepository.getClientById(context?.user?.id ?? null, input.clientId);
+    const goals = await goalRepository.getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
 
     // Basic validation: Ensure client is found and all requested goals were found
     if (!client || goals.length !== (input.goalIds ?? []).length) {

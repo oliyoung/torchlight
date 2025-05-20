@@ -1,4 +1,4 @@
-import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -340,7 +340,7 @@ export type TrainingPlan = {
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
-  goals: Array<Goal>;
+  goals?: Maybe<Array<Goal>>;
   id: Scalars['ID']['output'];
   overview?: Maybe<Scalars['String']['output']>;
   planJson: Scalars['JSON']['output'];
@@ -630,7 +630,7 @@ export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType exten
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
+  goals?: Resolver<Maybe<Array<ResolversTypes['Goal']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   overview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   planJson?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;

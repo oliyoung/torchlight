@@ -53,9 +53,9 @@ const TrainingPlanDetailPage: React.FC = () => {
 
 	if (!id) return <ErrorMessage message="No training plan ID provided." />;
 	if (fetching) return <Loading message="Loading training plan..." />;
-
+	logger.info({ data }, "Training plan data");
 	if (error || !data?.trainingPlan) {
-		logger.error({ error }, "Training plan not found");
+		logger.error({ error, data }, "Training plan not found");
 		return (
 			<ErrorMessage
 				message={`Error loading training plan: ${error?.message}`}

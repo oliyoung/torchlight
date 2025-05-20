@@ -1,6 +1,15 @@
 {
 	"files": ["**/*.{ts,tsx,js,jsx}"],
 	"exclude": ["node_modules", "build", "dist"],
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"suspicious": {
+				"noExplicitAny": "off"
+			}
+		}
+	},
 	"rules": {
 		"semi": ["error", "always"],
 		"quotes": ["error", "double"],

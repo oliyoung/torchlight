@@ -26,6 +26,14 @@ const ClientQuery = `
 			createdAt
 			updatedAt
 			deletedAt
+			trainingPlans {
+				id
+				title
+				overview
+				createdAt
+				updatedAt
+				deletedAt
+			}
 		}
 	}
 `;

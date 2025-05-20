@@ -1,9 +1,9 @@
 import type { PubSub } from 'graphql-subscriptions';
 import type { TrainingPlan, Client, Goal, Assistant } from '@/lib/types';
-import { getTrainingPlanById } from "@/lib/repository/training-plans/getTrainingPlanById";
-import { updateTrainingPlan } from "@/lib/repository/training-plans/updateTrainingPlan";
+import { trainingPlanRepository } from "@/lib/repository";
 import { readFileSync } from 'node:fs';
-import { logger } from '../logger';
+import { logger } from '@/lib/logger';
+import { pubsub } from '@/lib/pubsub';
 
 // Ensure the correct PubSub event constant is used
 const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
@@ -80,21 +80,10 @@ export async function generateTrainingPlanContent(
 ) {
     logger.info({ trainingPlanId, userId }, "Starting async generation for Training Plan");
 
-    // Need the pubsub instance from the context in route.ts
-    // Temporarily import pubsub directly for the mock, though this is not ideal in production async jobs
-    let pubsub: PubSub;
-    try {
-        const { pubsub: importedPubsub } = await import("@/app/api/graphql/route");
-        pubsub = importedPubsub;
-    } catch (e) {
-        logger.error({ e }, "Failed to import pubsub in async job");
-        return; // Cannot proceed without pubsub
-    }
-
     try {
         // 1. Fetch the initial training plan to get training plan specific data if needed
         // Note: Client and Goals are now passed in, no need to fetch them here
-        const initialTrainingPlan = await getTrainingPlanById(trainingPlanId); // Still need this for plan-specific fields if any
+        const initialTrainingPlan = await trainingPlanRepository.getTrainingPlanById(userId, trainingPlanId); // Still need this for plan-specific fields if any
 
         if (!initialTrainingPlan) {
             logger.error({ trainingPlanId }, "Training plan not found");
@@ -134,7 +123,7 @@ export async function generateTrainingPlanContent(
             // Add any other fields to update, e.g., status to 'generated'
         };
         // 5. Update the training plan record in the database
-        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, {
+        const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
             ...updateData,
             planJson: JSON.parse(JSON.stringify(updateData.planJson)) // Convert unknown to JSON type
         });

@@ -12,7 +12,7 @@ This README summarizes the core engineering conventions, context, and rules for 
 - **Authentication:** Supabase Auth. Only "Coach" role is implemented; "Client" and "Admin" roles will come after core features and AI integration.
 - **Environments:** Only local (development) and production. Supabase is always remote; use the provided connection string in `.env` as `DATABASE_URL`.
 - **UI:** Only use Shadcn UI and Tailwind CSS. No custom component libraries or other design systems. No Figma or brand guidelines yet.
-- **Performance:** Use React Server Components where possible. Minimize client-side state. Organize code under `/src/app` and `/src/components`.
+- **Performance:** Use React Server Components where possible. Minimize client-side state. Organize code with `/app` and `/components` at the root level.
 - **Testing:** Prefer E2E and integration tests (Playwright). Use Storybook for component-driven development. Use Jest and [Testing Library](https://testing-library.com/) for unit/component tests.
 - **Documentation:** Use `@context.mdc` for all architectural decisions and conventions. Add a `/docs` directory for feature-specific docs as needed. Use JSDoc/TSDoc in code. Keep all docs in-repo and markdown-based.
 - **Collaboration:** No strict branching/PR conventions yet. Document all decisions in `@context.mdc`.
