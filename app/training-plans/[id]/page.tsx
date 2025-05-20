@@ -2,12 +2,21 @@
 import Breadcrumbs from "@/components/breadcrumbs";
 import { TrainingPlanAssistantsList } from "@/components/training-plan-assistants-list";
 import { TrainingPlanGoalsList } from "@/components/training-plan-goals-list";
+import { Badge } from "@/components/ui/badge";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
 import { Loading } from "@/components/ui/loading";
 import { useStringParamId } from "@/lib/hooks/use-string-param-id";
 import { logger } from "@/lib/logger";
 import type { Assistant, Goal } from "@/lib/types";
+import { UserIcon } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useMutation, useQuery } from "urql";
@@ -163,7 +172,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 
 	if (!id) return <ErrorMessage message="No training plan ID provided." />;
 	if (fetching) return <Loading message="Loading training plan..." />;
-	logger.info({ data }, "Training plan data");
+
 	if (error || !data?.trainingPlan) {
 		logger.error({ error, data }, "Training plan not found");
 		return (
@@ -184,106 +193,202 @@ const TrainingPlanDetailPage: React.FC = () => {
 	return (
 		<>
 			<Breadcrumbs />
-			<Heading>{plan.title}</Heading>
-			<Heading level={2}>
-				<Link href={`/clients/${plan.client?.id}`}>
-					{plan.client?.firstName} {plan.client?.lastName}
-				</Link>
-			</Heading>
-
-			{/* Show update status if needed */}
-			{updateResult.fetching && (
-				<p className="text-sm text-muted-foreground">
-					Updating training plan...
-				</p>
-			)}
-			{updateResult.error && (
-				<ErrorMessage
-					message={`Error updating training plan: ${updateResult.error.message}`}
-				/>
-			)}
-
-			<div className="flex items-start justify-between">
-				<div>
-					{programOverview.title && (
-						<div className="mt-6">
-							<div className="mb-2">
-								<span className="font-medium">Duration:</span>{" "}
-								{programOverview.duration}
-							</div>
-							{programOverview.phases && (
-								<div className="mb-2">
-									<span className="font-medium">Phases:</span>{" "}
-									{programOverview.phases.join(", ")}
-								</div>
-							)}
-							{programOverview.equipment && (
-								<div className="mb-2">
-									<span className="font-medium">Equipment:</span>{" "}
-									{programOverview.equipment.join(", ")}
-								</div>
-							)}
-							{programOverview.expectedOutcomes && (
-								<div className="mb-2">
-									<span className="font-medium">Expected Outcomes:</span>{" "}
-									{programOverview.expectedOutcomes.join(", ")}
-								</div>
-							)}
-						</div>
-					)}
-
-					{monitoringStrategies.length > 0 && (
-						<div className="mb-2">
-							<Heading level={3}>Monitoring Strategies</Heading>
-							<ul className="list-disc list-inside text-sm">
-								{monitoringStrategies.map((item: string) => (
-									<li key={item}>{item}</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{progressionGuidelines.length > 0 && (
-						<div className="mb-2">
-							<Heading level={3}>Progression Guidelines</Heading>
-							<ul className="list-disc list-inside text-sm">
-								{progressionGuidelines.map((item: string) => (
-									<li key={item}>{item}</li>
-								))}
-							</ul>
-						</div>
-					)}
-					{recoveryRecommendations.length > 0 && (
-						<div className="mb-2">
-							<Heading level={3}>Recovery Recommendations</Heading>
-							<ul className="list-disc list-inside text-sm">
-								{recoveryRecommendations.map((item: string) => (
-									<li key={item}>{item}</li>
-								))}
-							</ul>
+			<div className="space-y-6">
+				<div className="space-y-2">
+					<Heading>{plan.title}</Heading>
+					{plan.client && (
+						<div className="flex items-center text-muted-foreground">
+							<UserIcon className="w-4 h-4 mr-1" />
+							<Link
+								href={`/clients/${plan.client.id}`}
+								className="text-primary hover:underline flex items-center ml-1"
+								aria-label={`View client profile: ${plan.client.firstName} ${plan.client.lastName}`}
+							>
+								{plan.client.firstName} {plan.client.lastName}
+							</Link>
 						</div>
 					)}
 				</div>
-				<div>
-					{plan.overview && (
-						<div>
+
+				{/* Status messages */}
+				{updateResult.fetching && (
+					<p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+						Updating training plan...
+					</p>
+				)}
+				{updateResult.error && (
+					<ErrorMessage
+						message={`Error updating training plan: ${updateResult.error.message}`}
+					/>
+				)}
+
+				{/* Overview section */}
+				{plan.overview && (
+					<Card>
+						<CardHeader>
+							<CardTitle>Overview</CardTitle>
+							<CardDescription>
+								<time dateTime={new Date(plan.createdAt).toISOString()}>
+									Created: {new Date(plan.createdAt).toLocaleDateString()}
+								</time>
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
 							<p>{plan.overview}</p>
-							<p className="text-xs text-muted-foreground">
-								{new Date(plan.createdAt).toLocaleDateString()}
-							</p>
-						</div>
-					)}
-					<TrainingPlanAssistantsList
-						sport={sport}
-						assistants={plan.assistants}
-						onAddAssistant={handleAddAssistant}
-						onRemoveAssistant={handleRemoveAssistant}
-					/>
-					<TrainingPlanGoalsList
-						goals={plan.goals}
-						clientId={plan.client?.id}
-						onAddGoal={handleAddGoal}
-						onRemoveGoal={handleRemoveGoal}
-					/>
+						</CardContent>
+					</Card>
+				)}
+
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+					{/* Program details column */}
+					<div className="lg:col-span-2 space-y-6">
+						{/* Program Overview */}
+						{programOverview.title && (
+							<Card>
+								<CardHeader>
+									<CardTitle>Program Details</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-4">
+									{programOverview.duration && (
+										<div>
+											<h3 className="font-medium text-sm mb-1">Duration</h3>
+											<p>{programOverview.duration}</p>
+										</div>
+									)}
+
+									{programOverview.phases &&
+										programOverview.phases.length > 0 && (
+											<div>
+												<h3 className="font-medium text-sm mb-1">Phases</h3>
+												<div className="flex flex-wrap gap-2">
+													{programOverview.phases.map((phase: string) => (
+														<Badge key={phase} variant="outline">
+															{phase}
+														</Badge>
+													))}
+												</div>
+											</div>
+										)}
+
+									{programOverview.equipment &&
+										programOverview.equipment.length > 0 && (
+											<div>
+												<h3 className="font-medium text-sm mb-1">Equipment</h3>
+												<div className="flex flex-wrap gap-2">
+													{programOverview.equipment.map((item: string) => (
+														<Badge key={item} variant="outline">
+															{item}
+														</Badge>
+													))}
+												</div>
+											</div>
+										)}
+
+									{programOverview.expectedOutcomes &&
+										programOverview.expectedOutcomes.length > 0 && (
+											<div>
+												<h3 className="font-medium text-sm mb-1">
+													Expected Outcomes
+												</h3>
+												<div className="flex flex-wrap gap-2">
+													{programOverview.expectedOutcomes.map(
+														(outcome: string) => (
+															<Badge key={outcome} variant="outline">
+																{outcome}
+															</Badge>
+														),
+													)}
+												</div>
+											</div>
+										)}
+								</CardContent>
+							</Card>
+						)}
+
+						{/* Implementation Guidelines */}
+						{(monitoringStrategies.length > 0 ||
+							progressionGuidelines.length > 0 ||
+							recoveryRecommendations.length > 0) && (
+							<Card>
+								<CardHeader>
+									<CardTitle>Implementation Guidelines</CardTitle>
+								</CardHeader>
+								<CardContent className="space-y-6">
+									{monitoringStrategies.length > 0 && (
+										<div>
+											<h3 className="font-medium mb-2">
+												Monitoring Strategies
+											</h3>
+											<ul className="list-disc list-inside text-sm space-y-1">
+												{monitoringStrategies.map((item: string) => (
+													<li key={`strategy-${item}`}>{item}</li>
+												))}
+											</ul>
+										</div>
+									)}
+
+									{progressionGuidelines.length > 0 && (
+										<div>
+											<h3 className="font-medium mb-2">
+												Progression Guidelines
+											</h3>
+											<ul className="list-disc list-inside text-sm space-y-1">
+												{progressionGuidelines.map((item: string) => (
+													<li key={`guideline-${item}`}>{item}</li>
+												))}
+											</ul>
+										</div>
+									)}
+
+									{recoveryRecommendations.length > 0 && (
+										<div>
+											<h3 className="font-medium mb-2">
+												Recovery Recommendations
+											</h3>
+											<ul className="list-disc list-inside text-sm space-y-1">
+												{recoveryRecommendations.map((item: string) => (
+													<li key={`recovery-${item}`}>{item}</li>
+												))}
+											</ul>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+						)}
+					</div>
+
+					{/* Assistants and Goals column */}
+					<div className="space-y-6">
+						{/* Assistants */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Coaching Assistants</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<TrainingPlanAssistantsList
+									sport={sport}
+									assistants={plan.assistants}
+									onAddAssistant={handleAddAssistant}
+									onRemoveAssistant={handleRemoveAssistant}
+								/>
+							</CardContent>
+						</Card>
+
+						{/* Goals */}
+						<Card>
+							<CardHeader>
+								<CardTitle>Goals</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<TrainingPlanGoalsList
+									goals={plan.goals}
+									clientId={plan.client?.id}
+									onAddGoal={handleAddGoal}
+									onRemoveGoal={handleRemoveGoal}
+								/>
+							</CardContent>
+						</Card>
+					</div>
 				</div>
 			</div>
 		</>
