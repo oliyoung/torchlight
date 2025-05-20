@@ -25,52 +25,73 @@ export const ClientTrainingPlansList: React.FC<
 			<div className="flex items-center justify-between mb-4">
 				<Heading level={2}>Training Plans</Heading>
 				<Button asChild size="sm">
-					<Link href={`/training-plans/new?clientId=${clientId}`}>
-						<PlusIcon className="w-4 h-4 mr-2" />
+					<Link
+						href={`/training-plans/new?clientId=${clientId}`}
+						aria-label="Create new training plan"
+					>
+						<PlusIcon className="w-4 h-4 mr-2" aria-hidden="true" />
 						New Training Plan
 					</Link>
 				</Button>
 			</div>
 
 			{trainingPlans && trainingPlans.length > 0 ? (
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+				<ul
+					className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0"
+					aria-label="List of training plans"
+				>
 					{trainingPlans.map((plan) => (
-						<Card key={plan.id}>
-							<CardHeader>
-								<CardTitle>
+						<li key={plan.id} className="p-0">
+							<Card className="h-full flex flex-col hover:shadow-md transition-shadow">
+								<CardHeader>
+									<CardTitle>
+										<Link
+											href={`/training-plans/${plan.id}`}
+											className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+											aria-label={`View training plan: ${plan.title || "Untitled Training Plan"}`}
+										>
+											{plan.title || "Untitled Training Plan"}
+										</Link>
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="flex-grow">
+									{plan.overview && (
+										<p className="text-sm text-muted-foreground line-clamp-2">
+											{plan.overview}
+										</p>
+									)}
+									<p className="text-xs text-muted-foreground mt-2">
+										<span className="sr-only">Date created:</span>
+										<time dateTime={plan.createdAt.toString()}>
+											Created: {new Date(plan.createdAt).toLocaleDateString()}
+										</time>
+									</p>
+								</CardContent>
+								<CardFooter>
 									<Link
 										href={`/training-plans/${plan.id}`}
-										className="hover:underline"
+										className="text-sm text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 ml-auto"
 									>
-										{plan.title || "Untitled Training Plan"}
+										View details
+										<span className="sr-only">
+											about {plan.title || "Untitled Training Plan"}
+										</span>
 									</Link>
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								{plan.overview && (
-									<p className="text-sm text-muted-foreground line-clamp-2">
-										{plan.overview}
-									</p>
-								)}
-								<p className="text-xs text-muted-foreground mt-2">
-									Created: {new Date(plan.createdAt).toLocaleDateString()}
-								</p>
-							</CardContent>
-							<CardFooter>
-								<Link
-									href={`/training-plans/${plan.id}`}
-									className="text-sm text-blue-600 hover:underline ml-auto"
-								>
-									View details
-								</Link>
-							</CardFooter>
-						</Card>
+								</CardFooter>
+							</Card>
+						</li>
 					))}
-				</div>
+				</ul>
 			) : (
-				<div className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4">
+				<section
+					className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4"
+					aria-label="No training plans available"
+				>
 					<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
-						<PlusIcon className="h-10 w-10 text-muted-foreground" />
+						<PlusIcon
+							className="h-10 w-10 text-muted-foreground"
+							aria-hidden="true"
+						/>
 					</div>
 					<div className="space-y-2 max-w-md">
 						<h3 className="text-xl font-semibold">No training plans yet</h3>
@@ -80,12 +101,15 @@ export const ClientTrainingPlansList: React.FC<
 						</p>
 					</div>
 					<Button size="lg" asChild className="mt-2">
-						<Link href={`/training-plans/new?clientId=${clientId}`}>
-							<PlusIcon className="w-5 h-5 mr-2" />
+						<Link
+							href={`/training-plans/new?clientId=${clientId}`}
+							aria-label="Create your first training plan"
+						>
+							<PlusIcon className="w-5 h-5 mr-2" aria-hidden="true" />
 							Create First Training Plan
 						</Link>
 					</Button>
-				</div>
+				</section>
 			)}
 		</div>
 	);

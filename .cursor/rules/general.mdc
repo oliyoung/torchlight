@@ -13,6 +13,7 @@ alwaysApply: true
   - Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
   - Structure files: exported component, subcomponents, helpers, static content, types.
 
+
 - Naming Conventions
 
   - All components go in /src/components and are named like new-component.tsx
@@ -36,6 +37,8 @@ alwaysApply: true
   - Only use Shadcn UI and Tailwind CSS for all UI and styling. Do not create custom component libraries or introduce other design systems.
   - Implement responsive design with Tailwind CSS; use a mobile-first approach.
   - No Figma files, brand guidelines, or color palettes yet—use Shadcn and Tailwind defaults.
+  -  The list is responsive and accessible (keyboard navigation, screen reader support).
+  - Loading and error states are handled gracefully.
 
 - Performance Optimization
 

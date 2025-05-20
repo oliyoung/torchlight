@@ -61,8 +61,8 @@ const UserProfile: React.FC = () => {
 			<Breadcrumbs />
 			<Heading>{`${client.firstName} ${client.lastName}`}</Heading>
 			<div className="mt-6">
-				<Tabs defaultValue="details">
-					<TabsList>
+				<Tabs defaultValue="details" className="focus-within:outline-none">
+					<TabsList aria-label="Client information tabs">
 						<TabsTrigger value="details">Client Details</TabsTrigger>
 						<TabsTrigger value="trainingPlans">Training Plans</TabsTrigger>
 						<TabsTrigger value="goals">Goals</TabsTrigger>
