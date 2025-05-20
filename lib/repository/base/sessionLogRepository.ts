@@ -1,7 +1,7 @@
-import type { SessionLog, CreateSessionLogInput, UpdateSessionLogInput } from "@/lib/types";
-import { EntityRepository, type EntityMapping } from "./entityRepository";
-import { RelationRepository } from "./relationRepository";
 import { logger } from "@/lib/logger";
+import type { CreateSessionLogInput, SessionLog, UpdateSessionLogInput } from "@/lib/types";
+import { type EntityMapping, EntityRepository } from "./entityRepository";
+import { RelationRepository } from "./relationRepository";
 
 // SessionLog-specific column mappings
 const sessionLogMapping: EntityMapping<SessionLog> = {
@@ -81,38 +81,36 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
    * Create a new session log
    */
   async createSessionLog(userId: string | null, input: CreateSessionLogInput): Promise<SessionLog | null> {
-    logger.info({ userId, input }, 'Creating session log');
-
     if (!userId) return null;
+
+    logger.info({ input }, "Creating session log");
 
     try {
       // Create the session log
       const sessionLog = await this.create(userId, {
-        clientId: input.clientId,
         date: input.date,
         notes: input.notes || null,
         transcript: input.transcript || null,
-        summary: null,
-        actionItems: [],
-        aiMetadata: {
-          summaryGenerated: false,
-          nextStepsGenerated: false
-        }
+        client_id: input.clientId // Map clientId to client_id for database
       });
 
       if (!sessionLog) {
-        logger.error({ input }, 'Failed to create session log');
+        logger.error({ input }, "Failed to create session log");
         return null;
       }
 
-      // Add goal associations if provided
+      // Add goal relations if provided
       if (input.goalIds?.length) {
-        await this.addGoals(sessionLog.id, input.goalIds);
+        await this.relationRepo.addRelations(
+          goalSessionLogsConfig,
+          sessionLog.id,
+          input.goalIds
+        );
       }
 
       return sessionLog;
     } catch (error) {
-      logger.error({ error, input }, 'Error creating session log');
+      logger.error({ error, input }, "Exception creating session log");
       return null;
     }
   }
@@ -141,7 +139,11 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
 
       // Update goal associations if provided
       if (input.goalIds) {
-        await this.replaceGoals(sessionLogId, input.goalIds);
+        await this.relationRepo.replaceRelations(
+          goalSessionLogsConfig,
+          sessionLogId,
+          input.goalIds
+        );
       }
 
       return sessionLog;
@@ -215,7 +217,8 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
       summary: "This is a mock AI-generated summary of the session.",
       aiMetadata: {
         ...sessionLog.aiMetadata,
-        summaryGenerated: true
+        summaryGenerated: true,
+        nextStepsGenerated: false
       }
     });
   }
@@ -235,8 +238,58 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
       actionItems: ["This is a mock action item 1", "This is a mock action item 2"],
       aiMetadata: {
         ...sessionLog.aiMetadata,
-        nextStepsGenerated: true
+        nextStepsGenerated: true,
+        summaryGenerated: false
       }
     });
+  }
+
+  /**
+   * Add summary to a session log
+   */
+  async addSummary(userId: string | null, sessionLogId: string, summary: string, actionItems: string[] = []): Promise<SessionLog | null> {
+    if (!userId) return null;
+
+    logger.info({ sessionLogId, summary, actionItems }, "Adding summary to session log");
+
+    try {
+      const updatedLog = await this.update(userId, sessionLogId, {
+        summary,
+        actionItems,
+        aiMetadata: {
+          summaryGenerated: true,
+          nextStepsGenerated: false
+        }
+      });
+
+      return updatedLog;
+    } catch (error) {
+      logger.error({ error, sessionLogId }, "Exception adding summary to session log");
+      return null;
+    }
+  }
+
+  /**
+   * Add next steps to a session log
+   */
+  async addNextSteps(userId: string | null, sessionLogId: string, actionItems: string[]): Promise<SessionLog | null> {
+    if (!userId) return null;
+
+    logger.info({ sessionLogId, actionItems }, "Adding next steps to session log");
+
+    try {
+      const updatedLog = await this.update(userId, sessionLogId, {
+        actionItems,
+        aiMetadata: {
+          nextStepsGenerated: true,
+          summaryGenerated: false
+        }
+      });
+
+      return updatedLog;
+    } catch (error) {
+      logger.error({ error, sessionLogId }, "Exception adding next steps to session log");
+      return null;
+    }
   }
 }

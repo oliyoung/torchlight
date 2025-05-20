@@ -83,23 +83,25 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
    */
   async createTrainingPlan(
     userId: string | null,
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    data: CreateTrainingPlanInput & { overview: string; planJson: any },
+    data: CreateTrainingPlanInput & { overview: string; planJson: any; generatedBy?: string; sourcePrompt?: string },
   ): Promise<TrainingPlan | null> {
     if (!userId) return null;
 
     logger.info({ data }, "Creating training plan");
 
     try {
-      // Create the training plan
-      const trainingPlan = await this.create(userId, {
-        title: data.title,
+      // Map the input fields to our database schema
+      const dbTrainingPlan = {
+        title: data.overview ? `Training Plan - ${new Date().toLocaleDateString()}` : "New Training Plan",
         overview: data.overview,
-        planJson: data.planJson,
-        clientId: data.clientId,
-        generatedBy: data.generatedBy,
-        sourcePrompt: data.sourcePrompt
-      });
+        plan_json: data.planJson,
+        client_id: data.clientId,
+        generated_by: data.generatedBy,
+        source_prompt: data.sourcePrompt
+      };
+
+      // Create the training plan
+      const trainingPlan = await this.create(userId, dbTrainingPlan);
 
       if (!trainingPlan) {
         logger.error({ data }, "Failed to create training plan");
@@ -137,22 +139,25 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
   async updateTrainingPlan(
     userId: string | null,
     id: string,
-    data: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[] },
+    data: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[]; clientId?: string; },
   ): Promise<TrainingPlan | null> {
     if (!userId) return null;
 
     logger.info({ id, data }, "Updating training plan");
 
     try {
-      // Update the training plan basic data
-      const updatedPlan = await this.update(userId, id, {
+      // Map client properties to database fields
+      const dbTrainingPlan = {
         title: data.title,
         overview: data.overview,
-        planJson: data.planJson,
-        clientId: data.clientId,
-        generatedBy: data.generatedBy,
-        sourcePrompt: data.sourcePrompt
-      });
+        plan_json: data.planJson,
+        client_id: data.clientId,
+        generated_by: data.generatedBy,
+        source_prompt: data.sourcePrompt
+      };
+
+      // Update the training plan basic data
+      const updatedPlan = await this.update(userId, id, dbTrainingPlan);
 
       if (!updatedPlan) {
         logger.error({ id, data }, "Failed to update training plan");

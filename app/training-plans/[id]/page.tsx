@@ -1,17 +1,17 @@
 "use client";
-import type React from "react";
-import { useQuery } from "urql";
 import Breadcrumbs from "@/components/breadcrumbs";
-import { Heading } from "@/components/ui/heading";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { logger } from "@/lib/logger";
-import type { Assistant, Goal } from "@/lib/types";
-import Link from "next/link";
 import { TrainingPlanAssistantsList } from "@/components/training-plan-assistants-list";
 import { TrainingPlanGoalsList } from "@/components/training-plan-goals-list";
 import { TrainingPlanSessionLogsList } from "@/components/training-plan-session-logs-list";
-import { useStringParamId } from "@/hooks/use-string-param-id";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { Heading } from "@/components/ui/heading";
 import { Loading } from "@/components/ui/loading";
+import { useStringParamId } from "@/lib/hooks/use-string-param-id";
+import { logger } from "@/lib/logger";
+import type { Assistant, Goal } from "@/lib/types";
+import Link from "next/link";
+import type React from "react";
+import { useQuery } from "urql";
 
 const TrainingPlanQuery = `
   query TrainingPlan($id: ID!) {

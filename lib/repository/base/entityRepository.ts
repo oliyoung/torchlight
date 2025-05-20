@@ -1,5 +1,5 @@
-import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import { logger } from "@/lib/logger";
+import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -27,7 +27,7 @@ export class EntityRepository<T extends { id: string | number }> {
     if (!data) return null as unknown as T;
 
     // Handle date fields conversion
-    const processDateFields = (obj: Record<string, unknown>) => {
+    const processDateFields = (obj: Record<string, unknown> = {}): Record<string, unknown> => {
       const result = { ...obj };
       if (obj.created_at) result.createdAt = new Date(obj.created_at as string);
       if (obj.updated_at) result.updatedAt = new Date(obj.updated_at as string);
@@ -41,7 +41,7 @@ export class EntityRepository<T extends { id: string | number }> {
     }
 
     // Apply basic transform with date handling
-    return processDateFields(data) as unknown as T;
+    return processDateFields(data as Record<string, unknown>) as unknown as T;
   }
 
   // Transform array of entities
@@ -71,10 +71,12 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Helper to add common filters like user_id
-  protected withUserFilter<T extends Record<string, unknown>>(
-    query: PostgrestFilterBuilder<T, T, T>,
+  protected withUserFilter(
+    // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
+    query: PostgrestFilterBuilder<any, any, any>,
     userId: string | null
-  ): PostgrestFilterBuilder<T, T, T> {
+    // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
+  ): PostgrestFilterBuilder<any, any, any> {
     if (!userId) return query;
     return query.eq('user_id', userId);
   }

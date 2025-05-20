@@ -1,7 +1,7 @@
-import type { Assistant, AssistantsInput } from "@/lib/types";
-import { EntityRepository, type EntityMapping } from "./entityRepository";
 import { logger } from "@/lib/logger";
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
+import type { Assistant, AssistantsInput } from "@/lib/types";
+import { type EntityMapping, EntityRepository } from "./entityRepository";
 
 // Assistant-specific column mappings
 const assistantMapping: EntityMapping<Assistant> = {

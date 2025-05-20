@@ -3,7 +3,7 @@ description:
 globs:
 alwaysApply: true
 ---
-# Torchlight Project Context
+# congenial-carnival Project Context
 
 ## 1. Current State of the Codebase
 - This is a greenfield project. All features currently implemented in the codebase can be inferred from their UI completeness. New features should follow the established patterns and conventions.
@@ -100,4 +100,4 @@ alwaysApply: true
   - Be ready to support compliance needs in the future.
 
 ---
-This file is intended as a living document. Update as the project evolves to ensure all contributors have a clear, shared understanding of Torchlight's context and conventions.
+This file is intended as a living document. Update as the project evolves to ensure all contributors have a clear, shared understanding of congenial-carnival's context and conventions.

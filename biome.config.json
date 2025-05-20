@@ -1,32 +1,49 @@
 {
 	"files": ["**/*.{ts,tsx,js,jsx}"],
 	"exclude": ["node_modules", "build", "dist"],
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineWidth": 80,
+		"formatWithErrors": true
+	},
 	"linter": {
 		"enabled": true,
 		"rules": {
 			"recommended": true,
 			"suspicious": {
 				"noExplicitAny": "off"
+			},
+			"style": {
+				"useImportType": "error",
+				"useExportType": "error",
+				"useConst": "error"
+			},
+			"correctness": {
+				"noUnusedImports": "error"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "error"
+			},
+			"complexity": {
+				"noUselessCatch": "error",
+				"noStaticOnlyClass": "error"
 			}
 		}
 	},
-	"rules": {
-		"semi": ["error", "always"],
-		"quotes": ["error", "double"],
-		"import/order": [
-			"error",
-			{
-				"groups": [
-					"builtin",
-					"external",
-					"internal",
-					"parent",
-					"sibling",
-					"index"
-				],
-				"newlines-between": "always",
-				"alphabetize": { "order": "asc", "caseInsensitive": true }
-			}
-		]
+	"organizeImports": {
+		"enabled": true
+	},
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"trailingComma": "es5",
+			"semicolons": "always"
+		}
 	}
 }

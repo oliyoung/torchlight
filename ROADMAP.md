@@ -1,6 +1,6 @@
-# Torchlight Roadmap & Future Ideas
+# congenial-carnival Roadmap & Future Ideas
 
-This document tracks planned features and future ideas for the Torchlight coaching platform. Items are roughly organized by priority but aren't strictly sequenced.
+This document tracks planned features and future ideas for the congenial-carnival coaching platform. Items are roughly organized by priority but aren't strictly sequenced.
 
 ## Core Features
 
@@ -11,6 +11,7 @@ This document tracks planned features and future ideas for the Torchlight coachi
 - [ ] Mobile app for coach and client access
 - [ ] Template library for common training plans and goals
 - [ ] Equipment management system for tracking client gear
+- [ ] Tracking Expected Outcomes with measurement tools
 
 ## AI Enhancements
 

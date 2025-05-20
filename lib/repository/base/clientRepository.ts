@@ -1,5 +1,5 @@
 import type { Client } from "@/lib/types";
-import { EntityRepository, type EntityMapping } from "./entityRepository";
+import { type EntityMapping, EntityRepository } from "./entityRepository";
 
 // Client-specific column mappings
 const clientMapping: EntityMapping<Client> = {
@@ -12,7 +12,7 @@ const clientMapping: EntityMapping<Client> = {
     trainingHistory: 'training_history'
   },
   // Custom transform to handle specific fields
-  transform: (data: any) => {
+  transform: (data: Record<string, unknown>) => {
     if (!data) return null as unknown as Client;
 
     return {
@@ -29,9 +29,9 @@ const clientMapping: EntityMapping<Client> = {
       tags: data.tags,
       notes: data.notes,
       userId: data.user_id,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
-      deletedAt: data.deleted_at ? new Date(data.deleted_at) : null
+      createdAt: new Date(data.created_at as string),
+      updatedAt: new Date(data.updated_at as string),
+      deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null
     } as Client;
   }
 };

@@ -1,5 +1,5 @@
-import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import { logger } from "@/lib/logger";
+import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Interface for join table configuration

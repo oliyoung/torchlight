@@ -1,18 +1,17 @@
 "use client";
-import type * as React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "urql";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ErrorMessage } from "@/components/ui/error-message";
-import { SuccessMessage } from "@/components/ui/success-message";
-import { useState } from "react";
 import Breadcrumbs from "@/components/breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { ClientCombobox } from "@/components/ui/client-combobox";
+import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
+import { SuccessMessage } from "@/components/ui/success-message";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type * as React from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import { ClientCombobox } from "../../../src/components/ui/client-combobox";
+import { useMutation } from "urql";
+import { z } from "zod";
 
 const CreateTrainingPlanMutation = `
 mutation CreateTrainingPlan($input: CreateTrainingPlanInput!) {

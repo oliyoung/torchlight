@@ -1,7 +1,8 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Client } from 'pg';
 import dotenv from 'dotenv';
+import { logger } from '../lib/logger';
 
 dotenv.config({ path: join(__dirname, '../.env') });
 
