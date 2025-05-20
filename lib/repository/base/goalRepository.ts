@@ -1,6 +1,6 @@
 import { logger } from "../../../lib/logger";
 import type {
-  Client,
+  Athlete,
   CreateGoalInput,
   Goal,
   UpdateGoalInput,
@@ -13,7 +13,7 @@ import { RelationRepository } from "./relationRepository";
 const goalMapping: EntityMapping<Goal> = {
   tableName: "goals",
   columnMappings: {
-    clientId: "client_id",
+    athleteId: "athlete_id",
     userId: "user_id",
     progressNotes: "progress_notes",
     dueDate: "due_date",
@@ -27,7 +27,7 @@ const goalMapping: EntityMapping<Goal> = {
       title: data.title as string,
       description: data.description as string | null,
       status: data.status as GoalStatus,
-      clientId: data.client_id as string,
+      athleteId: data.athlete_id as string,
       userId: data.user_id as string,
       createdAt: new Date(data.created_at as string | number | Date),
       updatedAt: new Date(data.updated_at as string | number | Date),
@@ -36,7 +36,7 @@ const goalMapping: EntityMapping<Goal> = {
       progressNotes: data.progress_notes as string | null,
       sport: data.sport as string | null,
       trainingPlanId: data.training_plan_id as string | null,
-      client: undefined, // Will be populated by GraphQL resolver
+      athlete: undefined, // Will be populated by GraphQL resolver
       sessionLogs: [], // To be resolved by GraphQL resolver
       trainingPlan: undefined, // Will be populated by GraphQL resolver
     } as unknown as Goal; // Use unknown as intermediate step
@@ -66,17 +66,17 @@ export class GoalRepository extends EntityRepository<Goal> {
   }
 
   /**
-   * Get all goals for a specific client
+   * Get all goals for a specific athlete
    */
-  async getGoalsByClientId(
+  async getGoalsByAthleteId(
     userId: string | null,
-    clientId: string,
+    athleteId: string,
   ): Promise<Goal[]> {
-    logger.info({ userId, clientId }, "Fetching goals for client");
+    logger.info({ userId, athleteId }, "Fetching goals for athlete");
 
     if (!userId) return [];
 
-    return this.getByField(userId, "client_id", clientId);
+    return this.getByField(userId, "athlete_id", athleteId);
   }
 
   /**
@@ -120,7 +120,7 @@ export class GoalRepository extends EntityRepository<Goal> {
         title: input.title,
         description: input.description || null,
         status: GoalStatus.Active, // Use the enum value directly
-        client_id: input.clientId, // Map clientId to client_id for database
+        athlete_id: input.athleteId, // Map athleteId to athlete_id for database
         due_date: input.dueDate || null,
         progress_notes: null,
         sport: input.sport,

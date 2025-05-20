@@ -14,7 +14,7 @@ type Assistant {
 	deletedAt: DateTime
 }
 
-type Client {
+type Athlete {
 	userId: ID!
 	id: ID!
 	birthday: String
@@ -39,7 +39,7 @@ type Client {
 
 type Goal {
 	id: ID!
-	client: Client!
+	athlete: Athlete!
 	title: String!
 	description: String
 	status: GoalStatus!
@@ -61,7 +61,7 @@ enum GoalStatus {
 
 type SessionLog {
 	id: ID!
-	client: Client!
+	athlete: Athlete!
 	date: DateTime!
 	notes: String
 	transcript: String
@@ -83,7 +83,7 @@ type TrainingPlan {
 	id: ID!
 	assistants: [Assistant!]
 	goals: [Goal!]
-	client: Client
+	athlete: Athlete
 	title: String!
 	overview: String
 	planJson: JSON!
@@ -106,17 +106,17 @@ input AssistantsInput {
 
 type Query {
 	assistants(input: AssistantsInput): [Assistant]!
-	clients: [Client!]!
-	client(id: ID!): Client
-	goals(clientId: ID!): [Goal!]!
-	goal(id: ID!, clientId: ID!): Goal
-	sessionLogs(clientId: ID!): [SessionLog!]!
+	athletes: [Athlete!]!
+	athlete(id: ID!): Athlete
+	goals(athleteId: ID!): [Goal!]!
+	goal(id: ID!, athleteId: ID!): Goal
+	sessionLogs(athleteId: ID!): [SessionLog!]!
 	sessionLog(id: ID!): SessionLog
 	trainingPlan(id: ID!): TrainingPlan
-	trainingPlans(clientId: ID): [TrainingPlan!]!
+	trainingPlans(athleteId: ID): [TrainingPlan!]!
 }
 
-input CreateClientInput {
+input CreateAthleteInput {
 	firstName: String!
 	lastName: String!
 	birthday: DateTime!
@@ -126,7 +126,7 @@ input CreateClientInput {
 	sport: String!
 }
 
-input UpdateClientInput {
+input UpdateAthleteInput {
 	firstName: String
 	lastName: String
 	email: String
@@ -136,7 +136,7 @@ input UpdateClientInput {
 }
 
 input CreateGoalInput {
-	clientId: ID!
+	athleteId: ID!
 	title: String!
 	description: String
 	dueDate: DateTime
@@ -154,7 +154,7 @@ input UpdateGoalInput {
 }
 
 input CreateSessionLogInput {
-	clientId: ID!
+	athleteId: ID!
 	date: DateTime!
 	notes: String
 	transcript: String
@@ -174,19 +174,19 @@ input AISummarizeSessionLogInput {
 }
 
 input CreateTrainingPlanInput {
-	clientId: ID!
+	athleteId: ID!
 	assistantIds: [ID!]
 	goalIds: [ID!]
 }
 
 input AIGenerateSessionInput {
-	clientId: ID!
+	athleteId: ID!
 	goalIds: [ID!]!
 	sessionLogIds: [ID!]!
 }
 
 input AIAnalyzeProgressInput {
-	clientId: ID!
+	athleteId: ID!
 	startDate: DateTime!
 	endDate: DateTime!
 }
@@ -199,9 +199,9 @@ input UpdateTrainingPlanInput {
 }
 
 type Mutation {
-	createClient(input: CreateClientInput!): Client!
-	updateClient(id: ID!, input: UpdateClientInput!): Client!
-	deleteClient(id: ID!): Boolean!
+	createAthlete(input: CreateAthleteInput!): Athlete!
+	updateAthlete(id: ID!, input: UpdateAthleteInput!): Athlete!
+	deleteAthlete(id: ID!): Boolean!
 
 	createGoal(input: CreateGoalInput!): Goal!
 	updateGoal(id: ID!, input: UpdateGoalInput!): Goal!
@@ -220,10 +220,10 @@ type Mutation {
 }
 
 type Subscription {
-	trainingPlanGenerated(clientId: ID!): TrainingPlan!
-	sessionLogAdded(clientId: ID!): SessionLog!
-	goalAdded(clientId: ID!): Goal!
+	trainingPlanGenerated(athleteId: ID!): TrainingPlan!
+	sessionLogAdded(athleteId: ID!): SessionLog!
+	goalAdded(athleteId: ID!): Goal!
 	sessionLogUpdated(id: ID!): SessionLog!
 	goalUpdated(id: ID!): Goal!
-	clientUpdated(id: ID!): Client!
+	athleteUpdated(id: ID!): Athlete!
 }

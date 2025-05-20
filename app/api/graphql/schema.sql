@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS ai_metadata CASCADE;
 DROP TABLE IF EXISTS session_logs CASCADE;
 DROP TABLE IF EXISTS goals CASCADE;
 DROP TABLE IF EXISTS assistants CASCADE;
-DROP TABLE IF EXISTS clients CASCADE;
+DROP TABLE IF EXISTS athletes CASCADE;
 DROP TABLE IF EXISTS training_plans CASCADE;
 
 -- Assistants table
@@ -23,8 +23,8 @@ CREATE TABLE assistants (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Clients table
-CREATE TABLE clients (
+-- Athletes table
+CREATE TABLE athletes (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE clients (
 -- Goals table
 CREATE TABLE goals (
     id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES clients(id),
+    athlete_id INTEGER NOT NULL REFERENCES athletes(id),
     title VARCHAR(255) NOT NULL,
     description TEXT,
     status VARCHAR(50) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE goals (
 -- SessionLogs table
 CREATE TABLE session_logs (
     id SERIAL PRIMARY KEY,
-    client_id INTEGER NOT NULL REFERENCES clients(id),
+    athlete_id INTEGER NOT NULL REFERENCES athletes(id),
     date TIMESTAMP NOT NULL,
     notes TEXT,
     transcript TEXT,
@@ -92,7 +92,7 @@ CREATE TABLE ai_metadata (
 CREATE TABLE training_plans (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
-    client_id INTEGER NOT NULL REFERENCES clients(id),
+    athlete_id INTEGER NOT NULL REFERENCES athletes(id),
     title VARCHAR(255),
     overview TEXT,
     plan_json JSONB,
@@ -126,12 +126,12 @@ CREATE TABLE training_plan_session_logs (
 
 -- Add foreign key constraints
 ALTER TABLE goals
-ADD CONSTRAINT fk_client
-FOREIGN KEY (client_id) REFERENCES clients(id);
+ADD CONSTRAINT fk_athlete
+FOREIGN KEY (athlete_id) REFERENCES athletes(id);
 
 ALTER TABLE session_logs
-ADD CONSTRAINT fk_client
-FOREIGN KEY (client_id) REFERENCES clients(id);
+ADD CONSTRAINT fk_athlete
+FOREIGN KEY (athlete_id) REFERENCES athletes(id);
 
 ALTER TABLE ai_metadata
 ADD CONSTRAINT fk_session_log
@@ -154,8 +154,8 @@ INSERT INTO assistants (id, name, sport, role, strengths, bio, prompt_template, 
 (9, 'Coach Prism', 'Basketball', 'Forward', ARRAY['Defensive Switching', 'Versatility', 'Tactical IQ'], 'A versatile forward who excels at defensive switching and tactical play. Coaches players to read the game, adapt on the fly, and contribute in multiple roles.', 'Design a week-long training block for a forward focused on defensive switching, versatility, and tactical IQ.', NOW(), NOW()),
 (10, 'Coach Echo', 'Basketball', 'Any', ARRAY['Film Study', 'Self-Assessment', 'Growth Mindset'], 'A reflective coach focused on reviewing past performances to drive future improvement through self-awareness.', 'Generate a training program that includes film breakdown, reflection prompts, and self-assessment for any basketball role.', NOW(), NOW());
 
--- Fixture data for clients
-INSERT INTO clients (user_id, first_name, last_name, email, tags, notes, sport, birthday, gender, fitness_level, training_history, height, weight, created_at, updated_at, deleted_at) VALUES
+-- Fixture data for athletes
+INSERT INTO athletes (user_id, first_name, last_name, email, tags, notes, sport, birthday, gender, fitness_level, training_history, height, weight, created_at, updated_at, deleted_at) VALUES
 ('123', 'Alice', 'Smith', 'alice.smith1@example.com', ARRAY['athlete','yoga'], 'Loves yoga. See https://placekitten.com/200/200', 'Yoga', '1990-01-01', 'Female', 'Intermediate', '5 years of yoga', 165.0, 60.0, NOW(), NOW(), NULL),
 ('123', 'Bob', 'Johnson', 'bob.johnson2@example.com', ARRAY['runner'], 'Marathon runner. https://placekitten.com/201/200', 'Running', '1985-05-12', 'Male', 'Advanced', '10 marathons', 180.0, 75.0, NOW(), NOW(), NULL),
 ('123', 'Carol', 'Williams', 'carol.williams3@example.com', ARRAY['swimmer'], 'Competitive swimmer.', 'Swimming', '1992-03-15', 'Female', 'Advanced', 'Swims daily', 170.0, 62.0, NOW(), NOW(), NULL),
