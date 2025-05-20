@@ -1,25 +1,26 @@
 import { readFileSync } from 'node:fs'
-import { createSchema, createYoga, type YogaInitialContext } from 'graphql-yoga'
-import type { PubSub } from 'graphql-subscriptions'
-import type DataLoader from 'dataloader'
-import mutations from './mutations';
-import queries from './queries';
-import subscriptions from './subscriptions';
-import type { User } from '@supabase/supabase-js';
-import { logger } from '@/lib/logger';
-import { createClientLoader } from '@/lib/data-loaders/client';
-import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
 import { createAssistantLoader } from '@/lib/data-loaders/assistant';
+import { createClientLoader } from '@/lib/data-loaders/client';
 import { createGoalLoader } from '@/lib/data-loaders/goal';
-import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
 import {
   createClientTrainingPlanIdsLoader,
   createGoalSessionLogIdsLoader,
+  createGoalTrainingPlanIdsLoader,
   createSessionLogGoalIdsLoader,
   createTrainingPlanAssistantIdsLoader,
   createTrainingPlanGoalIdsLoader
 } from '@/lib/data-loaders/relation';
+import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
+import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
+import { logger } from '@/lib/logger';
 import { pubsub } from '@/lib/pubsub';
+import type { User } from '@supabase/supabase-js';
+import type DataLoader from 'dataloader'
+import type { PubSub } from 'graphql-subscriptions'
+import { type YogaInitialContext, createSchema, createYoga } from 'graphql-yoga'
+import mutations from './mutations';
+import queries from './queries';
+import subscriptions from './subscriptions';
 
 export interface GraphQLContext extends YogaInitialContext {
   user: User | null;
@@ -35,6 +36,7 @@ export interface GraphQLContext extends YogaInitialContext {
     // Relationship loaders
     clientTrainingPlanIds: ReturnType<typeof createClientTrainingPlanIdsLoader>;
     goalSessionLogIds: ReturnType<typeof createGoalSessionLogIdsLoader>;
+    goalTrainingPlanIds: ReturnType<typeof createGoalTrainingPlanIdsLoader>;
     sessionLogGoalIds: ReturnType<typeof createSessionLogGoalIdsLoader>;
     trainingPlanAssistantIds: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
     trainingPlanGoalIds: ReturnType<typeof createTrainingPlanGoalIdsLoader>;
@@ -153,6 +155,18 @@ const { handleRequest } = createYoga<GraphQLContext>({
             logger.error({ error, goalId: parent.id }, 'Error resolving goal session logs');
             return [];
           }
+        },
+        trainingPlans: async (parent, _args, context) => {
+          try {
+            // Get training plan IDs for this goal
+            const trainingPlanIds = await context.loaders.goalTrainingPlanIds.load(parent.id);
+
+            // Load each training plan using the training plan loader
+            return loadEntities(trainingPlanIds, context.loaders.trainingPlan);
+          } catch (error) {
+            logger.error({ error, goalId: parent.id }, 'Error resolving goal training plans');
+            return [];
+          }
         }
       },
       SessionLog: {
@@ -197,6 +211,7 @@ const { handleRequest } = createYoga<GraphQLContext>({
       // Relationship loaders
       clientTrainingPlanIds: createClientTrainingPlanIdsLoader(user.id),
       goalSessionLogIds: createGoalSessionLogIdsLoader(),
+      goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
       sessionLogGoalIds: createSessionLogGoalIdsLoader(),
       trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
       trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),

@@ -100,6 +100,7 @@ export type CreateGoalInput = {
   clientId: Scalars['ID']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  sport: Scalars['String']['input'];
   title: Scalars['String']['input'];
 };
 
@@ -127,8 +128,10 @@ export type Goal = {
   id: Scalars['ID']['output'];
   progressNotes?: Maybe<Scalars['String']['output']>;
   sessionLogs: Array<SessionLog>;
+  sport?: Maybe<Scalars['String']['output']>;
   status: GoalStatus;
   title: Scalars['String']['output'];
+  trainingPlans?: Maybe<Array<TrainingPlan>>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -368,8 +371,10 @@ export type UpdateGoalInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
   progressNotes?: InputMaybe<Scalars['String']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<GoalStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
+  trainingPlanIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type UpdateSessionLogInput = {
@@ -577,8 +582,10 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   progressNotes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType>;
+  sport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['GoalStatus'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  trainingPlans?: Resolver<Maybe<Array<ResolversTypes['TrainingPlan']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

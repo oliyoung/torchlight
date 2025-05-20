@@ -48,6 +48,8 @@ type Goal {
 	dueDate: DateTime
 	progressNotes: String
 	sessionLogs: [SessionLog!]!
+	sport: String
+	trainingPlans: [TrainingPlan!]
 }
 
 enum GoalStatus {
@@ -135,6 +137,7 @@ input CreateGoalInput {
 	title: String!
 	description: String
 	dueDate: DateTime
+	sport: String!
 }
 
 input UpdateGoalInput {
@@ -143,6 +146,8 @@ input UpdateGoalInput {
 	dueDate: DateTime
 	status: GoalStatus
 	progressNotes: String
+	sport: String
+	trainingPlanIds: [ID!]
 }
 
 input CreateSessionLogInput {

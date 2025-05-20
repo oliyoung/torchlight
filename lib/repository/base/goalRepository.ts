@@ -17,6 +17,7 @@ const goalMapping: EntityMapping<Goal> = {
     userId: "user_id",
     progressNotes: "progress_notes",
     dueDate: "due_date",
+    trainingPlanId: "training_plan_id",
   },
   transform: (data: Record<string, unknown>) => {
     if (!data) return null as unknown as Goal;
@@ -33,8 +34,11 @@ const goalMapping: EntityMapping<Goal> = {
       deletedAt: data.deleted_at ? new Date(data.deleted_at as string | number | Date) : null,
       dueDate: data.due_date ? new Date(data.due_date as string | number | Date) : null,
       progressNotes: data.progress_notes as string | null,
+      sport: data.sport as string | null,
+      trainingPlanId: data.training_plan_id as string | null,
       client: undefined, // Will be populated by GraphQL resolver
       sessionLogs: [], // To be resolved by GraphQL resolver
+      trainingPlan: undefined, // Will be populated by GraphQL resolver
     } as unknown as Goal; // Use unknown as intermediate step
   },
 };
@@ -117,11 +121,22 @@ export class GoalRepository extends EntityRepository<Goal> {
         description: input.description || null,
         status: GoalStatus.Active, // Use the enum value directly
         client_id: input.clientId, // Map clientId to client_id for database
-        dueDate: input.dueDate || null,
-        progressNotes: null,
+        due_date: input.dueDate || null,
+        progress_notes: null,
+        sport: input.sport,
+        // training_plan_id field removed, will use join table instead
       };
 
-      return this.create(userId, dbGoal);
+      // Create the goal first
+      const newGoal = await this.create(userId, dbGoal);
+
+      // If we have training plan IDs and the goal was created successfully
+      if (newGoal && input.trainingPlanIds && input.trainingPlanIds.length > 0) {
+        // Add relationships between the goal and training plans
+        await this.addTrainingPlans(newGoal.id, input.trainingPlanIds);
+      }
+
+      return newGoal;
     } catch (error) {
       logger.error({ error, input }, "Exception creating goal");
       return null;
@@ -142,15 +157,26 @@ export class GoalRepository extends EntityRepository<Goal> {
 
     try {
       // Map the input fields to our database schema
-      const dbGoal = {
-        title: input.title ?? "Goal",
-        description: input.description ?? null,
-        status: input.status ?? GoalStatus.Active,
-        dueDate: input.dueDate ?? null,
-        progressNotes: input.progressNotes ?? null,
-      };
+      const dbGoal: Record<string, any> = {};
 
-      return this.update(userId, goalId, dbGoal);
+      if (input.title !== undefined) dbGoal.title = input.title;
+      if (input.description !== undefined) dbGoal.description = input.description;
+      if (input.status !== undefined) dbGoal.status = input.status;
+      if (input.dueDate !== undefined) dbGoal.due_date = input.dueDate;
+      if (input.progressNotes !== undefined) dbGoal.progress_notes = input.progressNotes;
+      if (input.sport !== undefined) dbGoal.sport = input.sport;
+      // training_plan_id field removed, will use join table instead
+
+      // Update the goal first
+      const updatedGoal = await this.update(userId, goalId, dbGoal);
+
+      // If we have training plan IDs and the goal was updated successfully
+      if (updatedGoal && input.trainingPlanIds !== undefined) {
+        // Replace all training plan relationships
+        await this.replaceTrainingPlans(goalId, input.trainingPlanIds);
+      }
+
+      return updatedGoal;
     } catch (error) {
       logger.error({ error, goalId, input }, "Exception updating goal");
       return null;
@@ -240,6 +266,54 @@ export class GoalRepository extends EntityRepository<Goal> {
       sessionLogGoalsConfig,
       goalId,
       sessionLogIds,
+    );
+  }
+
+  /**
+   * Add training plan associations to a goal
+   */
+  async addTrainingPlans(
+    goalId: string,
+    trainingPlanIds: string[],
+  ): Promise<boolean> {
+    return this.relationRepo.addRelations(
+      trainingPlanGoalsConfig,
+      goalId,
+      trainingPlanIds,
+    );
+  }
+
+  /**
+   * Remove training plan associations from a goal
+   */
+  async removeTrainingPlans(
+    goalId: string,
+    trainingPlanIds: string[],
+  ): Promise<boolean> {
+    const results = await Promise.all(
+      trainingPlanIds.map((trainingPlanId) =>
+        this.relationRepo.removeRelation(
+          trainingPlanGoalsConfig,
+          goalId,
+          trainingPlanId,
+        ),
+      ),
+    );
+
+    return results.every((result) => result);
+  }
+
+  /**
+   * Replace all training plan associations for a goal
+   */
+  async replaceTrainingPlans(
+    goalId: string,
+    trainingPlanIds: string[],
+  ): Promise<boolean> {
+    return this.relationRepo.replaceRelations(
+      trainingPlanGoalsConfig,
+      goalId,
+      trainingPlanIds,
     );
   }
 }

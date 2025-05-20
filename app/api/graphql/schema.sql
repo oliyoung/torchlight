@@ -90,7 +90,9 @@ CREATE TABLE goals (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
     due_date TIMESTAMP,
-    progress_notes TEXT
+    progress_notes TEXT,
+    sport VARCHAR(255),
+    training_plan_id INTEGER REFERENCES training_plans(id)
 );
 
 -- SessionLogs table
