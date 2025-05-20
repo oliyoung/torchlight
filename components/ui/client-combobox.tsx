@@ -1,9 +1,4 @@
 "use client";
-import * as React from "react";
-import { useQuery } from "urql";
-import type { Client } from "@/lib/types";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -18,12 +13,18 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import type { Client } from "@/lib/types";
+import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
+import { useQuery } from "urql";
 
 interface ClientComboboxProps {
 	value: string;
 	onChange: (value: string) => void;
 	label?: string;
 	error?: string;
+	disabled?: boolean;
 }
 
 const ClientsQuery = `
@@ -42,6 +43,7 @@ export function ClientCombobox({
 	onChange,
 	label,
 	error,
+	disabled = false,
 }: ClientComboboxProps) {
 	const [{ data, fetching, error: fetchError }] = useQuery<{
 		clients: Client[];
@@ -56,7 +58,10 @@ export function ClientCombobox({
 	return (
 		<div>
 			{label && (
-				<label className="block text-sm font-medium text-gray-700 mb-1">
+				<label
+					id={`${label.toLowerCase().replace(/\s+/g, "-")}-label`}
+					className="block text-sm font-medium text-gray-700 mb-1"
+				>
 					{label}
 				</label>
 			)}
@@ -64,11 +69,11 @@ export function ClientCombobox({
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
-						role="select"
+						role="combobox"
 						aria-label={label ?? "Select a client"}
 						aria-expanded={open}
 						className="w-full justify-between"
-						disabled={fetching}
+						disabled={fetching || disabled}
 					>
 						{selectedClient
 							? `${selectedClient.firstName} ${selectedClient.lastName} (${selectedClient.email})`

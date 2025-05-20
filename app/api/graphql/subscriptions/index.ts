@@ -1,6 +1,12 @@
-import type { SessionLog, Goal, Client } from "@/lib/types";
+import type { SessionLog, Goal, Client, TrainingPlan } from "@/lib/types";
 
 export default {
+  trainingPlanGenerated: {
+    subscribe: (): AsyncIterator<TrainingPlan> => {
+      // Logic for subscription
+      return {} as AsyncIterator<TrainingPlan>;
+    },
+  },
   sessionLogAdded: {
     subscribe: (): AsyncIterator<SessionLog> => {
       // Logic for subscription

@@ -1,7 +1,8 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { Client } from 'pg';
 import dotenv from 'dotenv';
+import { logger } from '../lib/logger';
 
 dotenv.config({ path: join(__dirname, '../.env') });
 
@@ -17,7 +18,7 @@ async function main() {
     const sql = readFileSync(join(__dirname, '../fixtures.sql'), 'utf-8');
     try {
         await client.query(sql);
-        console.log('Database seeded successfully.');
+        logger.info('Database seeded successfully.');
     } catch (err) {
         console.error('Error seeding database:', err);
     } finally {

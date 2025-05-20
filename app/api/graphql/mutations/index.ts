@@ -1,10 +1,11 @@
-import type { Client, TrainingPlan } from "@/lib/types";
-import type { GraphQLContext } from "../route";
-import { createClient, createTrainingPlan } from "@/lib/repository";
+import { generateSession, summarizeSessionLog } from "./ai";
+import { createClient } from "./client";
+import { createTrainingPlan, updateTrainingPlan } from "./trainingPlan";
 
 export default {
-  createClient: async (_parent: unknown, args: { input: Partial<Client> }, context: GraphQLContext): Promise<Client> =>
-    createClient(context?.user?.id ?? null, args.input),
-  createTrainingPlan: async (_parent: unknown, args: { input: Partial<TrainingPlan> }, context: GraphQLContext): Promise<TrainingPlan> =>
-    createTrainingPlan(context?.user?.id ?? null, args.input),
-}
+  summarizeSessionLog,
+  generateSession,
+  createTrainingPlan,
+  updateTrainingPlan,
+  createClient,
+};

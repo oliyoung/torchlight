@@ -2,26 +2,35 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "npm",
-			"script": "dev",
-			"problemMatcher": [],
+			"detail": "next dev --turbopack",
 			"label": "npm: dev",
-			"detail": "next dev --turbopack"
-		},
-		{
-			"label": "GraphQL Generator",
-			"command": "yarn generate:watch",
-			"type": "shell",
-			"args": [],
 			"options": {
 				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always"
+			},
+			"problemMatcher": [],
+			"runOptions": {
+				"runOn": "folderOpen"
+			},
+			"script": "dev",
+			"type": "npm"
+		},
+		{
+			"args": [],
+			"command": "yarn generate:watch",
+			"label": "GraphQL Generator",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"reveal": "always"
 			},
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
-			"presentation": {
-				"reveal": "always"
-			}
+			"type": "shell"
 		}
 	]
 }

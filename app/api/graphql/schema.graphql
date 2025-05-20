@@ -78,9 +78,9 @@ type AIMetadata {
 
 type TrainingPlan {
 	id: ID!
-	assistantIds: [ID!]
-	goalIds: [ID!]
-	clientId: ID!
+	assistants: [Assistant!]
+	goals: [Goal!]
+	client: Client
 	title: String!
 	overview: String
 	planJson: JSON!
@@ -167,7 +167,6 @@ input AISummarizeSessionLogInput {
 
 input CreateTrainingPlanInput {
 	clientId: ID!
-	title: String!
 	assistantIds: [ID!]
 	goalIds: [ID!]
 }
@@ -184,6 +183,13 @@ input AIAnalyzeProgressInput {
 	endDate: DateTime!
 }
 
+input UpdateTrainingPlanInput {
+	title: String
+	overview: String
+	assistantIds: [ID!]
+	goalIds: [ID!]
+}
+
 type Mutation {
 	createClient(input: CreateClientInput!): Client!
 	updateClient(id: ID!, input: UpdateClientInput!): Client!
@@ -198,6 +204,7 @@ type Mutation {
 	deleteSessionLog(id: ID!): Boolean!
 
 	createTrainingPlan(input: CreateTrainingPlanInput!): TrainingPlan!
+	updateTrainingPlan(id: ID!, input: UpdateTrainingPlanInput!): TrainingPlan!
 
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
 	generateSession(input: AIGenerateSessionInput!): SessionLog!

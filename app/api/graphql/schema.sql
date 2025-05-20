@@ -124,8 +124,11 @@ CREATE TABLE ai_metadata (
 -- TrainingPlans table
 CREATE TABLE training_plans (
     id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
     client_id INTEGER NOT NULL REFERENCES clients(id),
-    title VARCHAR(255) NOT NULL,
+    title VARCHAR(255),
+    overview TEXT,
+    plan_json JSONB,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,

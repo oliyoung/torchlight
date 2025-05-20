@@ -1,15 +1,18 @@
 "use client";
 
 import { MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react";
-
-import { Button } from "@/app/components/ui/button";
+import { cn } from "@/lib/utils";
+import { cva } from "class-variance-authority";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
 	SidebarGroup,
 	SidebarGroupContent,
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
-} from "@/app/components/ui/sidebar";
+} from "@/components/ui/sidebar";
 
 export function NavMain({
 	items,
