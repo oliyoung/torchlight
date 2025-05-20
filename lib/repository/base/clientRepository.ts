@@ -28,11 +28,13 @@ const clientMapping: EntityMapping<Client> = {
       weight: data.weight,
       tags: data.tags,
       notes: data.notes,
+      sport: data.sport,
       userId: data.user_id,
       createdAt: new Date(data.created_at as string),
       updatedAt: new Date(data.updated_at as string),
-      deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null
-    } as Client;
+      deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null,
+      trainingPlans: [] // Initialize as empty array, will be populated by resolvers
+    } as unknown as Client;
   }
 };
 
