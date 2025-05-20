@@ -1,9 +1,18 @@
 "use client";
 import Breadcrumbs from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { ClientCombobox } from "@/components/ui/client-combobox";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
+import { Loading } from "@/components/ui/loading";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,18 +50,19 @@ const NewTrainingPlanForm: React.FC = () => {
 	const clientId = searchParams.get("clientId");
 	const router = useRouter();
 
-	const [{ data: clientData, fetching: clientFetching }] = useQuery({
-		query: ClientQuery,
-		variables: { id: clientId },
-		pause: !clientId,
-	});
+	const [{ data: clientData, fetching: clientFetching, error: clientError }] =
+		useQuery({
+			query: ClientQuery,
+			variables: { id: clientId },
+			pause: !clientId,
+		});
 
 	const {
 		register,
 		handleSubmit,
 		reset,
 		setValue,
-		formState: { errors },
+		formState: { errors, isSubmitting },
 		control,
 	} = useForm<FormValues>({
 		resolver: zodResolver(trainingPlanSchema),
@@ -93,35 +103,61 @@ const NewTrainingPlanForm: React.FC = () => {
 		? `for ${clientData.client.firstName} ${clientData.client.lastName}`
 		: "";
 
+	if (clientFetching && clientId) {
+		return <Loading message="Loading client information..." />;
+	}
+
+	if (clientError && clientId) {
+		return <ErrorMessage message={clientError.message} />;
+	}
+
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
-			className="max-w-md mx-auto mt-8 space-y-6 bg-white p-6 rounded-lg shadow"
-		>
-			<Heading>Create Training Plan {clientName}</Heading>
-			{result.error && <ErrorMessage message={result.error.message} />}
-			{success && (
-				<SuccessMessage message="Training plan created successfully! Redirecting..." />
-			)}
-			<div>
-				<Controller
-					name="clientId"
-					control={control}
-					render={({ field }) => (
-						<ClientCombobox
-							label="Client"
-							value={field.value}
-							onChange={field.onChange}
-							error={errors.clientId?.message}
-							disabled={!!clientId} // Disable if clientId is provided in URL
-						/>
+		<Card className="max-w-md mx-auto mt-8 shadow">
+			<CardHeader>
+				<CardTitle>{`Create Training Plan ${clientName}`}</CardTitle>
+				<CardDescription>
+					Create a personalized training plan to help your client achieve their
+					fitness goals
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				<form
+					id="new-training-plan-form"
+					onSubmit={handleSubmit(onSubmit)}
+					className="space-y-6"
+				>
+					{result.error && <ErrorMessage message={result.error.message} />}
+					{success && (
+						<SuccessMessage message="Training plan created successfully! Redirecting..." />
 					)}
-				/>
-			</div>
-			<Button type="submit" disabled={result.fetching} className="w-full mt-4">
-				{result.fetching ? "Creating..." : "Create Training Plan"}
-			</Button>
-		</form>
+					<div>
+						<Controller
+							name="clientId"
+							control={control}
+							render={({ field }) => (
+								<ClientCombobox
+									label="Client"
+									value={field.value}
+									onChange={field.onChange}
+									error={errors.clientId?.message}
+									disabled={!!clientId} // Disable if clientId is provided in URL
+								/>
+							)}
+						/>
+					</div>
+				</form>
+			</CardContent>
+			<CardFooter>
+				<Button
+					type="submit"
+					form="new-training-plan-form"
+					disabled={isSubmitting || result.fetching}
+					className="w-full"
+				>
+					{result.fetching ? "Creating..." : "Create Training Plan"}
+				</Button>
+			</CardFooter>
+		</Card>
 	);
 };
 

@@ -59,89 +59,88 @@ const UserProfile: React.FC = () => {
 	return (
 		<>
 			<Breadcrumbs />
-			<Heading>{`${client.firstName} ${client.lastName}`}</Heading>
+			<Heading className="mb-2">{`${client.firstName} ${client.lastName}`}</Heading>
 			<div className="mt-6">
 				<Tabs defaultValue="details" className="focus-within:outline-none">
-					<TabsList aria-label="Client information tabs">
+					<TabsList
+						className="w-full sm:w-auto justify-start mb-4 overflow-x-auto"
+						aria-label="Client information tabs"
+					>
 						<TabsTrigger value="details">Client Details</TabsTrigger>
 						<TabsTrigger value="trainingPlans">Training Plans</TabsTrigger>
 						<TabsTrigger value="goals">Goals</TabsTrigger>
 						<TabsTrigger value="sessionLogs">Session Logs</TabsTrigger>
 					</TabsList>
-					<TabsContent value="details">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-							<div>
-								<span className="font-semibold">Email:</span> {client.email}
-							</div>
-							<div>
-								<span className="font-semibold">Birthday:</span>{" "}
-								{client.birthday}
-							</div>
-							<div>
-								<span className="font-semibold">Gender:</span>{" "}
-								{client.gender || "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Fitness Level:</span>{" "}
-								{client.fitnessLevel || "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Training History:</span>{" "}
-								{client.trainingHistory || "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Height:</span>{" "}
-								{client.height ? `${client.height} cm` : "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Weight:</span>{" "}
-								{client.weight ? `${client.weight} kg` : "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Tags:</span>{" "}
-								{client.tags && client.tags.length > 0
-									? client.tags.join(", ")
-									: "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Notes:</span>{" "}
-								{client.notes || "-"}
-							</div>
-							<div>
-								<span className="font-semibold">Created At:</span>{" "}
-								{new Date(client.createdAt).toLocaleDateString()}
-							</div>
-							<div>
-								<span className="font-semibold">Updated At:</span>{" "}
-								{new Date(client.updatedAt).toLocaleDateString()}
-							</div>
-							{client.deletedAt && (
+					<TabsContent value="details" role="tabpanel">
+						<Card className="p-6">
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div>
-									<span className="font-semibold">Deleted At:</span>{" "}
-									{new Date(client.deletedAt).toLocaleDateString()}
+									<span className="font-semibold">Email:</span> {client.email}
 								</div>
-							)}
-						</div>
+								<div>
+									<span className="font-semibold">Birthday:</span>{" "}
+									<time dateTime={client.birthday}>{client.birthday}</time>
+								</div>
+								<div>
+									<span className="font-semibold">Gender:</span>{" "}
+									{client.gender || "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Fitness Level:</span>{" "}
+									{client.fitnessLevel || "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Training History:</span>{" "}
+									{client.trainingHistory || "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Height:</span>{" "}
+									{client.height ? `${client.height} cm` : "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Weight:</span>{" "}
+									{client.weight ? `${client.weight} kg` : "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Tags:</span>{" "}
+									{client.tags && client.tags.length > 0
+										? client.tags.join(", ")
+										: "-"}
+								</div>
+								<div className="col-span-1 md:col-span-2">
+									<span className="font-semibold">Notes:</span>{" "}
+									{client.notes || "-"}
+								</div>
+								<div>
+									<span className="font-semibold">Created At:</span>{" "}
+									<time dateTime={client.createdAt}>
+										{new Date(client.createdAt).toLocaleDateString()}
+									</time>
+								</div>
+								<div>
+									<span className="font-semibold">Updated At:</span>{" "}
+									<time dateTime={client.updatedAt}>
+										{new Date(client.updatedAt).toLocaleDateString()}
+									</time>
+								</div>
+								{client.deletedAt && (
+									<div>
+										<span className="font-semibold">Deleted At:</span>{" "}
+										<time dateTime={client.deletedAt}>
+											{new Date(client.deletedAt).toLocaleDateString()}
+										</time>
+									</div>
+								)}
+							</div>
+						</Card>
 					</TabsContent>
-					<TabsContent value="trainingPlans" className="py-6">
-						<div className="space-y-2 mb-4">
-							<p className="text-sm text-muted-foreground">
-								Training plans help organize your client's progress and
-								structure their development journey.
-							</p>
-						</div>
+					<TabsContent value="trainingPlans" role="tabpanel">
 						<ClientTrainingPlansList
 							clientId={client.id}
 							trainingPlans={client.trainingPlans || []}
 						/>
 					</TabsContent>
-					<TabsContent value="goals" className="py-6">
-						<div className="space-y-2 mb-4">
-							<p className="text-sm text-muted-foreground">
-								Client goals help track progress and provide direction for
-								training plans and sessions.
-							</p>
-						</div>
+					<TabsContent value="goals" role="tabpanel">
 						<div className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4">
 							<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
 								<svg
@@ -172,13 +171,7 @@ const UserProfile: React.FC = () => {
 							</div>
 						</div>
 					</TabsContent>
-					<TabsContent value="sessionLogs" className="py-6">
-						<div className="space-y-2 mb-4">
-							<p className="text-sm text-muted-foreground">
-								Session logs record client interactions, progress, and notes
-								from each coaching session.
-							</p>
-						</div>
+					<TabsContent value="sessionLogs" role="tabpanel">
 						<div className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4">
 							<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
 								<svg

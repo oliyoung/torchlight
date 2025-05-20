@@ -1,6 +1,7 @@
 import {
 	Card,
 	CardContent,
+	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
@@ -21,13 +22,20 @@ export const ClientTrainingPlansList: React.FC<
 	ClientTrainingPlansListProps
 > = ({ clientId, trainingPlans }) => {
 	return (
-		<div className="mt-8">
-			<div className="flex items-center justify-between mb-4">
-				<Heading level={2}>Training Plans</Heading>
+		<div>
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+				<div className="space-y-1">
+					<Heading level={2}>Training Plans</Heading>
+					<CardDescription className="text-sm text-muted-foreground">
+						Training plans help organize your client's progress and structure
+						their development journey.
+					</CardDescription>
+				</div>
 				<Button asChild size="sm">
 					<Link
 						href={`/training-plans/new?clientId=${clientId}`}
 						aria-label="Create new training plan"
+						className="whitespace-nowrap"
 					>
 						<PlusIcon className="w-4 h-4 mr-2" aria-hidden="true" />
 						New Training Plan
@@ -37,7 +45,7 @@ export const ClientTrainingPlansList: React.FC<
 
 			{trainingPlans && trainingPlans.length > 0 ? (
 				<ul
-					className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 list-none p-0"
+					className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0"
 					aria-label="List of training plans"
 				>
 					{trainingPlans.map((plan) => (
@@ -56,21 +64,21 @@ export const ClientTrainingPlansList: React.FC<
 								</CardHeader>
 								<CardContent className="flex-grow">
 									{plan.overview && (
-										<p className="text-sm text-muted-foreground line-clamp-2">
+										<p className="text-sm text-muted-foreground line-clamp-3">
 											{plan.overview}
 										</p>
 									)}
 									<p className="text-xs text-muted-foreground mt-2">
 										<span className="sr-only">Date created:</span>
-										<time dateTime={plan.createdAt.toString()}>
+										<time dateTime={new Date(plan.createdAt).toISOString()}>
 											Created: {new Date(plan.createdAt).toLocaleDateString()}
 										</time>
 									</p>
 								</CardContent>
-								<CardFooter>
+								<CardFooter className="pt-0">
 									<Link
 										href={`/training-plans/${plan.id}`}
-										className="text-sm text-blue-600 hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 ml-auto"
+										className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 ml-auto transition-colors"
 									>
 										View details
 										<span className="sr-only">
