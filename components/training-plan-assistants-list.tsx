@@ -1,32 +1,31 @@
-import type React from "react";
-import type { Assistant } from "@/lib/types";
 import {
 	Card,
-	CardHeader,
-	CardTitle,
 	CardContent,
 	CardFooter,
+	CardHeader,
+	CardTitle,
 } from "@/components/ui/card";
-import { Heading } from "./ui/heading";
+import type { Assistant } from "@/lib/types";
+import type React from "react";
 import { AssistantSelectDialog } from "./ui/assistant-select-dialog";
+import { Button } from "./ui/button";
+import { Heading } from "./ui/heading";
 
 interface TrainingPlanAssistantsListProps {
 	sport: string;
-	onAddAssistant?: (assistant: Assistant) => void;
+	onAddAssistant: (assistant: Assistant) => void;
+	onRemoveAssistant?: (assistantId: string) => void;
 	assistants: Assistant[];
 }
 
 export const TrainingPlanAssistantsList: React.FC<
 	TrainingPlanAssistantsListProps
-> = ({ sport, onAddAssistant, assistants }) => {
+> = ({ sport, onAddAssistant, onRemoveAssistant, assistants }) => {
 	return (
 		<div className="mt-8">
 			<div className="flex items-center justify-between mb-2">
 				<Heading level={2}>Assistants</Heading>
-				<AssistantSelectDialog
-					onSubmit={onAddAssistant || (() => {})}
-					sport={sport}
-				/>
+				<AssistantSelectDialog onSubmit={onAddAssistant} sport={sport} />
 			</div>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
 				{assistants.map((assistant) => (
@@ -44,9 +43,16 @@ export const TrainingPlanAssistantsList: React.FC<
 							</div>
 						</CardContent>
 						<CardFooter>
-							<button type="button" className="btn btn-xs btn-outline ml-auto">
-								Remove
-							</button>
+							{onRemoveAssistant && (
+								<Button
+									onClick={() => onRemoveAssistant(assistant.id)}
+									variant="outline"
+									size="sm"
+									className="ml-auto"
+								>
+									Remove
+								</Button>
+							)}
 						</CardFooter>
 					</Card>
 				))}

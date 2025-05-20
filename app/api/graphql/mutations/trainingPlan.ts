@@ -1,11 +1,11 @@
-import type { CreateTrainingPlanInput, TrainingPlan, Client, Goal } from "@/lib/types";
+import type { Client, CreateTrainingPlanInput, Goal, TrainingPlan, UpdateTrainingPlanInput } from "@/lib/types";
 
 // TODO: Implement mock training plan generation logic
 import { generateTrainingPlanContent } from "@/lib/ai/generateTrainingPlanContent"; // Import the async generator
 
+import { logger } from "@/lib/logger";
 // Import repository instances
 import { clientRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";
-import { logger } from "@/lib/logger";
 import type { GraphQLContext } from "../route";
 
 export const createTrainingPlan = async (
@@ -56,4 +56,29 @@ export const createTrainingPlan = async (
 
     // 5. Return the initial training plan immediately
     return newTrainingPlan;
+};
+
+export const updateTrainingPlan = async (
+    _: unknown,
+    { id, input }: { id: string; input: UpdateTrainingPlanInput },
+    context: GraphQLContext
+): Promise<TrainingPlan> => {
+    logger.info({ id, input }, "Updating training plan");
+
+    const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(
+        context?.user?.id ?? null,
+        id,
+        {
+            title: input.title,
+            overview: input.overview,
+            assistantIds: input.assistantIds,
+            goalIds: input.goalIds
+        }
+    );
+
+    if (!updatedTrainingPlan) {
+        throw new Error(`Failed to update training plan with ID ${id}`);
+    }
+
+    return updatedTrainingPlan;
 };

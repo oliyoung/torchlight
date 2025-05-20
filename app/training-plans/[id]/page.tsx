@@ -11,7 +11,7 @@ import { logger } from "@/lib/logger";
 import type { Assistant, Goal } from "@/lib/types";
 import Link from "next/link";
 import type React from "react";
-import { useQuery } from "urql";
+import { useMutation, useQuery } from "urql";
 
 const TrainingPlanQuery = `
   query TrainingPlan($id: ID!) {
@@ -43,13 +43,76 @@ const TrainingPlanQuery = `
   }
 `;
 
+const UpdateTrainingPlanMutation = `
+  mutation UpdateTrainingPlan($id: ID!, $input: UpdateTrainingPlanInput!) {
+    updateTrainingPlan(id: $id, input: $input) {
+      id
+      title
+      assistants {
+        id
+        name
+        sport
+        role
+        strengths
+      }
+    }
+  }
+`;
+
 const TrainingPlanDetailPage: React.FC = () => {
 	const id = useStringParamId();
-	const [{ data, fetching, error }] = useQuery({
+	const [{ data, fetching, error }, refetchTrainingPlan] = useQuery({
 		query: TrainingPlanQuery,
 		variables: { id },
 		pause: !id,
 	});
+
+	const [updateResult, updateTrainingPlan] = useMutation(
+		UpdateTrainingPlanMutation,
+	);
+
+	const handleAddAssistant = async (assistant: Assistant) => {
+		// Get current assistants and add the new one
+		const currentAssistants = data?.trainingPlan?.assistants || [];
+		const assistantIds = [...currentAssistants.map((a) => a.id), assistant.id];
+
+		// Remove duplicates
+		const uniqueAssistantIds = [...new Set(assistantIds)];
+
+		try {
+			await updateTrainingPlan({
+				id,
+				input: {
+					assistantIds: uniqueAssistantIds,
+				},
+			});
+			// Refetch to get updated data
+			refetchTrainingPlan({ requestPolicy: "network-only" });
+		} catch (err) {
+			logger.error({ err }, "Error adding assistant to training plan");
+		}
+	};
+
+	const handleRemoveAssistant = async (assistantId: string) => {
+		// Get current assistants and remove the specified one
+		const currentAssistants = data?.trainingPlan?.assistants || [];
+		const assistantIds = currentAssistants
+			.map((a) => a.id)
+			.filter((id) => id !== assistantId);
+
+		try {
+			await updateTrainingPlan({
+				id,
+				input: {
+					assistantIds,
+				},
+			});
+			// Refetch to get updated data
+			refetchTrainingPlan({ requestPolicy: "network-only" });
+		} catch (err) {
+			logger.error({ err }, "Error removing assistant from training plan");
+		}
+	};
 
 	if (!id) return <ErrorMessage message="No training plan ID provided." />;
 	if (fetching) return <Loading message="Loading training plan..." />;
@@ -80,6 +143,19 @@ const TrainingPlanDetailPage: React.FC = () => {
 					{plan.client?.firstName} {plan.client?.lastName}
 				</Link>
 			</Heading>
+
+			{/* Show update status if needed */}
+			{updateResult.fetching && (
+				<p className="text-sm text-muted-foreground">
+					Updating training plan...
+				</p>
+			)}
+			{updateResult.error && (
+				<ErrorMessage
+					message={`Error updating training plan: ${updateResult.error.message}`}
+				/>
+			)}
+
 			<div className="flex items-start justify-between">
 				<div>
 					{programOverview.title && (
@@ -152,6 +228,8 @@ const TrainingPlanDetailPage: React.FC = () => {
 					<TrainingPlanAssistantsList
 						sport={sport}
 						assistants={plan.assistants}
+						onAddAssistant={handleAddAssistant}
+						onRemoveAssistant={handleRemoveAssistant}
 					/>
 					<TrainingPlanGoalsList goals={plan.goals} />
 					<TrainingPlanSessionLogsList sessionLogs={plan.sessionLogs} />

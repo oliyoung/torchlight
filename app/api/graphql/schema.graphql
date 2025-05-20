@@ -183,6 +183,13 @@ input AIAnalyzeProgressInput {
 	endDate: DateTime!
 }
 
+input UpdateTrainingPlanInput {
+	title: String
+	overview: String
+	assistantIds: [ID!]
+	goalIds: [ID!]
+}
+
 type Mutation {
 	createClient(input: CreateClientInput!): Client!
 	updateClient(id: ID!, input: UpdateClientInput!): Client!
@@ -197,6 +204,7 @@ type Mutation {
 	deleteSessionLog(id: ID!): Boolean!
 
 	createTrainingPlan(input: CreateTrainingPlanInput!): TrainingPlan!
+	updateTrainingPlan(id: ID!, input: UpdateTrainingPlanInput!): TrainingPlan!
 
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
 	generateSession(input: AIGenerateSessionInput!): SessionLog!

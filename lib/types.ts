@@ -1,5 +1,4 @@
-import type { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { GraphQLContext } from '@/app/api/graphql/route';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -154,6 +153,7 @@ export type Mutation = {
   updateClient: Client;
   updateGoal: Goal;
   updateSessionLog: SessionLog;
+  updateTrainingPlan: TrainingPlan;
 };
 
 
@@ -222,6 +222,12 @@ export type MutationUpdateGoalArgs = {
 export type MutationUpdateSessionLogArgs = {
   id: Scalars['ID']['input'];
   input: UpdateSessionLogInput;
+};
+
+
+export type MutationUpdateTrainingPlanArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateTrainingPlanInput;
 };
 
 export type Query = {
@@ -374,6 +380,13 @@ export type UpdateSessionLogInput = {
   transcript?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateTrainingPlanInput = {
+  assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  overview?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -473,6 +486,7 @@ export type ResolversTypes = {
   UpdateClientInput: UpdateClientInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
+  UpdateTrainingPlanInput: UpdateTrainingPlanInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -504,6 +518,7 @@ export type ResolversParentTypes = {
   UpdateClientInput: UpdateClientInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
+  UpdateTrainingPlanInput: UpdateTrainingPlanInput;
 };
 
 export type AiMetadataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AIMetadata'] = ResolversParentTypes['AIMetadata']> = {
@@ -586,6 +601,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
   updateSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationUpdateSessionLogArgs, 'id' | 'input'>>;
+  updateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationUpdateTrainingPlanArgs, 'id' | 'input'>>;
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
