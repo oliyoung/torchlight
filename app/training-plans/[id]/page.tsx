@@ -2,7 +2,6 @@
 import Breadcrumbs from "@/components/breadcrumbs";
 import { TrainingPlanAssistantsList } from "@/components/training-plan-assistants-list";
 import { TrainingPlanGoalsList } from "@/components/training-plan-goals-list";
-import { TrainingPlanSessionLogsList } from "@/components/training-plan-session-logs-list";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
 import { Loading } from "@/components/ui/loading";
@@ -38,6 +37,7 @@ const TrainingPlanQuery = `
         id
         title
         status
+        description
       }
     }
   }
@@ -54,6 +54,12 @@ const UpdateTrainingPlanMutation = `
         sport
         role
         strengths
+      }
+      goals {
+        id
+        title
+        status
+        description
       }
     }
   }
@@ -111,6 +117,47 @@ const TrainingPlanDetailPage: React.FC = () => {
 			refetchTrainingPlan({ requestPolicy: "network-only" });
 		} catch (err) {
 			logger.error({ err }, "Error removing assistant from training plan");
+		}
+	};
+
+	const handleAddGoal = async (goal: Goal) => {
+		// Get current goals and add the new one
+		const currentGoals = data?.trainingPlan?.goals || [];
+		const goalIds = [...currentGoals.map((g) => g.id), goal.id];
+
+		// Remove duplicates
+		const uniqueGoalIds = [...new Set(goalIds)];
+
+		try {
+			await updateTrainingPlan({
+				id,
+				input: {
+					goalIds: uniqueGoalIds,
+				},
+			});
+			// Refetch to get updated data
+			refetchTrainingPlan({ requestPolicy: "network-only" });
+		} catch (err) {
+			logger.error({ err }, "Error adding goal to training plan");
+		}
+	};
+
+	const handleRemoveGoal = async (goalId: string) => {
+		// Get current goals and remove the specified one
+		const currentGoals = data?.trainingPlan?.goals || [];
+		const goalIds = currentGoals.map((g) => g.id).filter((id) => id !== goalId);
+
+		try {
+			await updateTrainingPlan({
+				id,
+				input: {
+					goalIds,
+				},
+			});
+			// Refetch to get updated data
+			refetchTrainingPlan({ requestPolicy: "network-only" });
+		} catch (err) {
+			logger.error({ err }, "Error removing goal from training plan");
 		}
 	};
 
@@ -231,8 +278,12 @@ const TrainingPlanDetailPage: React.FC = () => {
 						onAddAssistant={handleAddAssistant}
 						onRemoveAssistant={handleRemoveAssistant}
 					/>
-					<TrainingPlanGoalsList goals={plan.goals} />
-					<TrainingPlanSessionLogsList sessionLogs={plan.sessionLogs} />
+					<TrainingPlanGoalsList
+						goals={plan.goals}
+						clientId={plan.client?.id}
+						onAddGoal={handleAddGoal}
+						onRemoveGoal={handleRemoveGoal}
+					/>
 				</div>
 			</div>
 		</>
