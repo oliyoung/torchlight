@@ -202,10 +202,38 @@ export class EntityRepository<T extends { id: string | number }> {
       return null;
     }
 
-    logger.info({ id, entity: this.entityMapping.tableName }, `Updating ${this.entityMapping.tableName}`);
+    logger.info({ id, entity: this.entityMapping.tableName, input }, `Updating ${this.entityMapping.tableName}`);
 
     try {
-      const dbData = this.mapToDbColumns(input);
+      // Filter out undefined/null values to avoid overwriting with nulls
+      const filteredInput = Object.fromEntries(
+        Object.entries(input).filter(([_, value]) => value !== undefined && value !== null)
+      ) as Partial<T>; // Cast to ensure type safety
+
+      // Check if we have any fields to update after filtering
+      if (Object.keys(filteredInput).length === 0) {
+        logger.warn({ id, entity: this.entityMapping.tableName }, `No valid fields to update for ${this.entityMapping.tableName}`);
+
+        // Return the existing record instead of attempting an empty update
+        let query = this.client
+          .from(this.entityMapping.tableName)
+          .select('*')
+          .eq('id', id);
+
+        query = this.withUserFilter(query, userId);
+
+        const { data, error } = await query.maybeSingle();
+
+        if (error) {
+          logger.error({ error, id }, `Error fetching ${this.entityMapping.tableName} for empty update`);
+          return null;
+        }
+
+        return this.transformResponse(data);
+      }
+
+      const dbData = this.mapToDbColumns(filteredInput);
+      logger.debug({ dbData, id, entity: this.entityMapping.tableName }, 'Mapped data for update');
 
       let query = this.client
         .from(this.entityMapping.tableName)
@@ -214,18 +242,24 @@ export class EntityRepository<T extends { id: string | number }> {
 
       query = this.withUserFilter(query, userId);
 
+      // Use maybeSingle instead of single to avoid PGRST116 error when no rows match
       const { data, error } = await query
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
-        logger.error({ error, id }, `Error updating ${this.entityMapping.tableName}`);
+        logger.error({ error, id, dbData }, `Error updating ${this.entityMapping.tableName}`);
+        return null;
+      }
+
+      if (!data) {
+        logger.warn({ id, userId }, `No rows affected when updating ${this.entityMapping.tableName}`);
         return null;
       }
 
       return this.transformResponse(data);
     } catch (error) {
-      logger.error({ error, id }, `Exception updating ${this.entityMapping.tableName}`);
+      logger.error({ error, id, input }, `Exception updating ${this.entityMapping.tableName}`);
       return null;
     }
   }

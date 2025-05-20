@@ -1,7 +1,7 @@
-import type { TrainingPlan, CreateTrainingPlanInput } from "@/lib/types";
-import { EntityRepository, type EntityMapping } from "./entityRepository";
-import { RelationRepository } from "./relationRepository";
 import { logger } from "@/lib/logger";
+import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
+import { type EntityMapping, EntityRepository } from "./entityRepository";
+import { RelationRepository } from "./relationRepository";
 
 // Training plan column mappings
 const trainingPlanMapping: EntityMapping<TrainingPlan> = {
@@ -146,40 +146,82 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     logger.info({ id, data }, "Updating training plan");
 
     try {
-      // Map client properties to database fields
-      const dbTrainingPlan = {
-        title: data.title,
-        overview: data.overview,
-        plan_json: data.planJson,
-        client_id: data.clientId,
-        generated_by: data.generatedBy,
-        source_prompt: data.sourcePrompt
-      };
+      // Create a flag to track if we need to update the main entity
+      const hasEntityChanges = !!(
+        data.title !== undefined ||
+        data.overview !== undefined ||
+        data.planJson !== undefined ||
+        data.clientId !== undefined ||
+        data.generatedBy !== undefined ||
+        data.sourcePrompt !== undefined
+      );
 
-      // Update the training plan basic data
-      const updatedPlan = await this.update(userId, id, dbTrainingPlan);
+      let updatedPlan: TrainingPlan | null = null;
 
-      if (!updatedPlan) {
-        logger.error({ id, data }, "Failed to update training plan");
-        return null;
+      // Map client properties to database fields, only including defined fields
+      if (hasEntityChanges) {
+        const dbTrainingPlan: Record<string, unknown> = {};
+
+        if (data.title !== undefined) dbTrainingPlan.title = data.title;
+        if (data.overview !== undefined) dbTrainingPlan.overview = data.overview;
+        if (data.planJson !== undefined) dbTrainingPlan.plan_json = data.planJson;
+        if (data.clientId !== undefined) dbTrainingPlan.client_id = data.clientId;
+        if (data.generatedBy !== undefined) dbTrainingPlan.generated_by = data.generatedBy;
+        if (data.sourcePrompt !== undefined) dbTrainingPlan.source_prompt = data.sourcePrompt;
+
+        // Update the training plan basic data only if there are fields to update
+        updatedPlan = await this.update(userId, id, dbTrainingPlan);
+
+        if (!updatedPlan) {
+          logger.error({ id, data }, "Failed to update training plan entity data");
+          return null;
+        }
+      } else {
+        // If we're only updating relations, we need to fetch the current plan
+        logger.info({ id }, "Only updating relations, fetching current training plan");
+        updatedPlan = await this.getTrainingPlanById(userId, id);
+
+        if (!updatedPlan) {
+          logger.error({ id }, "Training plan not found for relation update");
+          return null;
+        }
       }
 
+      let relationsUpdated = true;
+
       // Update assistant relations if provided
-      if (data.assistantIds) {
-        await this.relationRepo.replaceRelations(
+      if (data.assistantIds !== undefined) {
+        logger.info({ id, assistantIds: data.assistantIds }, "Updating training plan assistants");
+        const assistantResult = await this.relationRepo.replaceRelations(
           trainingPlanAssistantsConfig,
           id,
           data.assistantIds
         );
+
+        if (!assistantResult) {
+          logger.error({ id, assistantIds: data.assistantIds }, "Failed to update training plan assistants");
+          relationsUpdated = false;
+        }
       }
 
       // Update goal relations if provided
-      if (data.goalIds) {
-        await this.relationRepo.replaceRelations(
+      if (data.goalIds !== undefined) {
+        logger.info({ id, goalIds: data.goalIds }, "Updating training plan goals");
+        const goalResult = await this.relationRepo.replaceRelations(
           trainingPlanGoalsConfig,
           id,
           data.goalIds
         );
+
+        if (!goalResult) {
+          logger.error({ id, goalIds: data.goalIds }, "Failed to update training plan goals");
+          relationsUpdated = false;
+        }
+      }
+
+      // If relations failed to update but entity succeeded, still return the updated plan
+      if (!relationsUpdated) {
+        logger.warn({ id }, "Some training plan relations failed to update");
       }
 
       return updatedPlan;
