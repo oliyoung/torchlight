@@ -25,7 +25,7 @@ This document tracks planned features and future ideas for the congenial-carniva
 
 ## User Experience
 
-- [ ] Dark mode support
+- [x] Dark mode support
 - [ ] Customizable dashboard layouts
 - [ ] Quick-access toolbar for common actions
 - [ ] Improved mobile responsiveness
