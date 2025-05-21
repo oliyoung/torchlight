@@ -51,6 +51,15 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Advanced caching strategies
 - [ ] Multi-region database support
 
+## Team Management
+
+- [ ] Team creation and management (organizations, clubs, squads)
+- [ ] Assign athletes to teams
+- [ ] Assign coaches and define roles within teams
+- [ ] Team dashboards (overview of team progress, sessions, and goals)
+- [ ] Team-based analytics and reporting
+- [ ] Bulk actions for team management (e.g., assign training plans to all team members)
+
 ## Business Features
 
 - [ ] Team accounts for coaching organizations
