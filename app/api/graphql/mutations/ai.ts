@@ -25,7 +25,7 @@ export const generateSession = async (_: unknown, { input }: { input: AiGenerate
 
   // Create a mock session log with the generated content
   const result = await sessionLogRepository.createSessionLog(context?.user?.id ?? null, {
-    clientId: input.clientId,
+    athleteId: input.athleteId,
     date: new Date(),
     notes: generatedContent,
     goalIds: input.goalIds

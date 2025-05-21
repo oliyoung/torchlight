@@ -17,7 +17,7 @@ Based on the current understanding of the congenial-carnival project, the follow
 
 5.  **Release Management Strategy:** How and when new versions of the application will be built, tagged, and deployed (versioning, release cadence, etc.) is not defined.
 
-6.  **Detailed Requirements for Future User Roles:** Specific permissions, capabilities, and flows for planned "Client" and "Admin" roles are not yet known.
+6.  **Detailed Requirements for Future User Roles:** Specific permissions, capabilities, and flows for planned "Athlete" and "Admin" roles are not yet known.
 
 7.  **Complex Seed Data Requirements:** While initial seeding is possible, requirements for more complex or scenario-specific seed data might evolve.
 

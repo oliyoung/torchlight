@@ -28,7 +28,7 @@ async function getTrainingPlansByIds(userId: string | null, trainingPlanIds: str
     title: plan.title,
     overview: plan.overview,
     planJson: plan.plan_json,
-    client_id: plan.client_id,
+    athleteId: plan.athlete_id,
     createdAt: new Date(plan.created_at),
     updatedAt: new Date(plan.updated_at),
     deletedAt: plan.deleted_at ? new Date(plan.deleted_at) : null,

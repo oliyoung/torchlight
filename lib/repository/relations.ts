@@ -28,17 +28,6 @@ export async function getTrainingPlanIdsByAthleteId(
     return [];
   }
 }
-
-/**
- * @deprecated Use getTrainingPlanIdsByAthleteId instead
- */
-export async function getTrainingPlanIdsByClientId(
-  userId: string | null,
-  clientId: string
-): Promise<string[]> {
-  return getTrainingPlanIdsByAthleteId(userId, clientId);
-}
-
 /**
  * Get session log IDs associated with a goal
  */

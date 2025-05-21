@@ -1,4 +1,4 @@
-import type { SessionLog, Goal, Client, TrainingPlan } from "@/lib/types";
+import type { SessionLog, Goal, TrainingPlan, Athlete } from "@/lib/types";
 
 export default {
   trainingPlanGenerated: {
@@ -31,10 +31,10 @@ export default {
       return {} as AsyncIterator<Goal>;
     },
   },
-  clientUpdated: {
-    subscribe: (): AsyncIterator<Client> => {
+  athleteUpdated: {
+    subscribe: (): AsyncIterator<Athlete> => {
       // Logic for subscription
-      return {} as AsyncIterator<Client>;
+      return {} as AsyncIterator<Athlete>;
     },
   },
 }

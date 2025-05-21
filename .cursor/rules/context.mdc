@@ -12,19 +12,19 @@ alwaysApply: true
 ## 2. Core Data Models
 - The core data models are defined in the GraphQL schema (`app/api/graphql/schema.graphql`), which is always the single source of truth.
 - Main entities include:
-  - **Client**: Represents a person being coached, with personal details, goals, session logs, and training plans.
-  - **Goal**: Linked to a client, tracks objectives, status, progress notes, and related session logs.
+  - **Athlete**: Represents a person being coached, with personal details, goals, session logs, and training plans.
+  - **Goal**: Linked to an athlete, tracks objectives, status, progress notes, and related session logs.
   - **SessionLog**: Records individual coaching sessions, notes, transcripts, summaries, action items, and links to goals.
   - **Assistant**: Represents AI coaching assistants. In the context of AI integration, Assistants are primarily used to define and store LLM prompts via the `promptTemplate` field, along with associated metadata like sport, role, and strengths.
-  - **TrainingPlan**: Structured plans for clients, linked to assistants and goals, with plan data in JSON.
+  - **TrainingPlan**: Structured plans for athletes, linked to assistants and goals, with plan data in JSON.
   - **AIMetadata**: Metadata for AI-generated content in session logs.
 - Relationships and field details are fully described in the GraphQL schema.
 - GraphQL Playground is available at http://localhost:3000/api/graphql.
 
 ## 3. User Flows & Key Screens
 - User journeys are derived from the UI. Key flows include:
-  - Coach logs in and views their client dashboard.
-  - Navigates to a client, reviews or adds session notes, uploads transcripts.
+  - Coach logs in and views their athlete dashboard.
+  - Navigates to an athlete, reviews or adds session notes, uploads transcripts.
   - Tags sessions to goals, views progress, and uses AI tools (when available) for summaries or next steps.
   - Creates and manages training plans, goals, and session logs.
 - No wireframes, mockups, or formal user stories exist; development proceeds directly in code and browser.
@@ -38,7 +38,7 @@ alwaysApply: true
 ## 5. Authentication & Authorization
 - Supabase Auth is used for authentication ([Supabase Auth docs](mdc:https:/supabase.com/auth)).
 - Social logins and user management are supported out of the box.
-- Only the "Coach" role is currently implemented. Additional roles ("Client", "Admin") are planned after core features and AI integration are complete.
+- Only the "Coach" role is currently implemented. Additional roles ("Athlete", "Admin") are planned after core features and AI integration are complete.
 - All authenticated users are assumed to be coaches for now.
 
 ## 6. Deployment & Environment

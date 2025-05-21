@@ -2,7 +2,7 @@ import { createAssistantLoader } from './assistant';
 import { createAthleteLoader } from './athlete';
 import { createGoalLoader } from './goal';
 import {
-  createClientTrainingPlanIdsLoader,
+  createAthleteTrainingPlanIdsLoader,
   createGoalSessionLogIdsLoader,
   createSessionLogGoalIdsLoader,
   createTrainingPlanAssistantIdsLoader,
@@ -20,7 +20,7 @@ export interface DataLoaders {
   assistantLoader: ReturnType<typeof createAssistantLoader>;
 
   // Relation loaders
-  clientTrainingPlanIdsLoader: ReturnType<typeof createClientTrainingPlanIdsLoader>;
+  athleteTrainingPlanIdsLoader: ReturnType<typeof createAthleteTrainingPlanIdsLoader>;
   goalSessionLogIdsLoader: ReturnType<typeof createGoalSessionLogIdsLoader>;
   sessionLogGoalIdsLoader: ReturnType<typeof createSessionLogGoalIdsLoader>;
   trainingPlanAssistantIdsLoader: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
@@ -41,7 +41,7 @@ export function createDataLoaders(userId: string | null): DataLoaders {
     assistantLoader: createAssistantLoader(),
 
     // Relation loaders
-    clientTrainingPlanIdsLoader: createClientTrainingPlanIdsLoader(userId),
+    athleteTrainingPlanIdsLoader: createAthleteTrainingPlanIdsLoader(userId),
     goalSessionLogIdsLoader: createGoalSessionLogIdsLoader(),
     sessionLogGoalIdsLoader: createSessionLogGoalIdsLoader(),
     trainingPlanAssistantIdsLoader: createTrainingPlanAssistantIdsLoader(),

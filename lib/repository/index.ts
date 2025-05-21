@@ -10,7 +10,3 @@ export const goalRepository = new GoalRepository();
 export const sessionLogRepository = new SessionLogRepository();
 export const assistantRepository = new AssistantRepository();
 export const trainingPlanRepository = new TrainingPlanRepository();
-
-// Legacy re-exports for backward compatibility (deprecated)
-export const clientRepository = athleteRepository;
-

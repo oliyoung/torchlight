@@ -98,7 +98,7 @@ For example:
 
 ## Authentication & Authorization
 
-- Supabase Auth is used for authentication. Only the "Coach" role is implemented; "Client" and "Admin" roles will come after core features and AI integration.
+- Supabase Auth is used for authentication. Only the "Coach" role is implemented; "Athlete" and "Admin" roles will come after core features and AI integration.
 - All authenticated users are assumed to be coaches for now.
 
 ## Environments & Data
