@@ -10,18 +10,9 @@ DROP TABLE IF EXISTS assistants CASCADE;
 DROP TABLE IF EXISTS athletes CASCADE;
 DROP TABLE IF EXISTS training_plans CASCADE;
 
--- Assistants table
-CREATE TABLE assistants (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    sport VARCHAR(255) NOT NULL,
-    role VARCHAR(255) NOT NULL,
-    strengths TEXT[] NOT NULL,
-    bio TEXT NOT NULL,
-    prompt_template TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+-- =========================
+-- 1. Base Tables
+-- =========================
 
 -- Athletes table
 CREATE TABLE athletes (
@@ -42,6 +33,34 @@ CREATE TABLE athletes (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
+);
+
+-- Assistants table
+CREATE TABLE assistants (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    sport VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    strengths TEXT[] NOT NULL,
+    bio TEXT NOT NULL,
+    prompt_template TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TrainingPlans table
+CREATE TABLE training_plans (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    athlete_id INTEGER NOT NULL REFERENCES athletes(id),
+    title VARCHAR(255),
+    overview TEXT,
+    plan_json JSONB,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    generated_by VARCHAR(255),
+    source_prompt TEXT
 );
 
 -- Goals table
@@ -74,13 +93,6 @@ CREATE TABLE session_logs (
     deleted_at TIMESTAMP
 );
 
--- Join table: goal_session_logs (many-to-many)
-CREATE TABLE goal_session_logs (
-    goal_id INTEGER NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
-    session_log_id INTEGER NOT NULL REFERENCES session_logs(id) ON DELETE CASCADE,
-    PRIMARY KEY (goal_id, session_log_id)
-);
-
 -- AIMetadata table (one-to-one with session_logs)
 CREATE TABLE ai_metadata (
     session_log_id INTEGER PRIMARY KEY REFERENCES session_logs(id) ON DELETE CASCADE,
@@ -88,19 +100,15 @@ CREATE TABLE ai_metadata (
     next_steps_generated BOOLEAN NOT NULL
 );
 
--- TrainingPlans table
-CREATE TABLE training_plans (
-    id SERIAL PRIMARY KEY,
-    user_id VARCHAR(255) NOT NULL,
-    athlete_id INTEGER NOT NULL REFERENCES athletes(id),
-    title VARCHAR(255),
-    overview TEXT,
-    plan_json JSONB,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP,
-    generated_by VARCHAR(255),
-    source_prompt TEXT
+-- =========================
+-- 2. Join Tables (many-to-many)
+-- =========================
+
+-- Join table: goal_session_logs (many-to-many)
+CREATE TABLE goal_session_logs (
+    goal_id INTEGER NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+    session_log_id INTEGER NOT NULL REFERENCES session_logs(id) ON DELETE CASCADE,
+    PRIMARY KEY (goal_id, session_log_id)
 );
 
 -- Join table: training_plan_assistants (many-to-many)
@@ -124,22 +132,9 @@ CREATE TABLE training_plan_session_logs (
     PRIMARY KEY (training_plan_id, session_log_id)
 );
 
--- Add foreign key constraints
-ALTER TABLE goals
-ADD CONSTRAINT fk_athlete
-FOREIGN KEY (athlete_id) REFERENCES athletes(id);
-
-ALTER TABLE session_logs
-ADD CONSTRAINT fk_athlete
-FOREIGN KEY (athlete_id) REFERENCES athletes(id);
-
-ALTER TABLE ai_metadata
-ADD CONSTRAINT fk_session_log
-FOREIGN KEY (session_log_id) REFERENCES session_logs(id);
-
--- ======================================================
--- FIXTURE DATA - All inserts moved to the end of the file
--- ======================================================
+-- =========================
+-- 3. Fixture Data
+-- =========================
 
 -- Fixture data for assistants (basketball)
 INSERT INTO assistants (id, name, sport, role, strengths, bio, prompt_template, created_at, updated_at) VALUES
