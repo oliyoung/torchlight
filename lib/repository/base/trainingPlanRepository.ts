@@ -7,7 +7,7 @@ import { RelationRepository } from "./relationRepository";
 const trainingPlanMapping: EntityMapping<TrainingPlan> = {
   tableName: 'training_plans',
   columnMappings: {
-    clientId: 'client_id',
+    athleteId: 'athlete_id',
     planJson: 'plan_json',
     generatedBy: 'generated_by',
     sourcePrompt: 'source_prompt'
@@ -20,12 +20,15 @@ const trainingPlanMapping: EntityMapping<TrainingPlan> = {
       title: data.title,
       overview: data.overview,
       planJson: data.plan_json,
-      client_id: data.client_id,
+      athleteId: data.athlete_id,
       createdAt: new Date(data.created_at),
       updatedAt: new Date(data.updated_at),
       deletedAt: data.deleted_at ? new Date(data.deleted_at) : null,
       generatedBy: data.generated_by || null,
       sourcePrompt: data.source_prompt || null,
+      frequency: data.frequency || null,
+      duration: data.duration || null,
+      summary: data.summary || null,
     } as TrainingPlan;
   }
 };
@@ -54,11 +57,11 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
   /**
    * Get all training plans for a user
    */
-  async getTrainingPlans(userId: string | null, clientId?: string | null): Promise<TrainingPlan[]> {
+  async getTrainingPlans(userId: string | null, athleteId?: string | null): Promise<TrainingPlan[]> {
     if (!userId) return [];
 
-    if (clientId) {
-      return this.getByField(userId, 'client_id', clientId);
+    if (athleteId) {
+      return this.getByField(userId, 'athlete_id', athleteId);
     }
 
     return this.getAll(userId);
@@ -95,7 +98,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
         title: data.overview ? `Training Plan - ${new Date().toLocaleDateString()}` : "New Training Plan",
         overview: data.overview,
         plan_json: data.planJson,
-        client_id: data.clientId,
+        athlete_id: data.athleteId,
         generated_by: data.generatedBy,
         source_prompt: data.sourcePrompt
       };
@@ -139,7 +142,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
   async updateTrainingPlan(
     userId: string | null,
     id: string,
-    data: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[]; clientId?: string; },
+    data: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[]; athleteId?: string; },
   ): Promise<TrainingPlan | null> {
     if (!userId) return null;
 
@@ -151,21 +154,21 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
         data.title !== undefined ||
         data.overview !== undefined ||
         data.planJson !== undefined ||
-        data.clientId !== undefined ||
+        data.athleteId !== undefined ||
         data.generatedBy !== undefined ||
         data.sourcePrompt !== undefined
       );
 
       let updatedPlan: TrainingPlan | null = null;
 
-      // Map client properties to database fields, only including defined fields
+      // Map athlete properties to database fields, only including defined fields
       if (hasEntityChanges) {
         const dbTrainingPlan: Record<string, unknown> = {};
 
         if (data.title !== undefined) dbTrainingPlan.title = data.title;
         if (data.overview !== undefined) dbTrainingPlan.overview = data.overview;
         if (data.planJson !== undefined) dbTrainingPlan.plan_json = data.planJson;
-        if (data.clientId !== undefined) dbTrainingPlan.client_id = data.clientId;
+        if (data.athleteId !== undefined) dbTrainingPlan.athlete_id = data.athleteId;
         if (data.generatedBy !== undefined) dbTrainingPlan.generated_by = data.generatedBy;
         if (data.sourcePrompt !== undefined) dbTrainingPlan.source_prompt = data.sourcePrompt;
 

@@ -13,14 +13,14 @@ import { Heading } from "./ui/heading";
 
 interface TrainingPlanGoalsListProps {
 	goals: Goal[];
-	clientId: string;
+	athleteId: string;
 	onAddGoal?: (goal: Goal) => void;
 	onRemoveGoal?: (goalId: string) => void;
 }
 
 export const TrainingPlanGoalsList: React.FC<TrainingPlanGoalsListProps> = ({
 	goals,
-	clientId,
+	athleteId,
 	onAddGoal,
 	onRemoveGoal,
 }) => {
@@ -30,7 +30,7 @@ export const TrainingPlanGoalsList: React.FC<TrainingPlanGoalsListProps> = ({
 				<Heading level={2}>Goals</Heading>
 				{onAddGoal && (
 					<GoalSelectDialog
-						clientId={clientId}
+						athleteId={athleteId}
 						onSubmit={onAddGoal}
 						triggerLabel="Add Goal"
 					/>

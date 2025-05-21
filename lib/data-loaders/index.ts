@@ -1,8 +1,6 @@
+import { createAssistantLoader } from './assistant';
 import { createClientLoader } from './client';
 import { createGoalLoader } from './goal';
-import { createSessionLogLoader } from './sessionLog';
-import { createTrainingPlanLoader } from './training-plan';
-import { createAssistantLoader } from './assistant';
 import {
   createClientTrainingPlanIdsLoader,
   createGoalSessionLogIdsLoader,
@@ -10,6 +8,8 @@ import {
   createTrainingPlanAssistantIdsLoader,
   createTrainingPlanGoalIdsLoader
 } from './relation';
+import { createSessionLogLoader } from './sessionLog';
+import { createTrainingPlanLoader } from './training-plan';
 
 export interface DataLoaders {
   // Entity loaders

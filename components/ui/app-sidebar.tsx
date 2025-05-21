@@ -1,6 +1,5 @@
 "use client";
 
-import type * as React from "react";
 import {
 	Calendar1,
 	CameraIcon,
@@ -15,11 +14,13 @@ import {
 	TargetIcon,
 	Users,
 } from "lucide-react";
+import type * as React from "react";
 
 import { NavDocuments } from "@/components/ui/nav-documents";
 import { NavMain } from "@/components/ui/nav-main";
 import { NavSecondary } from "@/components/ui/nav-secondary";
 import { NavUser } from "@/components/ui/nav-user";
+import { Separator } from "@/components/ui/separator";
 import {
 	Sidebar,
 	SidebarContent,
@@ -29,7 +30,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 const data = {
 	user: {
 		name: "shadcn",
@@ -43,8 +43,8 @@ const data = {
 			icon: LayoutDashboardIcon,
 		},
 		{
-			title: "Clients",
-			url: "/clients",
+			title: "Athletes",
+			url: "/athletes",
 			icon: Users,
 		},
 		{

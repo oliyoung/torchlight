@@ -13,13 +13,13 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import type { Client } from "@/lib/types";
+import type { Athlete } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useQuery } from "urql";
 
-interface ClientComboboxProps {
+interface AthleteComboboxProps {
 	value: string;
 	onChange: (value: string) => void;
 	label?: string;
@@ -27,9 +27,9 @@ interface ClientComboboxProps {
 	disabled?: boolean;
 }
 
-const ClientsQuery = `
+const AthletesQuery = `
   query {
-    clients {
+    athletes {
       id
       firstName
       lastName
@@ -38,22 +38,22 @@ const ClientsQuery = `
   }
 `;
 
-export function ClientCombobox({
+export function AthleteCombobox({
 	value,
 	onChange,
 	label,
 	error,
 	disabled = false,
-}: ClientComboboxProps) {
+}: AthleteComboboxProps) {
 	const [{ data, fetching, error: fetchError }] = useQuery<{
-		clients: Client[];
+		athletes: Athlete[];
 	}>({
-		query: ClientsQuery,
+		query: AthletesQuery,
 	});
 	const [open, setOpen] = React.useState(false);
 
-	const clients = data?.clients ?? [];
-	const selectedClient = clients.find((c) => c.id === value);
+	const athletes = data?.athletes ?? [];
+	const selectedAthlete = athletes.find((c) => c.id === value);
 
 	return (
 		<div>
@@ -70,27 +70,27 @@ export function ClientCombobox({
 					<Button
 						variant="outline"
 						role="combobox"
-						aria-label={label ?? "Select a client"}
+						aria-label={label ?? "Select an athlete"}
 						aria-expanded={open}
 						className="w-full justify-between"
 						disabled={fetching || disabled}
 					>
-						{selectedClient
-							? `${selectedClient.firstName} ${selectedClient.lastName} (${selectedClient.email})`
-							: "Select a client..."}
+						{selectedAthlete
+							? `${selectedAthlete.firstName} ${selectedAthlete.lastName} (${selectedAthlete.email})`
+							: "Select an athlete..."}
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-[350px] p-0">
 					<Command>
-						<CommandInput placeholder="Search client..." />
+						<CommandInput placeholder="Search athlete..." />
 						<CommandList>
-							<CommandEmpty>No client found.</CommandEmpty>
+							<CommandEmpty>No athlete found.</CommandEmpty>
 							<CommandGroup>
-								{clients.map((client) => (
+								{athletes.map((athlete) => (
 									<CommandItem
-										key={client.id}
-										value={client.id}
+										key={athlete.id}
+										value={athlete.id}
 										onSelect={(currentValue) => {
 											onChange(currentValue === value ? "" : currentValue);
 											setOpen(false);
@@ -99,10 +99,10 @@ export function ClientCombobox({
 										<Check
 											className={cn(
 												"mr-2 h-4 w-4",
-												value === client.id ? "opacity-100" : "opacity-0",
+												value === athlete.id ? "opacity-100" : "opacity-0",
 											)}
 										/>
-										{client.firstName} {client.lastName} ({client.email})
+										{athlete.firstName} {athlete.lastName} ({athlete.email})
 									</CommandItem>
 								))}
 							</CommandGroup>

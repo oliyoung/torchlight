@@ -1,12 +1,12 @@
-import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import { logger } from "@/lib/logger";
+import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 
 /**
- * Get training plan IDs associated with a client
+ * Get training plan IDs associated with an athlete
  */
-export async function getTrainingPlanIdsByClientId(
+export async function getTrainingPlanIdsByAthleteId(
   userId: string | null,
-  clientId: string
+  athleteId: string
 ): Promise<string[]> {
   try {
     if (!userId) return [];
@@ -14,25 +14,35 @@ export async function getTrainingPlanIdsByClientId(
     const { data, error } = await supabaseServiceRole
       .from('training_plans')
       .select('id')
-      .eq('client_id', clientId)
+      .eq('athlete_id', athleteId)
       .eq('user_id', userId);
 
     if (error) {
-      logger.error({ error, clientId }, 'Error fetching training plan IDs for client');
+      logger.error({ error, athleteId }, 'Error fetching training plan IDs for athlete');
       return [];
     }
 
     return data.map(item => item.id);
   } catch (error) {
-    logger.error({ error, clientId }, 'Exception fetching training plan IDs for client');
+    logger.error({ error, athleteId }, 'Exception fetching training plan IDs for athlete');
     return [];
   }
 }
 
 /**
+ * @deprecated Use getTrainingPlanIdsByAthleteId instead
+ */
+export async function getTrainingPlanIdsByClientId(
+  userId: string | null,
+  clientId: string
+): Promise<string[]> {
+  return getTrainingPlanIdsByAthleteId(userId, clientId);
+}
+
+/**
  * Get session log IDs associated with a goal
  */
-export async function getSessionLogIdsByGoalId(goalId: string): Promise<string[]> {
+export async function getGoalSessionLogIds(goalId: string): Promise<string[]> {
   try {
     const { data, error } = await supabaseServiceRole
       .from('goal_session_logs')
@@ -52,9 +62,16 @@ export async function getSessionLogIdsByGoalId(goalId: string): Promise<string[]
 }
 
 /**
+ * @deprecated Use getGoalSessionLogIds instead
+ */
+export async function getSessionLogIdsByGoalId(goalId: string): Promise<string[]> {
+  return getGoalSessionLogIds(goalId);
+}
+
+/**
  * Get goal IDs associated with a session log
  */
-export async function getGoalIdsBySessionLogId(sessionLogId: string): Promise<string[]> {
+export async function getSessionLogGoalIds(sessionLogId: string): Promise<string[]> {
   try {
     const { data, error } = await supabaseServiceRole
       .from('goal_session_logs')
@@ -74,9 +91,16 @@ export async function getGoalIdsBySessionLogId(sessionLogId: string): Promise<st
 }
 
 /**
+ * @deprecated Use getSessionLogGoalIds instead
+ */
+export async function getGoalIdsBySessionLogId(sessionLogId: string): Promise<string[]> {
+  return getSessionLogGoalIds(sessionLogId);
+}
+
+/**
  * Get assistant IDs associated with a training plan
  */
-export async function getAssistantIdsByTrainingPlanId(trainingPlanId: string): Promise<string[]> {
+export async function getTrainingPlanAssistantIds(trainingPlanId: string): Promise<string[]> {
   try {
     const { data, error } = await supabaseServiceRole
       .from('training_plan_assistants')
@@ -96,9 +120,16 @@ export async function getAssistantIdsByTrainingPlanId(trainingPlanId: string): P
 }
 
 /**
+ * @deprecated Use getTrainingPlanAssistantIds instead
+ */
+export async function getAssistantIdsByTrainingPlanId(trainingPlanId: string): Promise<string[]> {
+  return getTrainingPlanAssistantIds(trainingPlanId);
+}
+
+/**
  * Get goal IDs associated with a training plan
  */
-export async function getGoalIdsByTrainingPlanId(trainingPlanId: string): Promise<string[]> {
+export async function getTrainingPlanGoalIds(trainingPlanId: string): Promise<string[]> {
   try {
     const { data, error } = await supabaseServiceRole
       .from('training_plan_goals')
@@ -113,6 +144,35 @@ export async function getGoalIdsByTrainingPlanId(trainingPlanId: string): Promis
     return data.map(item => item.goal_id);
   } catch (error) {
     logger.error({ error, trainingPlanId }, 'Exception fetching goal IDs for training plan');
+    return [];
+  }
+}
+
+/**
+ * @deprecated Use getTrainingPlanGoalIds instead
+ */
+export async function getGoalIdsByTrainingPlanId(trainingPlanId: string): Promise<string[]> {
+  return getTrainingPlanGoalIds(trainingPlanId);
+}
+
+/**
+ * Get training plan IDs associated with a goal
+ */
+export async function getGoalTrainingPlanIds(goalId: string): Promise<string[]> {
+  try {
+    const { data, error } = await supabaseServiceRole
+      .from('training_plan_goals')
+      .select('training_plan_id')
+      .eq('goal_id', goalId);
+
+    if (error) {
+      logger.error({ error, goalId }, 'Error fetching training plan IDs for goal');
+      return [];
+    }
+
+    return data.map(item => item.training_plan_id);
+  } catch (error) {
+    logger.error({ error, goalId }, 'Exception fetching training plan IDs for goal');
     return [];
   }
 }

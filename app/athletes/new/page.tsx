@@ -12,13 +12,13 @@ import { Controller } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
 
-const CreateClientMutation = `
-  mutation CreateClient($input: CreateClientInput!) {
-    createClient(input: $input) { id }
+const CreateAthleteMutation = `
+  mutation CreateAthlete($input: CreateAthleteInput!) {
+    createAthlete(input: $input) { id }
   }
 `;
 
-const clientSchema = z.object({
+const athleteSchema = z.object({
 	firstName: z.string().min(1, "First name is required"),
 	lastName: z.string().min(1, "Last name is required"),
 	email: z.string().min(1, "Email is required").email("Invalid email address"),
@@ -28,9 +28,9 @@ const clientSchema = z.object({
 	birthday: z.string().optional(),
 });
 
-type FormValues = z.infer<typeof clientSchema>;
+type FormValues = z.infer<typeof athleteSchema>;
 
-const NewClientForm: React.FC = () => {
+const NewAthleteForm: React.FC = () => {
 	const {
 		register,
 		handleSubmit,
@@ -38,10 +38,10 @@ const NewClientForm: React.FC = () => {
 		control,
 		formState: { errors },
 	} = useForm<FormValues>({
-		resolver: zodResolver(clientSchema),
+		resolver: zodResolver(athleteSchema),
 	});
 	const [success, setSuccess] = useState(false);
-	const [result, executeMutation] = useMutation(CreateClientMutation);
+	const [result, executeMutation] = useMutation(CreateAthleteMutation);
 
 	const onSubmit = async (values: FormValues) => {
 		setSuccess(false);
@@ -73,9 +73,9 @@ const NewClientForm: React.FC = () => {
 			onSubmit={handleSubmit(onSubmit)}
 			className="max-w-md mx-auto mt-8 space-y-6 bg-white p-6 rounded-lg shadow"
 		>
-			<h1 className="text-2xl font-bold mb-2">Add New Client</h1>
+			<h1 className="text-2xl font-bold mb-2">Add New Athlete</h1>
 			{result.error && <ErrorMessage message={result.error.message} />}
-			{success && <SuccessMessage message="Client created successfully!" />}
+			{success && <SuccessMessage message="Athlete created successfully!" />}
 			<div>
 				<label
 					htmlFor="firstName"
@@ -189,14 +189,14 @@ const NewClientForm: React.FC = () => {
 					{...register("notes")}
 					className="mt-1 block w-full rounded border border-input bg-background p-2"
 					rows={3}
-					placeholder="Optional notes about the client"
+					placeholder="Optional notes about the athlete"
 				/>
 			</div>
 			<Button type="submit" disabled={result.fetching} className="w-full mt-4">
-				{result.fetching ? "Creating..." : "Create Client"}
+				{result.fetching ? "Creating..." : "Create Athlete"}
 			</Button>
 		</form>
 	);
 };
 
-export default NewClientForm;
+export default NewAthleteForm;
