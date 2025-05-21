@@ -23,6 +23,24 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Voice transcription for in-session recording
 - [ ] Risk detection for potential athlete challenges/roadblocks
 
+## Advanced AI/LLM Features
+
+- [ ] Automated Progress Narratives (generate athlete progress stories)
+- [ ] Personalized Motivation Nudges (contextual encouragements/reminders)
+- [ ] Goal Refinement Assistant (SMART goal suggestions and flagging)
+- [ ] Session Log Sentiment & Theme Analysis (emotional tone, recurring themes)
+- [ ] Risk & Burnout Detection (early warning for overtraining/disengagement)
+- [ ] Automated Action Item Extraction (from session notes/transcripts)
+- [ ] Athlete Q&A / Knowledge Base (contextual answers for athletes/coaches)
+- [ ] Adaptive Training Plan Generator (dynamic plan adjustments)
+- [ ] Coach Reflection Prompts (post-session reflective questions)
+- [ ] Team Dynamics Insights (cohesion, leadership, conflict analysis)
+- [ ] Parent/Stakeholder Summaries (accessible progress reports)
+- [ ] Session Preparation Briefs (pre-session AI-generated focus summaries)
+- [ ] Video/Audio Analysis (transcription, technique feedback, highlights)
+- [ ] Automated Tagging & Categorization (logs, goals, plans)
+- [ ] Progress Forecasting (predict goal achievement, plateaus)
+
 ## User Experience
 
 - [ ] Dark mode support

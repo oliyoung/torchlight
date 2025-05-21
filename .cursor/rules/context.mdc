@@ -23,10 +23,15 @@ alwaysApply: true
 
 ## 3. User Flows & Key Screens
 - User journeys are derived from the UI. Key flows include:
-  - Coach logs in and views their athlete dashboard.
-  - Navigates to an athlete, reviews or adds session notes, uploads transcripts.
-  - Tags sessions to goals, views progress, and uses AI tools (when available) for summaries or next steps.
-  - Creates and manages training plans, goals, and session logs.
+  - Coach logs in and views their athlete dashboard, with a summary of all athletes, recent activity, and quick actions.
+  - Navigates to an athlete profile page (`/athletes/[id]`), reviewing athlete details, tags, and progress.
+  - Views and manages goals for each athlete, including creating, editing, and tracking goal progress.
+  - Reviews or adds session logs, uploads transcripts, and links sessions to goals for context-rich progress tracking.
+  - Creates and manages structured training plans, linking them to athletes, goals, and session logs.
+  - Uses built-in AI tools for session summarization, next-step generation, and progress analysis (stubbed/mocked for now).
+  - Accesses team management features: creating teams, assigning athletes and coaches, and viewing team dashboards (planned).
+  - Experiences a modern, responsive, and accessible UI with dark mode support and mobile-friendly layouts.
+  - All flows are designed for clarity, quick navigation, and actionable insights, with future extensibility for notifications, chat, and integrations.
 - No wireframes, mockups, or formal user stories exist; development proceeds directly in code and browser.
 
 ## 4. AI Integration
