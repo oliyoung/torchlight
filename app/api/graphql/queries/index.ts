@@ -1,11 +1,11 @@
 import {
-  clientRepository,
+  assistantRepository,
+  athleteRepository,
   goalRepository,
   sessionLogRepository,
-  assistantRepository,
   trainingPlanRepository
 } from "@/lib/repository";
-import type { Assistant, AssistantsInput, Client, Goal, SessionLog, TrainingPlan } from "@/lib/types";
+import type { Assistant, AssistantsInput, Athlete, Goal, SessionLog, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../route";
 
 export default {
@@ -13,8 +13,8 @@ export default {
   trainingPlan: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<TrainingPlan | null> =>
     context.loaders.trainingPlan.load(args.id),
 
-  client: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Client | null> =>
-    context.loaders.client.load(args.id),
+  athlete: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Athlete | null> =>
+    context.loaders.athlete.load(args.id),
 
   goal: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Goal | null> =>
     context.loaders.goal.load(args.id),
@@ -23,18 +23,18 @@ export default {
     context.loaders.sessionLog.load(args.id),
 
   // Collection queries - use repository instances
-  trainingPlans: async (_parent: unknown, args: { clientId: string }, context: GraphQLContext): Promise<TrainingPlan[]> =>
-    trainingPlanRepository.getTrainingPlans(context?.user?.id ?? null, args.clientId),
+  trainingPlans: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<TrainingPlan[]> =>
+    trainingPlanRepository.getTrainingPlans(context?.user?.id ?? null, args.athleteId),
 
   assistants: async (_parent: unknown, args: { input: AssistantsInput }, context: GraphQLContext): Promise<Assistant[]> =>
     assistantRepository.getAssistants(args.input),
 
-  clients: async (_parent: unknown, _args: unknown, context: GraphQLContext): Promise<Client[]> =>
-    clientRepository.getClients(context?.user?.id ?? null),
+  athletes: async (_parent: unknown, _args: unknown, context: GraphQLContext): Promise<Athlete[]> =>
+    athleteRepository.getAthletes(context?.user?.id ?? null),
 
-  goals: async (_parent: unknown, args: { clientId: string }, context: GraphQLContext): Promise<Goal[]> =>
-    goalRepository.getGoalsByClientId(context?.user?.id ?? null, args.clientId),
+  goals: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<Goal[]> =>
+    goalRepository.getGoalsByAthleteId(context?.user?.id ?? null, args.athleteId),
 
-  sessionLogs: async (_parent: unknown, args: { clientId: string }, context: GraphQLContext): Promise<SessionLog[]> =>
-    sessionLogRepository.getSessionLogsByClientId(context?.user?.id ?? null, args.clientId),
+  sessionLogs: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<SessionLog[]> =>
+    sessionLogRepository.getSessionLogsByAthleteId(context?.user?.id ?? null, args.athleteId),
 }

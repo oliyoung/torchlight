@@ -4,13 +4,13 @@ This document tracks planned features and future ideas for the congenial-carniva
 
 ## Core Features
 
-- [ ] Complete client profile pages with progress visualization
+- [ ] Complete athlete profile pages with progress visualization
 - [ ] Advanced goal tracking with milestone support
 - [ ] Calendar integration for scheduling sessions
-- [ ] Client portal for viewing progress and plans
-- [ ] Mobile app for coach and client access
+- [ ] Athlete portal for viewing progress and plans
+- [ ] Mobile app for coach and athlete access
 - [ ] Template library for common training plans and goals
-- [ ] Equipment management system for tracking client gear
+- [ ] Equipment management system for tracking athlete gear
 - [ ] Tracking Expected Outcomes with measurement tools
 
 ## AI Enhancements
@@ -18,10 +18,10 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Implement MCP (Model Context Protocol) integration
 - [ ] Session transcript analysis for automatic tagging
 - [ ] AI-powered progress tracking and trend identification
-- [ ] Personalized plan generation based on client history
+- [ ] Personalized plan generation based on athlete history
 - [ ] Coach conversation analysis with insight extraction
 - [ ] Voice transcription for in-session recording
-- [ ] Risk detection for potential client challenges/roadblocks
+- [ ] Risk detection for potential athlete challenges/roadblocks
 
 ## User Experience
 
@@ -51,10 +51,19 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Advanced caching strategies
 - [ ] Multi-region database support
 
+## Team Management
+
+- [ ] Team creation and management (organizations, clubs, squads)
+- [ ] Assign athletes to teams
+- [ ] Assign coaches and define roles within teams
+- [ ] Team dashboards (overview of team progress, sessions, and goals)
+- [ ] Team-based analytics and reporting
+- [ ] Bulk actions for team management (e.g., assign training plans to all team members)
+
 ## Business Features
 
 - [ ] Team accounts for coaching organizations
-- [ ] Client billing and payment tracking
+- [ ] Athlete billing and payment tracking
 - [ ] Package/subscription management
 - [ ] Advanced reporting for business metrics
 - [ ] White-labeling for enterprise customers

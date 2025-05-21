@@ -7,7 +7,7 @@ import { RelationRepository } from "./relationRepository";
 const sessionLogMapping: EntityMapping<SessionLog> = {
   tableName: 'session_logs',
   columnMappings: {
-    clientId: 'client_id',
+    athleteId: 'athlete_id',
     userId: 'user_id',
     actionItems: 'action_items',
     aiMetadata: 'ai_metadata'
@@ -17,7 +17,7 @@ const sessionLogMapping: EntityMapping<SessionLog> = {
 
     return {
       id: data.id as string,
-      clientId: data.client_id as string,
+      athleteId: data.athlete_id as string,
       date: new Date(data.date as string),
       notes: data.notes as string | null,
       transcript: data.transcript as string | null,
@@ -27,7 +27,7 @@ const sessionLogMapping: EntityMapping<SessionLog> = {
       createdAt: new Date(data.created_at as string),
       updatedAt: new Date(data.updated_at as string),
       deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null,
-      client: undefined, // Populated by GraphQL resolver
+      athlete: undefined, // Populated by GraphQL resolver
       goals: [] // Populated by GraphQL resolver
     } as unknown as SessionLog;
   }
@@ -49,14 +49,14 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   }
 
   /**
-   * Get all session logs for a specific client
+   * Get all session logs for a specific athlete
    */
-  async getSessionLogsByClientId(userId: string | null, clientId: string): Promise<SessionLog[]> {
-    logger.info({ userId, clientId }, 'Fetching session logs for client');
+  async getSessionLogsByAthleteId(userId: string | null, athleteId: string): Promise<SessionLog[]> {
+    logger.info({ userId, athleteId }, 'Fetching session logs for athlete');
 
     if (!userId) return [];
 
-    return this.getByField(userId, 'client_id', clientId);
+    return this.getByField(userId, 'athlete_id', athleteId);
   }
 
   /**
@@ -86,13 +86,15 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
     logger.info({ input }, "Creating session log");
 
     try {
-      // Create the session log
-      const sessionLog = await this.create(userId, {
+      // Create the session log with mapped column names
+      const dbData = {
         date: input.date,
         notes: input.notes || null,
         transcript: input.transcript || null,
-        client_id: input.clientId // Map clientId to client_id for database
-      });
+        athlete_id: input.athleteId // Use database column name (will be mapped by EntityRepository)
+      };
+
+      const sessionLog = await this.create(userId, dbData);
 
       if (!sessionLog) {
         logger.error({ input }, "Failed to create session log");

@@ -8,7 +8,7 @@ title: System Overview (Mermaid)
 graph TD
     subgraph Frontend
         Dashboard[Dashboard UI]
-        ClientPage[Client Profiles]
+        AthletePage[Athlete Profiles]
         GoalPage[Goal Tracker]
         SessionLogPage[Session Logs]
     end
@@ -20,7 +20,7 @@ graph TD
     end
 
     Dashboard -->|Query| API
-    ClientPage -->|Query| API
+    AthletePage -->|Query| API
     GoalPage -->|Mutation/Query| API
     SessionLogPage -->|Mutation/Query| API
 
@@ -28,21 +28,21 @@ graph TD
     API --> AI
 
     subgraph Data Model
-        Client[Client]
+        Athlete[Athlete]
         Goal[Goal]
         SessionLog[SessionLog]
         Transcript[Transcript]
         Insight[AI Insight]
     end
 
-    DB --> Client
+    DB --> Athlete
     DB --> Goal
     DB --> SessionLog
     DB --> Transcript
     DB --> Insight
 
     SessionLog -->|has many| Transcript
-    SessionLog -->|belongs to| Client
-    Goal -->|belongs to| Client
+    SessionLog -->|belongs to| Athlete
+    Goal -->|belongs to| Athlete
     SessionLog -->|linked to| Goal
     Insight -->|generated from| SessionLog

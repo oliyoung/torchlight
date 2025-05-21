@@ -1,40 +1,42 @@
 import { readFileSync } from 'node:fs'
-import { createSchema, createYoga, type YogaInitialContext } from 'graphql-yoga'
-import type { PubSub } from 'graphql-subscriptions'
-import type DataLoader from 'dataloader'
-import mutations from './mutations';
-import queries from './queries';
-import subscriptions from './subscriptions';
-import type { User } from '@supabase/supabase-js';
-import { logger } from '@/lib/logger';
-import { createClientLoader } from '@/lib/data-loaders/client';
-import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
 import { createAssistantLoader } from '@/lib/data-loaders/assistant';
+import { createAthleteLoader } from '@/lib/data-loaders/athlete';
 import { createGoalLoader } from '@/lib/data-loaders/goal';
-import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
 import {
-  createClientTrainingPlanIdsLoader,
+  createAthleteTrainingPlanIdsLoader,
   createGoalSessionLogIdsLoader,
+  createGoalTrainingPlanIdsLoader,
   createSessionLogGoalIdsLoader,
   createTrainingPlanAssistantIdsLoader,
   createTrainingPlanGoalIdsLoader
 } from '@/lib/data-loaders/relation';
+import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
+import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
+import { logger } from '@/lib/logger';
 import { pubsub } from '@/lib/pubsub';
+import type { User } from '@supabase/supabase-js';
+import type DataLoader from 'dataloader'
+import type { PubSub } from 'graphql-subscriptions'
+import { type YogaInitialContext, createSchema, createYoga } from 'graphql-yoga'
+import mutations from './mutations';
+import queries from './queries';
+import subscriptions from './subscriptions';
 
 export interface GraphQLContext extends YogaInitialContext {
   user: User | null;
   pubsub: PubSub;
   loaders: {
     // Entity loaders
-    client: ReturnType<typeof createClientLoader>;
+    athlete: ReturnType<typeof createAthleteLoader>;
     trainingPlan: ReturnType<typeof createTrainingPlanLoader>;
     assistant: ReturnType<typeof createAssistantLoader>;
     goal: ReturnType<typeof createGoalLoader>;
     sessionLog: ReturnType<typeof createSessionLogLoader>;
 
     // Relationship loaders
-    clientTrainingPlanIds: ReturnType<typeof createClientTrainingPlanIdsLoader>;
+    athleteTrainingPlanIds: ReturnType<typeof createAthleteTrainingPlanIdsLoader>;
     goalSessionLogIds: ReturnType<typeof createGoalSessionLogIdsLoader>;
+    goalTrainingPlanIds: ReturnType<typeof createGoalTrainingPlanIdsLoader>;
     sessionLogGoalIds: ReturnType<typeof createSessionLogGoalIdsLoader>;
     trainingPlanAssistantIds: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
     trainingPlanGoalIds: ReturnType<typeof createTrainingPlanGoalIdsLoader>;
@@ -82,13 +84,13 @@ const { handleRequest } = createYoga<GraphQLContext>({
         ...subscriptions,
       },
       TrainingPlan: {
-        client: async (parent, _args, context) => {
+        athlete: async (parent, _args, context) => {
           try {
-            const clientId = parent.client_id || parent.client?.id;
-            if (!clientId) return null;
-            return context.loaders.client.load(clientId);
+            const athleteId = parent.athlete_id || parent.athlete?.id;
+            if (!athleteId) return null;
+            return context.loaders.athlete.load(athleteId);
           } catch (error) {
-            logger.error({ error, parent }, 'Error resolving training plan client');
+            logger.error({ error, parent }, 'Error resolving training plan athlete');
             return null;
           }
         },
@@ -117,28 +119,28 @@ const { handleRequest } = createYoga<GraphQLContext>({
           }
         },
       },
-      Client: {
+      Athlete: {
         trainingPlans: async (parent, _args, context) => {
           try {
-            // Get training plan IDs for this client
-            const trainingPlanIds = await context.loaders.clientTrainingPlanIds.load(parent.id);
+            // Get training plan IDs for this athlete
+            const trainingPlanIds = await context.loaders.athleteTrainingPlanIds.load(parent.id);
 
             // Load each training plan using the training plan loader
             return loadEntities(trainingPlanIds, context.loaders.trainingPlan);
           } catch (error) {
-            logger.error({ error, clientId: parent.id }, 'Error resolving client training plans');
+            logger.error({ error, athleteId: parent.id }, 'Error resolving athlete training plans');
             return [];
           }
         }
       },
       Goal: {
-        client: async (parent, _args, context) => {
+        athlete: async (parent, _args, context) => {
           try {
-            const clientId = parent.client_id;
-            if (!clientId) return null;
-            return context.loaders.client.load(clientId);
+            const athleteId = parent.athlete_id;
+            if (!athleteId) return null;
+            return context.loaders.athlete.load(athleteId);
           } catch (error) {
-            logger.error({ error, goalId: parent.id }, 'Error resolving goal client');
+            logger.error({ error, goalId: parent.id }, 'Error resolving goal athlete');
             return null;
           }
         },
@@ -153,16 +155,28 @@ const { handleRequest } = createYoga<GraphQLContext>({
             logger.error({ error, goalId: parent.id }, 'Error resolving goal session logs');
             return [];
           }
+        },
+        trainingPlans: async (parent, _args, context) => {
+          try {
+            // Get training plan IDs for this goal
+            const trainingPlanIds = await context.loaders.goalTrainingPlanIds.load(parent.id);
+
+            // Load each training plan using the training plan loader
+            return loadEntities(trainingPlanIds, context.loaders.trainingPlan);
+          } catch (error) {
+            logger.error({ error, goalId: parent.id }, 'Error resolving goal training plans');
+            return [];
+          }
         }
       },
       SessionLog: {
-        client: async (parent, _args, context) => {
+        athlete: async (parent, _args, context) => {
           try {
-            const clientId = parent.client_id;
-            if (!clientId) return null;
-            return context.loaders.client.load(clientId);
+            const athleteId = parent.athlete_id;
+            if (!athleteId) return null;
+            return context.loaders.athlete.load(athleteId);
           } catch (error) {
-            logger.error({ error, sessionLogId: parent.id }, 'Error resolving session log client');
+            logger.error({ error, sessionLogId: parent.id }, 'Error resolving session log athlete');
             return null;
           }
         },
@@ -188,15 +202,16 @@ const { handleRequest } = createYoga<GraphQLContext>({
     // Create all data loaders
     const loaders = {
       // Entity loaders
-      client: createClientLoader(user.id),
+      athlete: createAthleteLoader(user.id),
       trainingPlan: createTrainingPlanLoader(user.id),
       assistant: createAssistantLoader(),
       goal: createGoalLoader(user.id),
       sessionLog: createSessionLogLoader(user.id),
 
       // Relationship loaders
-      clientTrainingPlanIds: createClientTrainingPlanIdsLoader(user.id),
+      athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(user.id),
       goalSessionLogIds: createGoalSessionLogIdsLoader(),
+      goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
       sessionLogGoalIds: createSessionLogGoalIdsLoader(),
       trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
       trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),

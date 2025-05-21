@@ -1,11 +1,11 @@
-import type { Client, CreateTrainingPlanInput, Goal, TrainingPlan, UpdateTrainingPlanInput } from "@/lib/types";
+import type { Athlete, CreateTrainingPlanInput, Goal, TrainingPlan, UpdateTrainingPlanInput } from "@/lib/types";
 
 // TODO: Implement mock training plan generation logic
 import { generateTrainingPlanContent } from "@/lib/ai/generateTrainingPlanContent"; // Import the async generator
 
 import { logger } from "@/lib/logger";
 // Import repository instances
-import { clientRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";
+import { athleteRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";
 import type { GraphQLContext } from "../route";
 
 export const createTrainingPlan = async (
@@ -30,13 +30,13 @@ export const createTrainingPlan = async (
         throw new Error("Failed to create initial training plan.");
     }
 
-    // 3. Fetch client and goals data needed for content generation
-    const client = await clientRepository.getClientById(context?.user?.id ?? null, input.clientId);
+    // 3. Fetch athlete and goals data needed for content generation
+    const athlete = await athleteRepository.getAthleteById(context?.user?.id ?? null, input.athleteId);
     const goals = await goalRepository.getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
 
-    // Basic validation: Ensure client is found and all requested goals were found
-    if (!client || goals.length !== (input.goalIds ?? []).length) {
-        console.error(`Failed to fetch client (${input.clientId}) or goals (${input.goalIds}) for training plan ${newTrainingPlan.id}.`);
+    // Basic validation: Ensure athlete is found and all requested goals were found
+    if (!athlete || goals.length !== (input.goalIds ?? []).length) {
+        console.error(`Failed to fetch athlete (${input.athleteId}) or goals (${input.goalIds}) for training plan ${newTrainingPlan.id}.`);
         // TODO: Potentially update the training plan status to indicate generation failure or queue for retry
         // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event
         // For now, we proceed but log the error. The async function will also likely fail.
@@ -49,8 +49,8 @@ export const createTrainingPlan = async (
         newTrainingPlan.id,
         context?.user?.id ?? null,
         input.assistantIds ?? [],
-        // Pass the fetched client and goals objects
-        client as Client, // Cast as Client to satisfy type checks, though error handling above is basic
+        // Pass the fetched athlete and goals objects
+        athlete as Athlete, // Cast as Athlete to satisfy type checks, though error handling above is basic
         goals as Goal[] // Cast as Goal[]
     ).catch(console.error);
 

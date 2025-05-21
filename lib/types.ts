@@ -19,13 +19,13 @@ export type Scalars = {
 };
 
 export type AiAnalyzeProgressInput = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   endDate: Scalars['DateTime']['input'];
   startDate: Scalars['DateTime']['input'];
 };
 
 export type AiGenerateSessionInput = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   goalIds: Array<Scalars['ID']['input']>;
   sessionLogIds: Array<Scalars['ID']['input']>;
 };
@@ -64,8 +64,8 @@ export type AssistantsInput = {
   filter?: InputMaybe<AssistantsFilter>;
 };
 
-export type Client = {
-  __typename?: 'Client';
+export type Athlete = {
+  __typename?: 'Athlete';
   birthday?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -79,6 +79,7 @@ export type Client = {
   lastName: Scalars['String']['output'];
   notes?: Maybe<Scalars['String']['output']>;
   sessionLogs?: Maybe<Array<SessionLog>>;
+  sport: Scalars['String']['output'];
   tags?: Maybe<Array<Scalars['String']['output']>>;
   trainingHistory?: Maybe<Scalars['String']['output']>;
   trainingPlans: Array<TrainingPlan>;
@@ -87,24 +88,26 @@ export type Client = {
   weight?: Maybe<Scalars['Float']['output']>;
 };
 
-export type CreateClientInput = {
+export type CreateAthleteInput = {
   birthday: Scalars['DateTime']['input'];
   email: Scalars['String']['input'];
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
+  sport: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type CreateGoalInput = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  sport: Scalars['String']['input'];
   title: Scalars['String']['input'];
 };
 
 export type CreateSessionLogInput = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   date: Scalars['DateTime']['input'];
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -113,13 +116,13 @@ export type CreateSessionLogInput = {
 
 export type CreateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type Goal = {
   __typename?: 'Goal';
-  client: Client;
+  athlete: Athlete;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
@@ -127,8 +130,10 @@ export type Goal = {
   id: Scalars['ID']['output'];
   progressNotes?: Maybe<Scalars['String']['output']>;
   sessionLogs: Array<SessionLog>;
+  sport?: Maybe<Scalars['String']['output']>;
   status: GoalStatus;
   title: Scalars['String']['output'];
+  trainingPlans?: Maybe<Array<TrainingPlan>>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -141,16 +146,16 @@ export enum GoalStatus {
 export type Mutation = {
   __typename?: 'Mutation';
   analyzeProgress: Scalars['String']['output'];
-  createClient: Client;
+  createAthlete: Athlete;
   createGoal: Goal;
   createSessionLog: SessionLog;
   createTrainingPlan: TrainingPlan;
-  deleteClient: Scalars['Boolean']['output'];
+  deleteAthlete: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteSessionLog: Scalars['Boolean']['output'];
   generateSession: SessionLog;
   summarizeSessionLog: SessionLog;
-  updateClient: Client;
+  updateAthlete: Athlete;
   updateGoal: Goal;
   updateSessionLog: SessionLog;
   updateTrainingPlan: TrainingPlan;
@@ -162,8 +167,8 @@ export type MutationAnalyzeProgressArgs = {
 };
 
 
-export type MutationCreateClientArgs = {
-  input: CreateClientInput;
+export type MutationCreateAthleteArgs = {
+  input: CreateAthleteInput;
 };
 
 
@@ -182,7 +187,7 @@ export type MutationCreateTrainingPlanArgs = {
 };
 
 
-export type MutationDeleteClientArgs = {
+export type MutationDeleteAthleteArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -207,9 +212,9 @@ export type MutationSummarizeSessionLogArgs = {
 };
 
 
-export type MutationUpdateClientArgs = {
+export type MutationUpdateAthleteArgs = {
   id: Scalars['ID']['input'];
-  input: UpdateClientInput;
+  input: UpdateAthleteInput;
 };
 
 
@@ -233,8 +238,8 @@ export type MutationUpdateTrainingPlanArgs = {
 export type Query = {
   __typename?: 'Query';
   assistants: Array<Maybe<Assistant>>;
-  client?: Maybe<Client>;
-  clients: Array<Client>;
+  athlete?: Maybe<Athlete>;
+  athletes: Array<Athlete>;
   goal?: Maybe<Goal>;
   goals: Array<Goal>;
   sessionLog?: Maybe<SessionLog>;
@@ -249,19 +254,19 @@ export type QueryAssistantsArgs = {
 };
 
 
-export type QueryClientArgs = {
+export type QueryAthleteArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type QueryGoalArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
 
 export type QueryGoalsArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
 };
 
 
@@ -271,7 +276,7 @@ export type QuerySessionLogArgs = {
 
 
 export type QuerySessionLogsArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
 };
 
 
@@ -281,14 +286,14 @@ export type QueryTrainingPlanArgs = {
 
 
 export type QueryTrainingPlansArgs = {
-  clientId?: InputMaybe<Scalars['ID']['input']>;
+  athleteId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type SessionLog = {
   __typename?: 'SessionLog';
   actionItems?: Maybe<Array<Scalars['String']['output']>>;
   aiMetadata?: Maybe<AiMetadata>;
-  client: Client;
+  athlete: Athlete;
   createdAt: Scalars['DateTime']['output'];
   date: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -302,7 +307,7 @@ export type SessionLog = {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  clientUpdated: Client;
+  athleteUpdated: Athlete;
   goalAdded: Goal;
   goalUpdated: Goal;
   sessionLogAdded: SessionLog;
@@ -311,13 +316,13 @@ export type Subscription = {
 };
 
 
-export type SubscriptionClientUpdatedArgs = {
+export type SubscriptionAthleteUpdatedArgs = {
   id: Scalars['ID']['input'];
 };
 
 
 export type SubscriptionGoalAddedArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
 };
 
 
@@ -327,7 +332,7 @@ export type SubscriptionGoalUpdatedArgs = {
 
 
 export type SubscriptionSessionLogAddedArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
 };
 
 
@@ -337,13 +342,13 @@ export type SubscriptionSessionLogUpdatedArgs = {
 
 
 export type SubscriptionTrainingPlanGeneratedArgs = {
-  clientId: Scalars['ID']['input'];
+  athleteId: Scalars['ID']['input'];
 };
 
 export type TrainingPlan = {
   __typename?: 'TrainingPlan';
   assistants?: Maybe<Array<Assistant>>;
-  client?: Maybe<Client>;
+  athlete?: Maybe<Athlete>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
@@ -356,11 +361,12 @@ export type TrainingPlan = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type UpdateClientInput = {
+export type UpdateAthleteInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
@@ -368,8 +374,10 @@ export type UpdateGoalInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
   progressNotes?: InputMaybe<Scalars['String']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<GoalStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
+  trainingPlanIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 export type UpdateSessionLogInput = {
@@ -465,9 +473,9 @@ export type ResolversTypes = {
   Assistant: ResolverTypeWrapper<Assistant>;
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
+  Athlete: ResolverTypeWrapper<Athlete>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
-  Client: ResolverTypeWrapper<Client>;
-  CreateClientInput: CreateClientInput;
+  CreateAthleteInput: CreateAthleteInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
@@ -483,7 +491,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   TrainingPlan: ResolverTypeWrapper<TrainingPlan>;
-  UpdateClientInput: UpdateClientInput;
+  UpdateAthleteInput: UpdateAthleteInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
@@ -498,9 +506,9 @@ export type ResolversParentTypes = {
   Assistant: Assistant;
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
+  Athlete: Athlete;
   Boolean: Scalars['Boolean']['output'];
-  Client: Client;
-  CreateClientInput: CreateClientInput;
+  CreateAthleteInput: CreateAthleteInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
@@ -515,7 +523,7 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   Subscription: {};
   TrainingPlan: TrainingPlan;
-  UpdateClientInput: UpdateClientInput;
+  UpdateAthleteInput: UpdateAthleteInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
@@ -541,7 +549,7 @@ export type AssistantResolvers<ContextType = GraphQLContext, ParentType extends 
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type ClientResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Client'] = ResolversParentTypes['Client']> = {
+export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Athlete'] = ResolversParentTypes['Athlete']> = {
   birthday?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -555,6 +563,7 @@ export type ClientResolvers<ContextType = GraphQLContext, ParentType extends Res
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Maybe<Array<ResolversTypes['SessionLog']>>, ParentType, ContextType>;
+  sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   trainingHistory?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType>;
@@ -569,7 +578,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 }
 
 export type GoalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Goal'] = ResolversParentTypes['Goal']> = {
-  client?: Resolver<ResolversTypes['Client'], ParentType, ContextType>;
+  athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -577,8 +586,10 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   progressNotes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType>;
+  sport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['GoalStatus'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  trainingPlans?: Resolver<Maybe<Array<ResolversTypes['TrainingPlan']>>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -589,16 +600,16 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   analyzeProgress?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeProgressArgs, 'input'>>;
-  createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
+  createAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationCreateAthleteArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
   createSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationCreateSessionLogArgs, 'input'>>;
   createTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationCreateTrainingPlanArgs, 'input'>>;
-  deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
+  deleteAthlete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAthleteArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
   deleteSessionLog?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSessionLogArgs, 'id'>>;
   generateSession?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationGenerateSessionArgs, 'input'>>;
   summarizeSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationSummarizeSessionLogArgs, 'input'>>;
-  updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
+  updateAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationUpdateAthleteArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
   updateSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationUpdateSessionLogArgs, 'id' | 'input'>>;
   updateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationUpdateTrainingPlanArgs, 'id' | 'input'>>;
@@ -606,12 +617,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   assistants?: Resolver<Array<Maybe<ResolversTypes['Assistant']>>, ParentType, ContextType, Partial<QueryAssistantsArgs>>;
-  client?: Resolver<Maybe<ResolversTypes['Client']>, ParentType, ContextType, RequireFields<QueryClientArgs, 'id'>>;
-  clients?: Resolver<Array<ResolversTypes['Client']>, ParentType, ContextType>;
-  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'clientId' | 'id'>>;
-  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalsArgs, 'clientId'>>;
+  athlete?: Resolver<Maybe<ResolversTypes['Athlete']>, ParentType, ContextType, RequireFields<QueryAthleteArgs, 'id'>>;
+  athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
+  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'athleteId' | 'id'>>;
+  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalsArgs, 'athleteId'>>;
   sessionLog?: Resolver<Maybe<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogArgs, 'id'>>;
-  sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogsArgs, 'clientId'>>;
+  sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogsArgs, 'athleteId'>>;
   trainingPlan?: Resolver<Maybe<ResolversTypes['TrainingPlan']>, ParentType, ContextType, RequireFields<QueryTrainingPlanArgs, 'id'>>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType, Partial<QueryTrainingPlansArgs>>;
 };
@@ -619,7 +630,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
 export type SessionLogResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SessionLog'] = ResolversParentTypes['SessionLog']> = {
   actionItems?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   aiMetadata?: Resolver<Maybe<ResolversTypes['AIMetadata']>, ParentType, ContextType>;
-  client?: Resolver<ResolversTypes['Client'], ParentType, ContextType>;
+  athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -633,17 +644,17 @@ export type SessionLogResolvers<ContextType = GraphQLContext, ParentType extends
 };
 
 export type SubscriptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = {
-  clientUpdated?: SubscriptionResolver<ResolversTypes['Client'], "clientUpdated", ParentType, ContextType, RequireFields<SubscriptionClientUpdatedArgs, 'id'>>;
-  goalAdded?: SubscriptionResolver<ResolversTypes['Goal'], "goalAdded", ParentType, ContextType, RequireFields<SubscriptionGoalAddedArgs, 'clientId'>>;
+  athleteUpdated?: SubscriptionResolver<ResolversTypes['Athlete'], "athleteUpdated", ParentType, ContextType, RequireFields<SubscriptionAthleteUpdatedArgs, 'id'>>;
+  goalAdded?: SubscriptionResolver<ResolversTypes['Goal'], "goalAdded", ParentType, ContextType, RequireFields<SubscriptionGoalAddedArgs, 'athleteId'>>;
   goalUpdated?: SubscriptionResolver<ResolversTypes['Goal'], "goalUpdated", ParentType, ContextType, RequireFields<SubscriptionGoalUpdatedArgs, 'id'>>;
-  sessionLogAdded?: SubscriptionResolver<ResolversTypes['SessionLog'], "sessionLogAdded", ParentType, ContextType, RequireFields<SubscriptionSessionLogAddedArgs, 'clientId'>>;
+  sessionLogAdded?: SubscriptionResolver<ResolversTypes['SessionLog'], "sessionLogAdded", ParentType, ContextType, RequireFields<SubscriptionSessionLogAddedArgs, 'athleteId'>>;
   sessionLogUpdated?: SubscriptionResolver<ResolversTypes['SessionLog'], "sessionLogUpdated", ParentType, ContextType, RequireFields<SubscriptionSessionLogUpdatedArgs, 'id'>>;
-  trainingPlanGenerated?: SubscriptionResolver<ResolversTypes['TrainingPlan'], "trainingPlanGenerated", ParentType, ContextType, RequireFields<SubscriptionTrainingPlanGeneratedArgs, 'clientId'>>;
+  trainingPlanGenerated?: SubscriptionResolver<ResolversTypes['TrainingPlan'], "trainingPlanGenerated", ParentType, ContextType, RequireFields<SubscriptionTrainingPlanGeneratedArgs, 'athleteId'>>;
 };
 
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
   assistants?: Resolver<Maybe<Array<ResolversTypes['Assistant']>>, ParentType, ContextType>;
-  client?: Resolver<Maybe<ResolversTypes['Client']>, ParentType, ContextType>;
+  athlete?: Resolver<Maybe<ResolversTypes['Athlete']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -660,7 +671,7 @@ export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType exten
 export type Resolvers<ContextType = GraphQLContext> = {
   AIMetadata?: AiMetadataResolvers<ContextType>;
   Assistant?: AssistantResolvers<ContextType>;
-  Client?: ClientResolvers<ContextType>;
+  Athlete?: AthleteResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Goal?: GoalResolvers<ContextType>;
   JSON?: GraphQLScalarType;

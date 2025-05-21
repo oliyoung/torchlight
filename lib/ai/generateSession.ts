@@ -3,18 +3,18 @@
 import { Anthropic } from '@anthropic-ai/sdk'; // Import the Anthropic SDK
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Client, Goal, SessionLog, AiGenerateSessionInput } from '../types'; // Adjust the import path as necessary
-import { clientRepository, goalRepository, sessionLogRepository } from '@/lib/repository';
+import type { Athlete, Goal, SessionLog, AiGenerateSessionInput } from '../types'; // Adjust the import path as necessary
+import { athleteRepository, goalRepository, sessionLogRepository } from '@/lib/repository';
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function generateSession(userId: string | null, input: AiGenerateSessionInput): Promise<string> {
-  const { clientId, goalIds, sessionLogIds } = input;
+  const { athleteId, goalIds, sessionLogIds } = input;
 
-  // // Fetch client data
-  const client = await clientRepository.getClientById(userId, clientId);
-  if (!client) {
-    throw new Error('Client not found');
+  // // Fetch athlete data
+  const athlete = await athleteRepository.getAthleteById(userId, athleteId);
+  if (!athlete) {
+    throw new Error('Athlete not found');
   }
 
   // // Fetch goals
@@ -35,7 +35,7 @@ export async function generateSession(userId: string | null, input: AiGenerateSe
 
   // // Prepare the input for the AI model
   const aiInput = {
-    client,
+    athlete,
     goals,
     sessionLogs
   };

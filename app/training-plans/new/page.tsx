@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { ClientCombobox } from "@/components/ui/client-combobox";
+import { AthleteCombobox } from "@/components/ui/athlete-combobox";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { GoalMultiSelect } from "@/components/ui/goal-multi-select";
 import { Loading } from "@/components/ui/loading";
@@ -29,9 +29,9 @@ mutation CreateTrainingPlan($input: CreateTrainingPlanInput!) {
   }
 `;
 
-const ClientQuery = `
-  query Client($id: ID!) {
-    client(id: $id) {
+const AthleteQuery = `
+  query Athlete($id: ID!) {
+    athlete(id: $id) {
       id
       firstName
       lastName
@@ -45,9 +45,9 @@ const ClientQuery = `
   }
 `;
 
-const ClientGoalsQuery = `
-  query ClientGoals($clientId: ID!) {
-    goals(clientId: $clientId) {
+const AthleteGoalsQuery = `
+  query AthleteGoals($athleteId: ID!) {
+    goals(athleteId: $athleteId) {
       id
       title
       description
@@ -57,7 +57,7 @@ const ClientGoalsQuery = `
 `;
 
 const trainingPlanSchema = z.object({
-	clientId: z.string().min(1, "Client ID is required"),
+	athleteId: z.string().min(1, "Athlete ID is required"),
 	goalIds: z.array(z.string()).optional(),
 });
 
@@ -65,20 +65,20 @@ type FormValues = z.infer<typeof trainingPlanSchema>;
 
 const NewTrainingPlanForm: React.FC = () => {
 	const searchParams = useSearchParams();
-	const clientId = searchParams.get("clientId");
+	const athleteId = searchParams.get("athleteId");
 	const router = useRouter();
 
-	const [{ data: clientData, fetching: clientFetching, error: clientError }] =
+	const [{ data: athleteData, fetching: athleteFetching, error: athleteError }] =
 		useQuery({
-			query: ClientQuery,
-			variables: { id: clientId || "" },
-			pause: !clientId,
+			query: AthleteQuery,
+			variables: { id: athleteId || "" },
+			pause: !athleteId,
 		});
 
-	const selectedClientIdRef = useRef<string | null>(clientId);
+	const selectedAthleteIdRef = useRef<string | null>(athleteId);
 	const [{ data: goalsData, fetching: goalsFetching }] = useQuery({
-		query: ClientGoalsQuery,
-		variables: { clientId: selectedClientIdRef.current || "" },
+		query: AthleteGoalsQuery,
+		variables: { athleteId: selectedAthleteIdRef.current || "" },
 	});
 
 	const {
@@ -92,24 +92,24 @@ const NewTrainingPlanForm: React.FC = () => {
 	} = useForm<FormValues>({
 		resolver: zodResolver(trainingPlanSchema),
 		defaultValues: {
-			clientId: clientId || "",
+			athleteId: athleteId || "",
 			goalIds: [],
 		},
 	});
 
-	const selectedClientId = watch("clientId");
+	const selectedAthleteId = watch("athleteId");
 
-	// Update the ref when selectedClientId changes
+	// Update the ref when selectedAthleteId changes
 	useEffect(() => {
-		selectedClientIdRef.current = selectedClientId;
-	}, [selectedClientId]);
+		selectedAthleteIdRef.current = selectedAthleteId;
+	}, [selectedAthleteId]);
 
-	// Set client ID from query param if it exists
+	// Set athlete ID from query param if it exists
 	useEffect(() => {
-		if (clientId) {
-			setValue("clientId", clientId);
+		if (athleteId) {
+			setValue("athleteId", athleteId);
 		}
-	}, [clientId, setValue]);
+	}, [athleteId, setValue]);
 
 	const [success, setSuccess] = useState(false);
 	const [result, executeMutation] = useMutation(CreateTrainingPlanMutation);
@@ -118,7 +118,7 @@ const NewTrainingPlanForm: React.FC = () => {
 		setSuccess(false);
 		const { data, error } = await executeMutation({
 			input: {
-				clientId: values.clientId,
+				athleteId: values.athleteId,
 				goalIds: values.goalIds || [],
 			},
 		});
@@ -132,29 +132,29 @@ const NewTrainingPlanForm: React.FC = () => {
 		}
 	};
 
-	// Show client name in heading if available
-	const clientName = clientData?.client
-		? `for ${clientData.client.firstName} ${clientData.client.lastName}`
+	// Show athlete name in heading if available
+	const athleteName = athleteData?.athlete
+		? `for ${athleteData.athlete.firstName} ${athleteData.athlete.lastName}`
 		: "";
 
-	// Get client's goals
+	// Get athlete's goals
 	const goals = goalsData?.goals || [];
-	const isLoadingGoals = !!selectedClientId && goalsFetching;
+	const isLoadingGoals = !!selectedAthleteId && goalsFetching;
 
-	if (clientFetching && clientId) {
-		return <Loading message="Loading client information..." />;
+	if (athleteFetching && athleteId) {
+		return <Loading message="Loading athlete information..." />;
 	}
 
-	if (clientError && clientId) {
-		return <ErrorMessage message={clientError.message} />;
+	if (athleteError && athleteId) {
+		return <ErrorMessage message={athleteError.message} />;
 	}
 
 	return (
 		<Card className="max-w-md mx-auto mt-8 shadow">
 			<CardHeader>
-				<CardTitle>{`Create Training Plan ${clientName}`}</CardTitle>
+				<CardTitle>{`Create Training Plan ${athleteName}`}</CardTitle>
 				<CardDescription>
-					Create a personalized training plan to help your client achieve their
+					Create a personalized training plan to help your athlete achieve their
 					fitness goals
 				</CardDescription>
 			</CardHeader>
@@ -170,36 +170,36 @@ const NewTrainingPlanForm: React.FC = () => {
 					)}
 					<div>
 						<Controller
-							name="clientId"
+							name="athleteId"
 							control={control}
 							render={({ field }) => (
-								<ClientCombobox
-									label="Client"
+								<AthleteCombobox
+									label="Athlete"
 									value={field.value}
 									onChange={(value) => {
 										field.onChange(value);
-										// Reset goals when client changes
+										// Reset goals when athlete changes
 										setValue("goalIds", []);
 									}}
-									error={errors.clientId?.message}
-									disabled={!!clientId} // Disable if clientId is provided in URL
+									error={errors.athleteId?.message}
+									disabled={!!athleteId} // Disable if athleteId is provided in URL
 								/>
 							)}
 						/>
 					</div>
 
-					{selectedClientId && (
+					{selectedAthleteId && (
 						<div>
 							<Controller
 								name="goalIds"
 								control={control}
 								render={({ field }) => (
 									<GoalMultiSelect
-										label="Client Goals"
+										label="Athlete Goals"
 										goals={goals}
 										selectedGoalIds={field.value || []}
 										onChange={field.onChange}
-										placeholder="Select client goals to include"
+										placeholder="Select athlete goals to include"
 										disabled={isLoadingGoals}
 										error={errors.goalIds?.message}
 									/>
@@ -207,12 +207,12 @@ const NewTrainingPlanForm: React.FC = () => {
 							/>
 							{isLoadingGoals && (
 								<p className="text-sm text-muted-foreground mt-2">
-									Loading client goals...
+									Loading athlete goals...
 								</p>
 							)}
 							{!isLoadingGoals && goals.length === 0 && (
 								<p className="text-sm text-muted-foreground mt-2">
-									This client has no goals yet
+									This athlete has no goals yet
 								</p>
 							)}
 						</div>

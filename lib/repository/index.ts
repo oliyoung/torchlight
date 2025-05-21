@@ -1,3 +1,12 @@
-// Re-export all repository instances and classes from entities.ts
-export * from './entities';
+import { AssistantRepository } from './base/assistantRepository'
+import { AthleteRepository } from './base/athleteRepository'
+import { GoalRepository } from './base/goalRepository'
+import { SessionLogRepository } from './base/sessionLogRepository'
+import { TrainingPlanRepository } from './base/trainingPlanRepository'
 
+// Create singleton instances
+export const athleteRepository = new AthleteRepository();
+export const goalRepository = new GoalRepository();
+export const sessionLogRepository = new SessionLogRepository();
+export const assistantRepository = new AssistantRepository();
+export const trainingPlanRepository = new TrainingPlanRepository();

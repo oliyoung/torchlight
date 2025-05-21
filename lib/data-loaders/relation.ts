@@ -1,31 +1,31 @@
-import DataLoader from 'dataloader';
-import {
-  getTrainingPlanIdsByClientId,
-  getSessionLogIdsByGoalId,
-  getGoalIdsBySessionLogId,
-  getAssistantIdsByTrainingPlanId,
-  getGoalIdsByTrainingPlanId
-} from '@/lib/repository/relations';
 import { logger } from '@/lib/logger';
+import {
+  getGoalSessionLogIds,
+  getGoalTrainingPlanIds,
+  getSessionLogGoalIds,
+  getTrainingPlanAssistantIds,
+  getTrainingPlanGoalIds,
+  getTrainingPlanIdsByAthleteId
+} from '@/lib/repository/relations';
+import { supabaseServiceRole } from '@/lib/supabase/serviceRoleClient';
+import DataLoader from 'dataloader';
 
 /**
- * Creates a DataLoader for batching client → training plan IDs requests
+ * Creates a DataLoader for batching athlete → training plan IDs requests
  */
-export function createClientTrainingPlanIdsLoader(userId: string | null) {
-  return new DataLoader<string, string[]>(async (clientIds) => {
+export function createAthleteTrainingPlanIdsLoader(userId: string | null) {
+  return new DataLoader<string, string[]>(async (athleteIds) => {
     try {
-      // Process each client ID individually since we need separate arrays per client
+      // Process each athlete ID individually since we need separate arrays per athlete
       return Promise.all(
-        clientIds.map(async (clientId) => {
-          return getTrainingPlanIdsByClientId(userId, clientId);
+        athleteIds.map(async (athleteId) => {
+          return getTrainingPlanIdsByAthleteId(userId, athleteId);
         })
       );
     } catch (error) {
-      logger.error({ error }, 'Error in client training plan IDs loader');
-      return clientIds.map(() => []);
+      logger.error({ error }, 'Error in athlete training plan IDs loader');
+      return athleteIds.map(() => []);
     }
-  }, {
-    cacheKeyFn: key => String(key)
   });
 }
 
@@ -35,17 +35,16 @@ export function createClientTrainingPlanIdsLoader(userId: string | null) {
 export function createGoalSessionLogIdsLoader() {
   return new DataLoader<string, string[]>(async (goalIds) => {
     try {
+      // Process each goal ID individually
       return Promise.all(
         goalIds.map(async (goalId) => {
-          return getSessionLogIdsByGoalId(goalId);
+          return getGoalSessionLogIds(goalId);
         })
       );
     } catch (error) {
       logger.error({ error }, 'Error in goal session log IDs loader');
       return goalIds.map(() => []);
     }
-  }, {
-    cacheKeyFn: key => String(key)
   });
 }
 
@@ -55,17 +54,35 @@ export function createGoalSessionLogIdsLoader() {
 export function createSessionLogGoalIdsLoader() {
   return new DataLoader<string, string[]>(async (sessionLogIds) => {
     try {
+      // Process each session log ID individually
       return Promise.all(
         sessionLogIds.map(async (sessionLogId) => {
-          return getGoalIdsBySessionLogId(sessionLogId);
+          return getSessionLogGoalIds(sessionLogId);
         })
       );
     } catch (error) {
       logger.error({ error }, 'Error in session log goal IDs loader');
       return sessionLogIds.map(() => []);
     }
-  }, {
-    cacheKeyFn: key => String(key)
+  });
+}
+
+/**
+ * Creates a DataLoader for batching goal → training plan IDs requests
+ */
+export function createGoalTrainingPlanIdsLoader() {
+  return new DataLoader<string, string[]>(async (goalIds) => {
+    try {
+      // Process each goal ID individually
+      return Promise.all(
+        goalIds.map(async (goalId) => {
+          return getGoalTrainingPlanIds(goalId);
+        })
+      );
+    } catch (error) {
+      logger.error({ error }, 'Error in goal training plan IDs loader');
+      return goalIds.map(() => []);
+    }
   });
 }
 
@@ -75,17 +92,16 @@ export function createSessionLogGoalIdsLoader() {
 export function createTrainingPlanAssistantIdsLoader() {
   return new DataLoader<string, string[]>(async (trainingPlanIds) => {
     try {
+      // Process each training plan ID individually
       return Promise.all(
         trainingPlanIds.map(async (trainingPlanId) => {
-          return getAssistantIdsByTrainingPlanId(trainingPlanId);
+          return getTrainingPlanAssistantIds(trainingPlanId);
         })
       );
     } catch (error) {
       logger.error({ error }, 'Error in training plan assistant IDs loader');
       return trainingPlanIds.map(() => []);
     }
-  }, {
-    cacheKeyFn: key => String(key)
   });
 }
 
@@ -95,16 +111,15 @@ export function createTrainingPlanAssistantIdsLoader() {
 export function createTrainingPlanGoalIdsLoader() {
   return new DataLoader<string, string[]>(async (trainingPlanIds) => {
     try {
+      // Process each training plan ID individually
       return Promise.all(
         trainingPlanIds.map(async (trainingPlanId) => {
-          return getGoalIdsByTrainingPlanId(trainingPlanId);
+          return getTrainingPlanGoalIds(trainingPlanId);
         })
       );
     } catch (error) {
       logger.error({ error }, 'Error in training plan goal IDs loader');
       return trainingPlanIds.map(() => []);
     }
-  }, {
-    cacheKeyFn: key => String(key)
   });
 }

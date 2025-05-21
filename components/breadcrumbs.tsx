@@ -6,22 +6,36 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Fragment } from "react";
 
-export default function Breadcrumbs() {
+export interface BreadcrumbItemType {
+	href: string;
+	label: string;
+	current?: boolean;
+}
+
+interface BreadcrumbsProps {
+	breadcrumbs?: BreadcrumbItemType[];
+}
+
+export default function Breadcrumbs({ breadcrumbs }: BreadcrumbsProps) {
 	return (
 		<Breadcrumb>
 			<BreadcrumbList>
-				<BreadcrumbItem>
-					<BreadcrumbLink href="/">Home</BreadcrumbLink>
-				</BreadcrumbItem>
-				<BreadcrumbSeparator />
-				<BreadcrumbItem>
-					<BreadcrumbLink href="/components">Components</BreadcrumbLink>
-				</BreadcrumbItem>
-				<BreadcrumbSeparator />
-				<BreadcrumbItem>
-					<BreadcrumbPage>Breadcrumb</BreadcrumbPage>
-				</BreadcrumbItem>
+				{breadcrumbs?.map((breadcrumb, index) => (
+					<Fragment key={`breadcrumb-${breadcrumb.href}`}>
+						{index > 0 && <BreadcrumbSeparator />}
+						<BreadcrumbItem>
+							{breadcrumb.current ? (
+								<BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+							) : (
+								<BreadcrumbLink href={breadcrumb.href}>
+									{breadcrumb.label}
+								</BreadcrumbLink>
+							)}
+						</BreadcrumbItem>
+					</Fragment>
+				))}
 			</BreadcrumbList>
 		</Breadcrumb>
 	);

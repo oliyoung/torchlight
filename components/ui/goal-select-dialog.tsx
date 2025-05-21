@@ -15,14 +15,14 @@ import { ErrorMessage } from "./error-message";
 import { Loading } from "./loading";
 
 interface GoalSelectDialogProps {
-	clientId: string;
+	athleteId: string;
 	onSubmit: (goal: Goal) => void;
 	triggerLabel?: string;
 }
 
-const ClientGoalsQuery = `
-  query ClientGoals($clientId: ID!) {
-    goals(clientId: $clientId) {
+const AthleteGoalsQuery = `
+  query AthleteGoals($athleteId: ID!) {
+    goals(athleteId: $athleteId) {
       id
       title
       description
@@ -33,7 +33,7 @@ const ClientGoalsQuery = `
 `;
 
 export function GoalSelectDialog({
-	clientId,
+	athleteId,
 	onSubmit,
 	triggerLabel = "Add Goal",
 }: GoalSelectDialogProps) {
@@ -41,9 +41,9 @@ export function GoalSelectDialog({
 	const [selectedId, setSelectedId] = useState<Goal["id"]>();
 
 	const [{ data, fetching, error }] = useQuery<{ goals: Goal[] }>({
-		query: ClientGoalsQuery,
-		variables: { clientId },
-		pause: !clientId,
+		query: AthleteGoalsQuery,
+		variables: { athleteId },
+		pause: !athleteId,
 	});
 
 	const goals = data?.goals || [];
@@ -72,11 +72,11 @@ export function GoalSelectDialog({
 				) : goals.length === 0 ? (
 					<div className="text-center py-4">
 						<p className="text-muted-foreground">
-							No goals found for this client.
+							No goals found for this athlete.
 						</p>
 						<p className="text-sm">
-							<a href={`/clients/${clientId}#goals`} className="underline">
-								Create a goal for this client first
+							<a href={`/athletes/${athleteId}#goals`} className="underline">
+								Create a goal for this athlete first
 							</a>
 						</p>
 					</div>

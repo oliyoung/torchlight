@@ -1,5 +1,5 @@
 import type { PubSub } from 'graphql-subscriptions';
-import type { TrainingPlan, Client, Goal, Assistant } from '@/lib/types';
+import type { TrainingPlan, Athlete, Goal, Assistant } from '@/lib/types';
 import { trainingPlanRepository } from "@/lib/repository";
 import { readFileSync } from 'node:fs';
 import { logger } from '@/lib/logger';
@@ -16,7 +16,7 @@ async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: strin
     await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
 
     // Mock implementation based on the prompt structure from training_plan.md
-    const mockOverview = "Generated training plan overview based on client data and goals.";
+    const mockOverview = "Generated training plan overview based on athlete data and goals.";
     const mockPlanJson = {
         programOverview: {
             title: "Basketball Skill & Conditioning Plan",
@@ -75,14 +75,14 @@ export async function generateTrainingPlanContent(
     trainingPlanId: TrainingPlan['id'],
     userId: string | null,
     assistantIds: Assistant['id'][],
-    client: Client, // Accept Client object directly
+    athlete: Athlete, // Accept Athlete object directly
     goals: Goal[] // Accept Goal objects directly
 ) {
     logger.info({ trainingPlanId, userId }, "Starting async generation for Training Plan");
 
     try {
         // 1. Fetch the initial training plan to get training plan specific data if needed
-        // Note: Client and Goals are now passed in, no need to fetch them here
+        // Note: Athlete and Goals are now passed in, no need to fetch them here
         const initialTrainingPlan = await trainingPlanRepository.getTrainingPlanById(userId, trainingPlanId); // Still need this for plan-specific fields if any
 
         if (!initialTrainingPlan) {
@@ -90,12 +90,12 @@ export async function generateTrainingPlanContent(
             return; // Cannot proceed if the plan itself is not found
         }
 
-        // Use the passed-in client and goals data directly
-        const clientData = client;
+        // Use the passed-in athlete and goals data directly
+        const athleteData = athlete;
         const goalsData = goals;
-        // Check if client or goals data is missing (should ideally be handled by the caller)
-        if (!clientData || goalsData.length !== initialTrainingPlan.goals?.length) { // Check if the number of goals matches what was requested initially
-            logger.warn({ trainingPlanId }, "Invalid data passed for training plan. Client or goals missing/mismatch.");
+        // Check if athlete or goals data is missing (should ideally be handled by the caller)
+        if (!athleteData || goalsData.length !== initialTrainingPlan.goals?.length) { // Check if the number of goals matches what was requested initially
+            logger.warn({ trainingPlanId }, "Invalid data passed for training plan. Athlete or goals missing/mismatch.");
         }
 
         // 2. Prepare the prompt
@@ -105,7 +105,7 @@ export async function generateTrainingPlanContent(
         // Construct the specific prompt using the template and passed-in data
         // This is a simplified example; a real implementation would involve
         // more sophisticated prompt engineering and data formatting.
-        const prompt = `Based on the following prompt template and client data, generate a training plan:\n\n${promptTemplate}\n\nClient Data:\nName: ${clientData.firstName} ${clientData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
+        const prompt = `Based on the following prompt template and athlete data, generate a training plan:\n\n${promptTemplate}\n\nAthlete Data:\nName: ${athleteData.firstName} ${athleteData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
 
         logger.info("Generated Prompt:", prompt);
 
@@ -131,15 +131,15 @@ export async function generateTrainingPlanContent(
         if (updatedTrainingPlan) {
             logger.info(`Training plan ${trainingPlanId} updated successfully.`);
             // 6. Publish update via PubSub
-            // Include clientId in the payload for subscription filtering
-            if (updatedTrainingPlan.client?.id) {
+            // Include athleteId in the payload for subscription filtering
+            if (updatedTrainingPlan.athlete?.id) {
                 pubsub.publish(TRAINING_PLAN_GENERATED, {
                     trainingPlanGenerated: updatedTrainingPlan,
-                    clientId: updatedTrainingPlan.client.id
+                    athleteId: updatedTrainingPlan.athlete.id
                 });
                 logger.info(`Published update for training plan ${trainingPlanId}.`);
             } else {
-                logger.warn({ trainingPlanId }, "Cannot publish update - client ID is missing");
+                logger.warn({ trainingPlanId }, "Cannot publish update - athlete ID is missing");
             }
         } else {
             logger.error({ trainingPlanId }, "Failed to update training plan after generation.");

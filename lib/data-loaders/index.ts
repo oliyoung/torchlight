@@ -1,26 +1,26 @@
-import { createClientLoader } from './client';
-import { createGoalLoader } from './goal';
-import { createSessionLogLoader } from './sessionLog';
-import { createTrainingPlanLoader } from './training-plan';
 import { createAssistantLoader } from './assistant';
+import { createAthleteLoader } from './athlete';
+import { createGoalLoader } from './goal';
 import {
-  createClientTrainingPlanIdsLoader,
+  createAthleteTrainingPlanIdsLoader,
   createGoalSessionLogIdsLoader,
   createSessionLogGoalIdsLoader,
   createTrainingPlanAssistantIdsLoader,
   createTrainingPlanGoalIdsLoader
 } from './relation';
+import { createSessionLogLoader } from './sessionLog';
+import { createTrainingPlanLoader } from './training-plan';
 
 export interface DataLoaders {
   // Entity loaders
-  clientLoader: ReturnType<typeof createClientLoader>;
+  athleteLoader: ReturnType<typeof createAthleteLoader>;
   goalLoader: ReturnType<typeof createGoalLoader>;
   sessionLogLoader: ReturnType<typeof createSessionLogLoader>;
   trainingPlanLoader: ReturnType<typeof createTrainingPlanLoader>;
   assistantLoader: ReturnType<typeof createAssistantLoader>;
 
   // Relation loaders
-  clientTrainingPlanIdsLoader: ReturnType<typeof createClientTrainingPlanIdsLoader>;
+  athleteTrainingPlanIdsLoader: ReturnType<typeof createAthleteTrainingPlanIdsLoader>;
   goalSessionLogIdsLoader: ReturnType<typeof createGoalSessionLogIdsLoader>;
   sessionLogGoalIdsLoader: ReturnType<typeof createSessionLogGoalIdsLoader>;
   trainingPlanAssistantIdsLoader: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
@@ -34,14 +34,14 @@ export interface DataLoaders {
 export function createDataLoaders(userId: string | null): DataLoaders {
   return {
     // Entity loaders
-    clientLoader: createClientLoader(userId),
+    athleteLoader: createAthleteLoader(userId),
     goalLoader: createGoalLoader(userId),
     sessionLogLoader: createSessionLogLoader(userId),
     trainingPlanLoader: createTrainingPlanLoader(userId),
     assistantLoader: createAssistantLoader(),
 
     // Relation loaders
-    clientTrainingPlanIdsLoader: createClientTrainingPlanIdsLoader(userId),
+    athleteTrainingPlanIdsLoader: createAthleteTrainingPlanIdsLoader(userId),
     goalSessionLogIdsLoader: createGoalSessionLogIdsLoader(),
     sessionLogGoalIdsLoader: createSessionLogGoalIdsLoader(),
     trainingPlanAssistantIdsLoader: createTrainingPlanAssistantIdsLoader(),

@@ -25,7 +25,7 @@ const TrainingPlansQuery = `
 			id
 			title
 			overview
-			client {
+			athlete {
 				id
 				firstName
 				lastName
@@ -69,7 +69,7 @@ function TrainingPlansList() {
 				<div className="space-y-2 max-w-md">
 					<h3 className="text-xl font-semibold">No training plans yet</h3>
 					<p className="text-muted-foreground">
-						Create training plans to help your clients track their progress and
+						Create training plans to help your athletes track their progress and
 						achieve their goals.
 					</p>
 				</div>
@@ -104,13 +104,13 @@ function TrainingPlansList() {
 									{plan.title || "Untitled Training Plan"}
 								</Link>
 							</CardTitle>
-							{plan.client && (
+							{plan.athlete && (
 								<CardDescription>
 									<Link
-										href={`/clients/${plan.client.id}`}
+										href={`/athletes/${plan.athlete.id}`}
 										className="text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
 									>
-										Client: {plan.client.firstName} {plan.client.lastName}
+										Athlete: {plan.athlete.firstName} {plan.athlete.lastName}
 									</Link>
 								</CardDescription>
 							)}
@@ -154,7 +154,7 @@ export default function TrainingPlansPage() {
 				<div className="space-y-1">
 					<Heading>Training Plans</Heading>
 					<CardDescription className="text-sm text-muted-foreground">
-						Create and manage all your client training plans in one place
+						Create and manage all your athlete training plans in one place
 					</CardDescription>
 				</div>
 				<Button asChild size="sm">
