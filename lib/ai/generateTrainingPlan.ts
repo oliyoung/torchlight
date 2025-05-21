@@ -1,14 +1,14 @@
 import { logger } from "../logger";
 
 export const generateMockTrainingPlan = (
-    clientId: string,
+    athleteId: string,
     assistantIds: string[],
     goalIds: string[],
 ): { overview: string; planJson: Record<string, unknown> } => {
-    logger.info({ clientId, assistantIds, goalIds }, "Generating mock training plan");
+    logger.info({ athleteId, assistantIds, goalIds }, "Generating mock training plan");
 
     // Basic mock logic
-    const overview = `Mock training plan generated for client ${clientId} based on goals ${goalIds.join(", ")} and assistants ${assistantIds.join(", ")}.`;
+    const overview = `Mock training plan generated for athlete ${athleteId} based on goals ${goalIds.join(", ")} and assistants ${assistantIds.join(", ")}.`;
 
     const planJson = {
         title: "Sample Training Plan",

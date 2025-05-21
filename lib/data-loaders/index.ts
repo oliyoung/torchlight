@@ -1,5 +1,5 @@
 import { createAssistantLoader } from './assistant';
-import { createClientLoader } from './client';
+import { createAthleteLoader } from './athlete';
 import { createGoalLoader } from './goal';
 import {
   createClientTrainingPlanIdsLoader,
@@ -13,7 +13,7 @@ import { createTrainingPlanLoader } from './training-plan';
 
 export interface DataLoaders {
   // Entity loaders
-  clientLoader: ReturnType<typeof createClientLoader>;
+  athleteLoader: ReturnType<typeof createAthleteLoader>;
   goalLoader: ReturnType<typeof createGoalLoader>;
   sessionLogLoader: ReturnType<typeof createSessionLogLoader>;
   trainingPlanLoader: ReturnType<typeof createTrainingPlanLoader>;
@@ -34,7 +34,7 @@ export interface DataLoaders {
 export function createDataLoaders(userId: string | null): DataLoaders {
   return {
     // Entity loaders
-    clientLoader: createClientLoader(userId),
+    athleteLoader: createAthleteLoader(userId),
     goalLoader: createGoalLoader(userId),
     sessionLogLoader: createSessionLogLoader(userId),
     trainingPlanLoader: createTrainingPlanLoader(userId),

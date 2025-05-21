@@ -1,5 +1,5 @@
 import { generateSession, summarizeSessionLog } from "./ai";
-import { createClient } from "./client";
+import { createAthlete } from "./athlete";
 import { createTrainingPlan, updateTrainingPlan } from "./trainingPlan";
 
 export default {
@@ -7,5 +7,5 @@ export default {
   generateSession,
   createTrainingPlan,
   updateTrainingPlan,
-  createClient,
+  createAthlete,
 };
