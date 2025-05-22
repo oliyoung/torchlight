@@ -90,7 +90,13 @@ messages:
       Your plan will be used to create a new TrainingPlan entry and inform future AI-driven analysis. Keep outputs actionable and directly relevant to the athlete's context.
   - role: user
     content: |
-      - Personal Details: {{age}}, {{gender}}, {{fitnessLevel}}, {{trainingHistory}}
-      - Physical Attributes: {{height}}, {{weight}}
-      - Current Goals: {{activeGoals}}
-      - Training Context: {{previousSessionLogs}}, {{progressNotes}}, {{actionItems}}
+      - {{age}} years old
+      - {{gender}}
+      - Their fitness level is {{fitnessLevel}}
+      - Their training history is {{trainingHistory}}
+      - Their height is {{height}} cm
+      - Their weight is {{weight}} kg
+      - Their current goals are {{activeGoals}}
+      - Their training context is {{previousSessionLogs}},
+      - Their progress notes are {{progressNotes}}
+      - Their action items are {{actionItems}}
