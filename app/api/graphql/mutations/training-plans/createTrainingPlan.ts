@@ -14,7 +14,7 @@ export const createTrainingPlan = async (
     const initialTrainingPlanData: CreateTrainingPlanInput & { overview: string; planJson: JSON } = {
         ...input,
         overview: "",
-        planJson: { input: {}, output: {} } as unknown as JSON,
+        planJson: {} as unknown as JSON,
     };
 
     const newTrainingPlan = await trainingPlanRepository.createTrainingPlan(context?.user?.id ?? null, initialTrainingPlanData);
