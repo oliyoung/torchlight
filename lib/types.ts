@@ -405,6 +405,8 @@ export enum PubSubEvents {
   // Session Log Events
   SessionLogAdded = 'sessionLogAdded',
   SessionLogUpdated = 'sessionLogUpdated',
+  SessionLogGenerationSuccess = 'sessionLogGenerationSuccess',
+  SessionLogGenerationFailed = 'sessionLogGenerationFailed',
 
   // Training Plan Events
   TrainingPlanGenerated = 'trainingPlanGenerated',
@@ -1039,3 +1041,64 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Subscription?: SubscriptionResolvers<ContextType>;
   TrainingPlan?: TrainingPlanResolvers<ContextType>;
 };
+
+// Interface for the AI generated session plan JSON structure
+export interface AiSessionPlanOutput {
+  sessionPlan: {
+    title: string;
+    focusArea?: string;
+    targetGoalIds?: string[];
+    duration: string;
+    intensityLevel: string;
+    equipment?: string[];
+    preparationNotes?: string;
+  };
+  warmup: {
+    duration: string;
+    description: string;
+    exercises?: Array<{
+      name: string;
+      instruction: string;
+      duration?: string;
+      sets?: number;
+      reps?: string;
+    }>;
+  };
+  mainBlock: {
+    exercises?: Array<{
+      name: string;
+      focusArea?: string;
+      sets?: number;
+      reps?: string;
+      load?: string;
+      rest?: string;
+      tempoOrTiming?: string;
+      techniqueCues?: string[];
+      modifications?: {
+        progression?: string;
+        regression?: string;
+      };
+    }>;
+  };
+  supplementaryWork?: {
+    exercises?: Array<{
+      name: string;
+      purpose?: string;
+      sets?: number;
+      reps?: string;
+      intensity?: string;
+      notes?: string;
+    }>;
+  };
+  cooldown: {
+    duration: string;
+    components?: string[];
+    keyFocus?: string;
+  };
+  sessionNotes: {
+    keyMetricsToTrack?: string[];
+    warningSignsToMonitor?: string[];
+    adjustmentGuidelines?: string;
+    nextSessionConnection?: string;
+  };
+}
