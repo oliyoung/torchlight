@@ -20,7 +20,7 @@ async function main() {
         await client.query(sql);
         logger.info('Database seeded successfully.');
     } catch (err) {
-        console.error('Error seeding database:', err);
+        logger.error({ err }, 'Error seeding database');
     } finally {
         await client.end();
     }

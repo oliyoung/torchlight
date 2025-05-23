@@ -16,7 +16,7 @@ const Auth = () => {
 			email,
 			password,
 		});
-		if (error) console.error("Error signing up:", error.message);
+		if (error) logger.error("Error signing up:", error.message);
 		else logger.info("User signed up:", user);
 	};
 
@@ -28,7 +28,7 @@ const Auth = () => {
 			email,
 			password,
 		});
-		if (error) console.error("Error signing in:", error.message);
+		if (error) logger.error("Error signing in:", error.message);
 		else logger.info("User signed in:", user);
 	};
 

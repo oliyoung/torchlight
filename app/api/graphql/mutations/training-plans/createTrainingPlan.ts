@@ -27,7 +27,7 @@ export const createTrainingPlan = async (
     const goals = await goalRepository.getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
 
     if (!athlete || goals.length !== (input.goalIds ?? []).length) {
-        console.error(`Failed to fetch athlete (${input.athleteId}) or goals (${input.goalIds}) for training plan ${newTrainingPlan.id}.`);
+        logger.error({ input, newTrainingPlan }, `Failed to fetch athlete`);
     }
 
     generateTrainingPlanContent(

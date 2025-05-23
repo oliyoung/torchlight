@@ -1,11 +1,10 @@
-import { updateTrainingPlan } from "@/lib/repository/training-plan";
 import { PubSub } from "graphql-subscriptions";
-import type { Athlete, Goal, TrainingPlan, Assistant, SessionLog, AiTrainingPlanContent } from "@/lib/types";
+import type { Athlete, Goal, AiTrainingPlanContent } from "@/lib/types";
 
-import { getAssistantsByIds } from "@/lib/repository/assistant";
-import { getSessionLogsByAthleteId } from "@/lib/repository/sessionLog";
 import { generateContentWithAI } from "@/lib/ai/aiClient";
 import { loadPrompt } from "@/lib/ai/promptLoader";
+import { trainingPlanRepository, assistantRepository, sessionLogRepository } from "@/lib/repository";
+import { logger } from '@/lib/logger';
 
 // In-memory PubSub instance for demonstration. In a real application, use a robust solution like Redis.
 // TODO: Use the PubSub instance from the GraphQL context instead of a local one.
@@ -27,13 +26,13 @@ export const generateTrainingPlanContent = async (
 
     try {
         // Fetch necessary data
-        const assistants = assistantIds.length > 0 ? await getAssistantsByIds(assistantIds) : [];
-        const sessionLogs = await getSessionLogsByAthleteId(userId, athlete.id);
+        const assistants = assistantIds.length > 0 ? await assistantRepository.getAssistantsByIds(assistantIds) : [];
+        const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athlete.id);
 
         // Load and parse the prompt file
         const promptFileContent = loadPrompt(TRAINING_PLAN_PROMPT_FILE);
         if (!promptFileContent) {
-            console.error("Failed to load training plan prompt file.");
+            logger.error("Failed to load training plan prompt file.");
             // TODO: Handle this error appropriately
             return;
         }
@@ -42,7 +41,7 @@ export const generateTrainingPlanContent = async (
         const userMessageTemplate = promptFileContent.messages.find(msg => msg.role === 'user')?.content;
 
         if (!userMessageTemplate) {
-            console.error("User message template not found in prompt file.");
+            logger.error("User message template not found in prompt file.");
             // TODO: Handle this error appropriately
             return;
         }
@@ -74,7 +73,7 @@ export const generateTrainingPlanContent = async (
         const generatedContent = await generateContentWithAI(prompt);
 
         if (!generatedContent || !generatedContent.planJson) {
-            console.error("AI content generation failed or returned empty.");
+            logger.error("AI content generation failed or returned empty.");
             // TODO: Handle this case, maybe update training plan status to error
             return;
         }
@@ -82,7 +81,7 @@ export const generateTrainingPlanContent = async (
         // Cast the planJson to the specific type
         const planJson: AiTrainingPlanContent = generatedContent.planJson as AiTrainingPlanContent;
 
-        const updatedTrainingPlan = await updateTrainingPlan(userId, trainingPlanId, {
+        const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
             planJson: planJson, // Use the typed content
             overview: generatedContent.overview, // Use the generated overview
             sourcePrompt: prompt // Store the generated prompt
@@ -94,10 +93,10 @@ export const generateTrainingPlanContent = async (
             // TODO: Use the PubSub instance from context
             pubsub.publish(TRAININING_PLAN_GENERATED, { trainingPlanGenerated: updatedTrainingPlan });
         } else {
-            console.error(`Failed to update training plan ${trainingPlanId} after generation.`);
+            logger.error({ trainingPlanId }, 'Failed to update training plan after generation.');
         }
     } catch (error) {
-        console.error(`Error generating training plan content for ${trainingPlanId}:`, error);
+        logger.error({ trainingPlanId, error }, 'Error generating training plan content');
         // TODO: Handle error appropriately, maybe update training plan status to error
     }
 };

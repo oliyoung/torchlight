@@ -23,6 +23,7 @@ import { useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "urql";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 const AthleteQuery = `
   query Athlete($id: ID!) {
@@ -159,7 +160,7 @@ export default function NewGoalPage() {
 				router.push(`/athletes/${athleteId}`);
 			}, 1500);
 		} catch (error) {
-			console.error("Error creating goal:", error);
+			logger.error({ error }, "Error creating goal");
 		}
 	};
 
