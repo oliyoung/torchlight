@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import type { CreateSessionLogInput, SessionLog, UpdateSessionLogInput } from "@/lib/types";
+import type { AiGenerateSessionInput, CreateSessionLogInput, SessionLog, UpdateSessionLogInput } from "@/lib/types";
 import { type EntityMapping, EntityRepository } from "./entityRepository";
 import { RelationRepository } from "./relationRepository";
 
@@ -223,6 +223,16 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
         nextStepsGenerated: false
       }
     });
+  }
+
+  async generateSession(userId: string | null, input: AiGenerateSessionInput): Promise<SessionLog | null> {
+    logger.info({ userId, input }, 'Generating session');
+
+    const sessionLog = await this.createSessionLog(userId, {
+      ...input,
+      date: new Date()
+    } as CreateSessionLogInput);
+    return sessionLog;
   }
 
   /**
