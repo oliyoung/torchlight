@@ -355,7 +355,7 @@ export type TrainingPlan = {
   goals?: Maybe<Array<Goal>>;
   id: Scalars['ID']['output'];
   overview?: Maybe<Scalars['String']['output']>;
-  planJson: Scalars['JSON']['output'];
+  planJson: AiTrainingPlanContent;
   sourcePrompt?: Maybe<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -681,4 +681,50 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Subscription?: SubscriptionResolvers<ContextType>;
   TrainingPlan?: TrainingPlanResolvers<ContextType>;
 };
+
+export interface AiTrainingPlanContent {
+  planOverview: AiTrainingPlanOverview;
+  weeklyStructure: AiTrainingPlanWeeklyStructure[];
+  sessionTemplates: AiTrainingPlanSessionTemplate[];
+  progressionGuidelines: string;
+  tracking: AiTrainingPlanTracking;
+}
+
+export interface AiTrainingPlanOverview {
+  title: string;
+  durationWeeks: number;
+  sessionsPerWeek: number;
+  equipment: string[];
+  primaryGoals: string[];
+  secondaryGoals: string[];
+  intensityGuidelines: string;
+}
+
+export interface AiTrainingPlanWeeklyStructure {
+  week: number;
+  focus: string;
+  sessions: AiTrainingPlanSession[];
+}
+
+export interface AiTrainingPlanSession {
+  type: string;
+  focusArea: string;
+  templateRef: string;
+}
+
+export interface AiTrainingPlanSessionTemplate {
+  templateRef: string;
+  structure: {
+    warmup: string;
+    mainBlock: string;
+    supplementary: string;
+    cooldown: string;
+  };
+}
+
+export interface AiTrainingPlanTracking {
+  keyMetrics: string[];
+  warningSigns: string[];
+  adjustmentCriteria: string;
+}
 
