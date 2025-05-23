@@ -3,17 +3,23 @@ import { loadPrompt } from '@/ai/promptLoader';
 import { logger } from '@/lib/logger';
 import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
 import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
-import { TrainingPlanStatus } from '@/lib/types';
+import { PubSubEvents, TrainingPlanStatus } from '@/lib/types';
 import type { PubSub } from 'graphql-subscriptions';
-
-// Ensure the correct PubSub event constant is used
-const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
-const TRAINING_PLAN_GENERATION_FAILED = 'TRAINING_PLAN_GENERATION_FAILED'; // Define failed event
 
 // Define the path to the training plan prompt file
 const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/training_plan.prompt.yml';
 
-// Function to generate training plan content asynchronously
+/**
+ * Generates training plan content using AI based on athlete data, goals, and session logs.
+ * Updates the training plan with the generated content and status, and publishes updates via PubSub.
+ *
+ * @param trainingPlanId The ID of the training plan to generate content for.
+ * @param userId The ID of the user performing the generation.
+ * @param assistantIds The IDs of the assistants to use for context.
+ * @param athlete The athlete for whom the training plan is being generated.
+ * @param goals The goals relevant to the training plan.
+ * @param pubsub The PubSub instance for publishing updates.
+ */
 export async function generateTrainingPlanContent(
     trainingPlanId: TrainingPlan['id'],
     userId: string | null,
@@ -26,17 +32,21 @@ export async function generateTrainingPlanContent(
 
     try {
         // Set status to GENERATING
-        await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Generating });
+        await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+            status: TrainingPlanStatus.Generating
+        });
 
-        // 1. Fetch necessary data (Assistants and Session Logs)
+        // Fetch necessary data (Assistants and Session Logs)
         const assistants = assistantIds.length > 0 ? await assistantRepository.getAssistantsByIds(assistantIds) : [];
         const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athlete.id);
 
-        // 2. Load and parse the prompt file
+        // Load and parse the prompt file
         const promptFileContent = loadPrompt(TRAINING_PLAN_PROMPT_FILE);
         if (!promptFileContent) {
             logger.error("Failed to load training plan prompt file.");
-            // TODO: Handle this error appropriately (e.g., update training plan status)
+            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+                status: TrainingPlanStatus.Error
+            })
             return;
         }
 
@@ -46,11 +56,13 @@ export async function generateTrainingPlanContent(
 
         if (!userMessageTemplate || !systemMessage) {
             logger.error("System or User message template not found in prompt file.");
-            // TODO: Handle this error appropriately
+            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+                status: TrainingPlanStatus.Error
+            })
             return;
         }
 
-        // 3. Prepare the prompt using the template and fetched data
+        // Prepare the prompt using the template and fetched data
         // Extract notes and action items from recent session logs
         const previousSessionLogsContext = sessionLogs.map(log =>
             `Session on ${log.date.toDateString()}: Notes: ${log.notes || 'N/A'}, Action Items: ${(log.actionItems as string[]).join('; ') || 'N/A'}`
@@ -78,49 +90,37 @@ export async function generateTrainingPlanContent(
 
         logger.info({ finalPrompt }, "Generated Prompt");
 
-        // 4. Call the placeholder AI client function (replace with actual MCP call later)
+        // Call the placeholder AI client function (replace with actual MCP call later)
         const generatedContent = await generateContentWithAI(finalPrompt);
 
         if (!generatedContent || !generatedContent.planJson) {
             logger.error("AI content generation failed or returned empty.");
-            // TODO: Handle this case, maybe update training plan status to error
+            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+                status: TrainingPlanStatus.Error
+            })
             return;
         }
 
-        // 5. Prepare data for database update
-        // Ensure planJson conforms to AiTrainingPlanContent type
-        const planJson = generatedContent.planJson; // Removed type casting for now
-
-        const updateData = {
-            planJson: planJson, // Use the content
+        const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+            planJson: generatedContent.planJson,
             overview: generatedContent.overview,
             sourcePrompt: finalPrompt,
-            // TODO: Add generatedBy based on the actual AI model/assistant used
-        };
-
-        // 6. Update the training plan record in the database
-        const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
-            ...updateData,
             status: TrainingPlanStatus.Generated,
         });
 
         if (updatedTrainingPlan) {
-            logger.info(`Training plan ${trainingPlanId} content generated and updated.`);
-            // 7. Publish update via PubSub
-            pubsub.publish(TRAINING_PLAN_GENERATED, { trainingPlanGenerated: updatedTrainingPlan });
+            pubsub.publish(PubSubEvents.TrainingPlanGenerated, { trainingPlanGenerated: updatedTrainingPlan });
             logger.info({ trainingPlanId }, "Published update for training plan.");
         } else {
-            logger.error({ trainingPlanId }, 'Failed to update training plan after generation.');
-            // Optionally publish a generation failed event
-            pubsub.publish(TRAINING_PLAN_GENERATION_FAILED, { trainingPlanId, error: 'Failed to update training plan after AI generation.' });
-            // Also update status to ERROR if DB update fails after generation
+            logger.error({ trainingPlanId }, 'Failed to update training plan after generation.')
+            pubsub.publish(PubSubEvents.TrainingPlanGenerationFailed, { trainingPlanId, error: 'Failed to update training plan after AI generation.' });
             await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Error });
         }
 
     } catch (error) {
         logger.error({ trainingPlanId, error }, 'Error during async training plan generation');
-        // Optionally publish an error state via PubSub
-        pubsub.publish(TRAINING_PLAN_GENERATION_FAILED, { trainingPlanId, error: error instanceof Error ? error.message : 'Unknown error' });
+        // Publish an error state via PubSub
+        pubsub.publish(PubSubEvents.TrainingPlanGenerationFailed, { trainingPlanId, error: error instanceof Error ? error.message : 'Unknown error' });
         // Set status to ERROR on any exception
         await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Error });
     }

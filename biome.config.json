@@ -9,8 +9,11 @@
 	],
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab",
+		"indentStyle": "space",
+		"quoteStyle": "double",
+		"semicolons": "always",
 		"lineWidth": 80,
+		"trailingComma": "all",
 		"formatWithErrors": true
 	},
 	"linter": {
@@ -18,7 +21,7 @@
 		"rules": {
 			"recommended": true,
 			"suspicious": {
-				"noExplicitAny": "off"
+				"noExplicitAny": "error"
 			},
 			"style": {
 				"useImportType": "error",
