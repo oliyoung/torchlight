@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { GraphQLClient, gql } from "graphql-request";
 import React from "react";
+import { Heading } from "@/components/ui/heading";
+import { Breadcrumb } from "@/components/ui/breadcrumb";
+import Breadcrumbs from "@/components/breadcrumbs";
 
 const endpoint = process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:3000/api/graphql";
 
@@ -37,10 +40,11 @@ interface AthletePageProps {
 }
 
 export default async function AthletePage({ params }: AthletePageProps) {
+    const { id } = await params;
     const client = new GraphQLClient(endpoint);
     let athlete: Athlete | null = null;
     try {
-        const data = await client.request<AthleteQueryResult>(ATHLETE_QUERY, { id: params.id });
+        const data = await client.request<AthleteQueryResult>(ATHLETE_QUERY, { id });
         athlete = data.athlete;
     } catch (e) {
         // Optionally log error
@@ -48,15 +52,16 @@ export default async function AthletePage({ params }: AthletePageProps) {
     if (!athlete) return notFound();
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-2">{athlete.firstName} {athlete.lastName}</h1>
+        <>
+            <Breadcrumbs />
+            <Heading>{athlete.firstName} {athlete.lastName.toLocaleUpperCase()}</Heading>
             <p className="text-gray-600 mb-1">Email: <span className="text-black dark:text-white">{athlete.email}</span></p>
             <p className="text-gray-600 mb-1">Sport: <span className="text-black dark:text-white">{athlete.sport}</span></p>
             <p className="text-gray-600 mb-1">Fitness Level: <span className="text-black dark:text-white">{athlete.fitnessLevel}</span></p>
             <div className="mb-4">
                 <span className="text-gray-600">Tags: </span>
                 {athlete.tags?.map((tag: string) => (
-                    <span key={tag} className="inline-block bg-zinc-200 dark:bg-zinc-700 text-xs rounded px-2 py-1 mr-2">{tag}</span>
+                    <span key={tag} className="inline-block bg-zinc-200    dark:bg-zinc-700 text-xs rounded px-2 py-1 mr-2">{tag}</span>
                 ))}
             </div>
 
@@ -67,6 +72,7 @@ export default async function AthletePage({ params }: AthletePageProps) {
                     Goals list coming soon...
                 </div>
             </section>
-        </div>
+        </>
+
     );
 }
