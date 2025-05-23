@@ -1,8 +1,7 @@
 import { updateTrainingPlan } from "@/lib/repository/training-plan";
 import { PubSub } from "graphql-subscriptions";
 import type { Athlete, Goal, TrainingPlan, Assistant, SessionLog, AiTrainingPlanContent } from "@/lib/types";
-import { getGoalsByIds } from "@/lib/repository/goal";
-import { getAthleteById } from "@/lib/repository/client";
+
 import { getAssistantsByIds } from "@/lib/repository/assistant";
 import { getSessionLogsByAthleteId } from "@/lib/repository/sessionLog";
 import { generateContentWithAI } from "@/lib/ai/aiClient";

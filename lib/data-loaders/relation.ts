@@ -1,14 +1,20 @@
 import { logger } from '@/lib/logger';
 import {
-  getGoalSessionLogIds,
-  getGoalTrainingPlanIds,
-  getSessionLogGoalIds,
-  getTrainingPlanAssistantIds,
-  getTrainingPlanGoalIds,
-  getTrainingPlanIdsByAthleteId
-} from '@/lib/repository/relations';
+  // Removed imports from deleted relations.ts
+  // getGoalSessionLogIds,
+  // getGoalTrainingPlanIds,
+  // getSessionLogGoalIds,
+  // getTrainingPlanAssistantIds,
+  // getTrainingPlanGoalIds,
+  // getTrainingPlanIdsByAthleteId
+} from '@/lib/repository/relations'; // This import will be removed
 import { supabaseServiceRole } from '@/lib/supabase/serviceRoleClient';
 import DataLoader from 'dataloader';
+import { relationRepository } from '@/lib/repository';
+
+// Import JoinTableConfig objects from base repositories
+import { goalSessionLogsConfig, trainingPlanGoalsConfig } from '@/lib/repository/base/goalRepository';
+import { trainingPlanAssistantsConfig } from '@/lib/repository/base/trainingPlanRepository';
 
 /**
  * Creates a DataLoader for batching athlete → training plan IDs requests
@@ -16,12 +22,45 @@ import DataLoader from 'dataloader';
 export function createAthleteTrainingPlanIdsLoader(userId: string | null) {
   return new DataLoader<string, string[]>(async (athleteIds) => {
     try {
-      // Process each athlete ID individually since we need separate arrays per athlete
-      return Promise.all(
-        athleteIds.map(async (athleteId) => {
-          return getTrainingPlanIdsByAthleteId(userId, athleteId);
-        })
-      );
+      // Fetch training plans for the athlete using the trainingPlanRepository
+      // Note: Since there isn't a direct relation table for athlete to training plans
+      // with just athlete_id, we fetch training plans and extract their IDs.
+      // If performance is critical, a dedicated relation table could be considered.
+      const { data, error } = await supabaseServiceRole
+        .from('training_plans')
+        .select('id')
+        .in('athlete_id', athleteIds);
+      // Note: Adding userId filter here if training plans are user-specific
+      // .eq('user_id', userId);
+
+      if (error) {
+        logger.error({ error }, 'Error fetching training plan IDs for athletes');
+        return athleteIds.map(() => []); // Return empty arrays for each requested ID
+      }
+
+      // Group training plan IDs by athleteId
+      // This requires fetching athlete_id along with id
+      const { data: plansWithAthleteId, error: fetchError } = await supabaseServiceRole
+        .from('training_plans')
+        .select('id, athlete_id')
+        .in('athlete_id', athleteIds);
+      // Note: Adding userId filter here if training plans are user-specific
+      // .eq('user_id', userId);
+
+      if (fetchError) {
+        logger.error({ fetchError }, 'Error fetching training plan IDs and athlete IDs');
+        return athleteIds.map(() => []);
+      }
+
+      const athletePlanMap = new Map<string, string[]>();
+      plansWithAthleteId.forEach(plan => {
+        const currentIds = athletePlanMap.get(plan.athlete_id) || [];
+        currentIds.push(plan.id);
+        athletePlanMap.set(plan.athlete_id, currentIds);
+      });
+
+      return athleteIds.map(id => athletePlanMap.get(id) || []);
+
     } catch (error) {
       logger.error({ error }, 'Error in athlete training plan IDs loader');
       return athleteIds.map(() => []);
@@ -35,10 +74,11 @@ export function createAthleteTrainingPlanIdsLoader(userId: string | null) {
 export function createGoalSessionLogIdsLoader() {
   return new DataLoader<string, string[]>(async (goalIds) => {
     try {
-      // Process each goal ID individually
+      // Use relationRepository to get related session log IDs
       return Promise.all(
         goalIds.map(async (goalId) => {
-          return getGoalSessionLogIds(goalId);
+          // Pass goalSessionLogsConfig directly
+          return relationRepository.getRelatedIds(goalSessionLogsConfig, goalId);
         })
       );
     } catch (error) {
@@ -54,10 +94,11 @@ export function createGoalSessionLogIdsLoader() {
 export function createSessionLogGoalIdsLoader() {
   return new DataLoader<string, string[]>(async (sessionLogIds) => {
     try {
-      // Process each session log ID individually
+      // Use relationRepository to get related goal IDs
       return Promise.all(
         sessionLogIds.map(async (sessionLogId) => {
-          return getSessionLogGoalIds(sessionLogId);
+          // Note: sessionLogGoalsConfig sourceIdColumn is session_log_id
+          return relationRepository.getRelatedIds(goalSessionLogsConfig, sessionLogId);
         })
       );
     } catch (error) {
@@ -73,10 +114,11 @@ export function createSessionLogGoalIdsLoader() {
 export function createGoalTrainingPlanIdsLoader() {
   return new DataLoader<string, string[]>(async (goalIds) => {
     try {
-      // Process each goal ID individually
+      // Use relationRepository to get related training plan IDs
       return Promise.all(
         goalIds.map(async (goalId) => {
-          return getGoalTrainingPlanIds(goalId);
+          // Note: trainingPlanGoalsConfig sourceIdColumn is goal_id
+          return relationRepository.getRelatedIds(trainingPlanGoalsConfig, goalId);
         })
       );
     } catch (error) {
@@ -92,10 +134,11 @@ export function createGoalTrainingPlanIdsLoader() {
 export function createTrainingPlanAssistantIdsLoader() {
   return new DataLoader<string, string[]>(async (trainingPlanIds) => {
     try {
-      // Process each training plan ID individually
+      // Use relationRepository to get related assistant IDs
       return Promise.all(
         trainingPlanIds.map(async (trainingPlanId) => {
-          return getTrainingPlanAssistantIds(trainingPlanId);
+          // Note: trainingPlanAssistantsConfig sourceIdColumn is training_plan_id
+          return relationRepository.getRelatedIds(trainingPlanAssistantsConfig, trainingPlanId);
         })
       );
     } catch (error) {
@@ -111,10 +154,11 @@ export function createTrainingPlanAssistantIdsLoader() {
 export function createTrainingPlanGoalIdsLoader() {
   return new DataLoader<string, string[]>(async (trainingPlanIds) => {
     try {
-      // Process each training plan ID individually
+      // Use relationRepository to get related goal IDs
       return Promise.all(
         trainingPlanIds.map(async (trainingPlanId) => {
-          return getTrainingPlanGoalIds(trainingPlanId);
+          // Note: trainingPlanGoalsConfig sourceIdColumn is training_plan_id
+          return relationRepository.getRelatedIds(trainingPlanGoalsConfig, trainingPlanId);
         })
       );
     } catch (error) {
