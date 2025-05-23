@@ -1,10 +1,10 @@
+import type { AiTrainingPlanContent, Athlete, Goal } from "@/lib/types";
 import { PubSub } from "graphql-subscriptions";
-import type { Athlete, Goal, AiTrainingPlanContent } from "@/lib/types";
 
 import { generateContentWithAI } from "@/lib/ai/aiClient";
 import { loadPrompt } from "@/lib/ai/promptLoader";
-import { trainingPlanRepository, assistantRepository, sessionLogRepository } from "@/lib/repository";
 import { logger } from '@/lib/logger';
+import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
 
 // In-memory PubSub instance for demonstration. In a real application, use a robust solution like Redis.
 // TODO: Use the PubSub instance from the GraphQL context instead of a local one.
@@ -56,7 +56,7 @@ export const generateTrainingPlanContent = async (
 
         // Populate the prompt template
         let prompt = userMessageTemplate;
-        prompt = prompt.replace('{{age}}', (new Date().getFullYear() - new Date(athlete.birthday!).getFullYear()).toString() || 'N/A');
+        prompt = prompt.replace('{{age}}', (new Date().getFullYear() - new Date(athlete?.birthday ?? '1980-01-01').getFullYear()).toString() || 'N/A');
         prompt = prompt.replace('{{gender}}', athlete.gender || 'N/A');
         prompt = prompt.replace('{{fitnessLevel}}', athlete.fitnessLevel || 'N/A');
         prompt = prompt.replace('{{trainingHistory}}', athlete.trainingHistory || 'N/A');

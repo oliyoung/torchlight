@@ -13,7 +13,6 @@ import {
 import { DatePicker } from "@/components/ui/date-picker";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { GoalTitleSelect } from "@/components/ui/goal-title-select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";

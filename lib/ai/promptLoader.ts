@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
-import yaml from 'js-yaml';
 import { logger } from '@/lib/logger';
+import yaml from 'js-yaml';
 
 // Define a type for the expected structure of the YAML prompt file
 interface PromptFileContent {
@@ -20,7 +20,7 @@ export const loadPrompt = (filePath: string): PromptFileContent | null => {
         const parsedContent = yaml.load(fileContent) as PromptFileContent;
         // Basic validation to ensure it has the expected structure
         if (!parsedContent || !parsedContent.messages || !Array.isArray(parsedContent.messages)) {
-            logger.error({ filePath }, `Invalid prompt file structure`);
+            logger.error({ filePath }, "Invalid prompt file structure");
             return null;
         }
         return parsedContent;

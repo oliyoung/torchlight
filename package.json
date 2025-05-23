@@ -8,8 +8,7 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
-		"biome:lint": "biome lint",
+		"lint": "biome lint",
 		"biome:fix": "biome fix",
 		"seed": "ts-node scripts/seed.ts",
 		"test": "jest"
