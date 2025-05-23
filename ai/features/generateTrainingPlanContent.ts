@@ -1,5 +1,5 @@
-import { generateContentWithAI } from '@/ai/aiClient';
-import { loadPrompt } from '@/ai/promptLoader';
+import { generateContentWithAI } from '@/ai/lib/aiClient';
+import { loadPrompt } from '@/ai/lib/promptLoader';
 import { logger } from '@/lib/logger';
 import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
 import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
@@ -82,9 +82,9 @@ export async function generateTrainingPlanContent(
 
         logger.info({ finalPrompt }, "Generated Prompt");
 
-        const generatedContent = await generateContentWithAI(finalPrompt);
+        const generatedContent = await generateContentWithAI<TrainingPlan>(finalPrompt);
 
-        if (!generatedContent || !generatedContent.planJson) {
+        if (!generatedContent || !generatedContent) {
             logger.error("AI content generation failed or returned empty.");
             await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
                 status: TrainingPlanStatus.Error

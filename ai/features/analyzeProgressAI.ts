@@ -1,5 +1,5 @@
-import { generateContentWithAI } from "@/ai/aiClient";
-import { loadPrompt } from "@/ai/promptLoader";
+import { generateContentWithAI } from '@/ai/lib/aiClient';
+import { loadPrompt } from "@/ai/lib/promptLoader";
 import { logger } from "@/lib/logger";
 import { athleteRepository, goalRepository, sessionLogRepository } from "@/lib/repository";
 import type { Athlete, Goal, SessionLog } from "@/lib/types";

@@ -1,10 +1,11 @@
-import { generateContentWithAI } from "@/ai/aiClient";
-import { loadPrompt } from "@/ai/promptLoader";
+import { generateContentWithAI } from '@/ai/lib/aiClient';
+import { loadPrompt } from "@/ai/lib/promptLoader";
 import { logger } from "@/lib/logger";
 import { athleteRepository, goalRepository, sessionLogRepository } from "@/lib/repository";
 import type { AiSessionPlanOutput, Athlete, Goal, SessionLog } from "@/lib/types";
 import { PubSubEvents } from "@/lib/types";
 import type { PubSub } from "graphql-subscriptions";
+import { unknown } from 'zod';
 
 // Define the path to the session plan prompt file
 const SESSION_PLAN_PROMPT_FILE = 'ai/prompts/session_plan.prompt.yml';
@@ -96,36 +97,22 @@ export const generateSessionPlanAI = async (
         logger.info({ athleteId, finalPrompt }, "Generated Prompt for Session Plan");
 
         // Call the generic AI client function
-        const generatedContent = await generateContentWithAI(finalPrompt);
+        const generatedContent = await generateContentWithAI<AiSessionPlanOutput>(finalPrompt)
 
-        if (!generatedContent || !generatedContent.planJson) {
-            logger.error({ athleteId }, "AI content generation failed or returned empty for session plan.");
-            throw new Error("AI content generation failed.");
-        }
-
-        // Parse the generated content and validate against the interface
-        let parsedSessionPlan: AiSessionPlanOutput;
-        try {
-            parsedSessionPlan = JSON.parse(generatedContent.planJson);
-            // Basic validation of parsed structure
-            if (!parsedSessionPlan || !parsedSessionPlan.sessionPlan) {
-                logger.error({ athleteId, parsedContent: parsedSessionPlan }, "Parsed AI content is not in expected session plan format.");
-                throw new Error("AI content is not in expected session plan format.");
-            }
-        } catch (parseError) {
-            logger.error({ athleteId, parseError }, "Failed to parse AI generated JSON for session plan.");
-            throw new Error("Failed to parse AI generated JSON.");
+        if (!generatedContent || !generatedContent.sessionPlan) {
+            logger.error({ athleteId, parsedContent: generatedContent }, "Parsed AI content is not in expected session plan format.");
+            throw new Error("AI content is not in expected session plan format.");
         }
 
         // Map parsed content to a new SessionLog object
-        const notes = JSON.stringify(parsedSessionPlan, null, 2); // Store the full JSON in notes
-        const summary = `${parsedSessionPlan.sessionPlan.title}${parsedSessionPlan.sessionPlan.focusArea ? ` - ${parsedSessionPlan.sessionPlan.focusArea}` : ''}`; // Use template literal
+        const notes = JSON.stringify(generatedContent, null, 2); // Store the full JSON in notes
+        const summary = `${generatedContent.sessionPlan.title}${generatedContent.sessionPlan.focusArea ? ` - ${generatedContent.sessionPlan.focusArea}` : ''}`; // Use template literal
         // Extract action items from sessionNotes, handling potential undefined
-        const actionItems = parsedSessionPlan.sessionNotes ? [
-            ...(parsedSessionPlan.sessionNotes.keyMetricsToTrack || []),
-            ...(parsedSessionPlan.sessionNotes.warningSignsToMonitor || []),
-            ...(parsedSessionPlan.sessionNotes.adjustmentGuidelines ? [`Adjustments: ${parsedSessionPlan.sessionNotes.adjustmentGuidelines}`] : []),
-            ...(parsedSessionPlan.sessionNotes.nextSessionConnection ? [`Next Session Connection: ${parsedSessionPlan.sessionNotes.nextSessionConnection}`] : []),
+        const actionItems = generatedContent.sessionNotes ? [
+            ...(generatedContent.sessionNotes.keyMetricsToTrack || []),
+            ...(generatedContent.sessionNotes.warningSignsToMonitor || []),
+            ...(generatedContent.sessionNotes.adjustmentGuidelines ? [`Adjustments: ${generatedContent.sessionNotes.adjustmentGuidelines}`] : []),
+            ...(generatedContent.sessionNotes.nextSessionConnection ? [`Next Session Connection: ${generatedContent.sessionNotes.nextSessionConnection}`] : []),
         ].filter(item => item && typeof item === 'string') : [];
 
         // Create the new session log
@@ -135,7 +122,7 @@ export const generateSessionPlanAI = async (
             notes: notes,
             summary: summary,
             actionItems: actionItems,
-            goalIds: parsedSessionPlan.sessionPlan.targetGoalIds || [], // Link goals suggested by AI if any
+            goalIds: generatedContent.sessionPlan.targetGoalIds || [], // Link goals suggested by AI if any
             // Add aiMetadata or status if SessionLog schema is extended
         };
 

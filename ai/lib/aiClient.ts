@@ -1,20 +1,22 @@
+import { callAnthropic } from "@/ai/providers/anthropic";
+import { callOpenAI } from '@/ai/providers/openai';
 import { logger } from "@/lib/logger"; // Import logger
-import type { TrainingPlan } from "@/lib/types";
-import { callAnthropic } from "./providers/anthropic";
-import { callOpenAI } from './providers/openai';
 
 /**
- * Calls an AI model (currently OpenAI) to generate content based on a prompt.
+ * Calls an AI model to generate content based on a prompt.
  * This function acts as an abstraction layer for different AI providers.
  *
  * @param prompt The prompt string to send to the AI.
  * @returns A promise that resolves with the generated content in the expected format, or null if generation fails.
  */
-export const generateContentWithAI = async (prompt: string): Promise<Partial<TrainingPlan> | string | null> => {
+export const generateContentWithAI = async <T>(
+    prompt: string,
+    model: "OpenAI" | "Claude" = "OpenAI"
+): Promise<T | null> => {
     logger.info("Calling AI with prompt.");
 
     try {
-        const generatedText = await callOpenAI(prompt);
+        const generatedText = model === 'OpenAI' ? await callOpenAI(prompt) : await callAnthropic(prompt);
 
         if (generatedText === null) {
             logger.error("AI provider call failed.");
@@ -34,12 +36,12 @@ export const generateContentWithAI = async (prompt: string): Promise<Partial<Tra
                 // Assuming the structure includes a planJson field or is the plan object itself
                 // This part might need adjustment based on the exact output structure from the AI for plans
                 // For now, return the parsed object assuming it contains the necessary fields (like planJson for training plans)
-                return parsedContent as Partial<TrainingPlan>; // Cast to expected type for plans
+                return parsedContent as T; // Cast to expected type for plans
             }
         } catch (parseError) {
             // If JSON parsing fails, assume it's a plain text response (for analysis)
             logger.info("AI response is plain text (JSON parsing failed).");
-            return generatedText; // Return as string for analysis
+            return null;
         }
 
         // Fallback if neither parsing works (shouldn't happen if AI returns valid string/json)
