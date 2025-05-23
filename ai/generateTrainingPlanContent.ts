@@ -1,155 +1,127 @@
-import type { PubSub } from 'graphql-subscriptions';
-import type { TrainingPlan, Athlete, Goal, Assistant } from '@/lib/types';
-import { trainingPlanRepository } from "@/lib/repository";
-import { readFileSync } from 'node:fs';
+import { generateContentWithAI } from '@/ai/aiClient';
+import { loadPrompt } from '@/ai/promptLoader';
 import { logger } from '@/lib/logger';
-import { pubsub } from '@/lib/pubsub';
+import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
+import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
+import { TrainingPlanStatus } from '@/lib/types';
+import type { PubSub } from 'graphql-subscriptions';
 
 // Ensure the correct PubSub event constant is used
 const TRAINING_PLAN_GENERATED = 'TRAINING_PLAN_GENERATED';
+const TRAINING_PLAN_GENERATION_FAILED = 'TRAINING_PLAN_GENERATION_FAILED'; // Define failed event
 
-// Placeholder for AI generation logic
-async function callLLMForTrainingPlan(prompt: string): Promise<{ overview: string; planJson: unknown }> {
-    logger.info({ prompt }, "Simulating LLM call with prompt");
-    // In a real implementation, this would call the AI provider (e.g., Anthropic SDK or MCP)
-    // Based on the prompt, generate mock overview and planJson
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate delay
-
-    // Mock implementation based on the prompt structure from training_plan.md
-    const mockOverview = "Generated training plan overview based on athlete data and goals.";
-    const mockPlanJson = {
-        programOverview: {
-            title: "Basketball Skill & Conditioning Plan",
-            duration: "6 Weeks",
-            phases: ["Phase 1: Foundational Skills", "Phase 2: Conditioning & Agility", "Phase 3: Game Specific Drills"],
-            expectedOutcomes: ["Improved ball-handling", "Increased vertical jump", "Enhanced court speed"], // Based on goals
-            equipment: ["Basketball", "Cones", "Agility ladder", "Court access"],
-            targetGoals: [] // Populate with relevant goal IDs
-        },
-        weeklySchedule: [
-            { day: "Monday", focus: "Ball Handling & Shooting", duration: "75 min", intensity: "Moderate" },
-            { day: "Tuesday", focus: "Strength & Conditioning", duration: "60 min", intensity: "High" },
-            { day: "Wednesday", focus: "Rest or Active Recovery", duration: "30 min", intensity: "Low" },
-            { day: "Thursday", focus: "Agility & Footwork", duration: "60 min", intensity: "High" },
-            { day: "Friday", focus: "Game Simulation & Scrimmage", duration: "90 min", intensity: "Very High" },
-            { day: "Saturday", focus: "Light Skills Work", duration: "45 min", intensity: "Low" },
-            { day: "Sunday", focus: "Rest", duration: "", intensity: "" },
-        ],
-        sessions: [
-            {
-                name: "Monday - Ball Handling & Shooting",
-                dayOfWeek: "Monday",
-                warmup: ["10 min dynamic stretching", "Mikan drill"],
-                mainExercises: [
-                    { name: "Stationary Ball Handling (various drills)", sets: 5, reps: "60s each", intensity: "Moderate", rest: "30s", notes: "Focus on control" },
-                    { name: "Form Shooting (close range)", sets: 5, reps: "10 makes", intensity: "Low", rest: "60s", notes: "Elbow tucked" },
-                    { name: "Layup variations", sets: 3, reps: "5 each side", intensity: "Moderate", rest: "45s", notes: "Practice different finishes" },
-                ],
-                cooldown: ["10 min static stretching"]
-            },
-            {
-                name: "Tuesday - Strength & Conditioning",
-                dayOfWeek: "Tuesday",
-                warmup: ["5 min jump rope", "dynamic movements"],
-                mainExercises: [
-                    { name: "Box Jumps", sets: 4, reps: "5", intensity: "High", rest: "90s", notes: "Focus on landing" },
-                    { name: "Lateral Bounds", sets: 3, reps: "8 each side", intensity: "Moderate", rest: "60s", notes: "Explosive movement" },
-                    { name: "Sprint Intervals (e.g., 17s)", sets: 10, reps: "1", intensity: "Very High", rest: "60s", notes: "Maximize speed" },
-                ],
-                cooldown: ["stretching and foam rolling"]
-            }
-            // Add more basketball-specific sessions
-        ],
-        progressionGuidelines: ["Increase reps/duration weekly", "Reduce rest periods", "Add defensive slides to warmups"],
-        recoveryRecommendations: ["Use ice baths post-conditioning", "Focus on nutrition for energy"],
-        monitoringStrategies: ["Track vertical jump progress", "Record sprint times", "Log shooting percentage in practice"] // Link to session logs
-    };
-
-    // In a real LLM call, you'd parse the LLM's response into this structure.
-
-    return { overview: mockOverview, planJson: mockPlanJson };
-}
+// Define the path to the training plan prompt file
+const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/training_plan.prompt.yml';
 
 // Function to generate training plan content asynchronously
 export async function generateTrainingPlanContent(
     trainingPlanId: TrainingPlan['id'],
     userId: string | null,
     assistantIds: Assistant['id'][],
-    athlete: Athlete, // Accept Athlete object directly
-    goals: Goal[] // Accept Goal objects directly
+    athlete: Omit<Athlete, 'goals' | 'sessionLogs' | 'trainingPlans'>, // Use Omit<Athlete, ...>
+    goals: Goal[], // Accept Goal objects directly
+    pubsub: PubSub // Add PubSub instance parameter
 ) {
     logger.info({ trainingPlanId, userId }, "Starting async generation for Training Plan");
 
     try {
-        // 1. Fetch the initial training plan to get training plan specific data if needed
-        // Note: Athlete and Goals are now passed in, no need to fetch them here
-        const initialTrainingPlan = await trainingPlanRepository.getTrainingPlanById(userId, trainingPlanId); // Still need this for plan-specific fields if any
+        // Set status to GENERATING
+        await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Generating });
 
-        if (!initialTrainingPlan) {
-            logger.error({ trainingPlanId }, "Training plan not found");
-            return; // Cannot proceed if the plan itself is not found
+        // 1. Fetch necessary data (Assistants and Session Logs)
+        const assistants = assistantIds.length > 0 ? await assistantRepository.getAssistantsByIds(assistantIds) : [];
+        const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athlete.id);
+
+        // 2. Load and parse the prompt file
+        const promptFileContent = loadPrompt(TRAINING_PLAN_PROMPT_FILE);
+        if (!promptFileContent) {
+            logger.error("Failed to load training plan prompt file.");
+            // TODO: Handle this error appropriately (e.g., update training plan status)
+            return;
         }
 
-        // Use the passed-in athlete and goals data directly
-        const athleteData = athlete;
-        const goalsData = goals;
-        // Check if athlete or goals data is missing (should ideally be handled by the caller)
-        if (!athleteData || goalsData.length !== initialTrainingPlan.goals?.length) { // Check if the number of goals matches what was requested initially
-            logger.warn({ trainingPlanId }, "Invalid data passed for training plan. Athlete or goals missing/mismatch.");
+        // Extract the user message template and system message
+        const userMessageTemplate = promptFileContent.messages.find(msg => msg.role === 'user')?.content;
+        const systemMessage = promptFileContent.messages.find(msg => msg.role === 'system')?.content;
+
+        if (!userMessageTemplate || !systemMessage) {
+            logger.error("System or User message template not found in prompt file.");
+            // TODO: Handle this error appropriately
+            return;
         }
 
-        // 2. Prepare the prompt
-        // Read the prompt template from the file
-        const promptTemplate = readFileSync('lib/ai/prompts/training_plan.md', 'utf-8');
+        // 3. Prepare the prompt using the template and fetched data
+        // Extract notes and action items from recent session logs
+        const previousSessionLogsContext = sessionLogs.map(log =>
+            `Session on ${log.date.toDateString()}: Notes: ${log.notes || 'N/A'}, Action Items: ${(log.actionItems as string[]).join('; ') || 'N/A'}`
+        ).join('\n');
 
-        // Construct the specific prompt using the template and passed-in data
-        // This is a simplified example; a real implementation would involve
-        // more sophisticated prompt engineering and data formatting.
-        const prompt = `Based on the following prompt template and athlete data, generate a training plan:\n\n${promptTemplate}\n\nAthlete Data:\nName: ${athleteData.firstName} ${athleteData.lastName}\nGoals: ${goalsData.map((g: Goal) => g.title).join(", ")}\nGoal Descriptions:\n${goalsData.map((g: Goal) => `- ${g.title}: ${g.description}`).join("\n")}\nAssistant IDs: ${assistantIds.join(", ")}\n\nGenerate the response in the specified JSON format.\n\n`;
+        const progressNotes = sessionLogs.map(log => log.notes).filter(Boolean).join('\n');
+        const actionItems = sessionLogs.flatMap(log => log.actionItems).filter(Boolean).join('; ');
 
-        logger.info("Generated Prompt:", prompt);
+        // Populate the user message template
+        let populatedUserMessage = userMessageTemplate;
+        // Use optional chaining and provide default values for athlete properties
+        populatedUserMessage = populatedUserMessage.replace('{{age}}', (new Date().getFullYear() - new Date(athlete.birthday ?? '1980-01-01').getFullYear()).toString() || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{gender}}', athlete.gender || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{fitnessLevel}}', athlete.fitnessLevel || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{trainingHistory}}', athlete.trainingHistory || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{height}}', athlete.height?.toString() || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{weight}}', athlete.weight?.toString() || 'N/A');
+        populatedUserMessage = populatedUserMessage.replace('{{activeGoals}}', goals.map(g => `${g.title} (ID: ${g.id})`).join(', ') || 'None');
+        populatedUserMessage = populatedUserMessage.replace('{{previousSessionLogs}}', previousSessionLogsContext || 'None');
+        populatedUserMessage = populatedUserMessage.replace('{{progressNotes}}', progressNotes || 'None');
+        populatedUserMessage = populatedUserMessage.replace('{{actionItems}}', actionItems || 'None');
+        populatedUserMessage = populatedUserMessage.replace('{{assitantsBios}}', assistants.map(assistant => assistant.bio).join(" and "))
+        // Combine system and user messages for the final prompt (this format depends on the AI provider/MCP)
+        const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`; // Simplified concatenation
 
-        // 3. Simulate AI call
-        const { overview, planJson } = await callLLMForTrainingPlan(prompt);
+        logger.info({ finalPrompt }, "Generated Prompt");
 
-        // 4. Prepare data for update
-        const aiTitle = (planJson as unknown as { programOverview: { title: string } })?.programOverview?.title || '';
+        // 4. Call the placeholder AI client function (replace with actual MCP call later)
+        const generatedContent = await generateContentWithAI(finalPrompt);
+
+        if (!generatedContent || !generatedContent.planJson) {
+            logger.error("AI content generation failed or returned empty.");
+            // TODO: Handle this case, maybe update training plan status to error
+            return;
+        }
+
+        // 5. Prepare data for database update
+        // Ensure planJson conforms to AiTrainingPlanContent type
+        const planJson = generatedContent.planJson; // Removed type casting for now
+
         const updateData = {
-            title: aiTitle,
-            overview: overview,
-            planJson: planJson,
-            generatedBy: "Mock AI Service", // Indicate source
-            sourcePrompt: prompt,
-            // Add any other fields to update, e.g., status to 'generated'
+            planJson: planJson, // Use the content
+            overview: generatedContent.overview,
+            sourcePrompt: finalPrompt,
+            // TODO: Add generatedBy based on the actual AI model/assistant used
         };
-        // 5. Update the training plan record in the database
+
+        // 6. Update the training plan record in the database
         const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
             ...updateData,
-            planJson: JSON.parse(JSON.stringify(updateData.planJson)) // Convert unknown to JSON type
+            status: TrainingPlanStatus.Generated,
         });
 
         if (updatedTrainingPlan) {
-            logger.info(`Training plan ${trainingPlanId} updated successfully.`);
-            // 6. Publish update via PubSub
-            // Include athleteId in the payload for subscription filtering
-            if (updatedTrainingPlan.athlete?.id) {
-                pubsub.publish(TRAINING_PLAN_GENERATED, {
-                    trainingPlanGenerated: updatedTrainingPlan,
-                    athleteId: updatedTrainingPlan.athlete.id
-                });
-                logger.info(`Published update for training plan ${trainingPlanId}.`);
-            } else {
-                logger.warn({ trainingPlanId }, "Cannot publish update - athlete ID is missing");
-            }
+            logger.info(`Training plan ${trainingPlanId} content generated and updated.`);
+            // 7. Publish update via PubSub
+            pubsub.publish(TRAINING_PLAN_GENERATED, { trainingPlanGenerated: updatedTrainingPlan });
+            logger.info({ trainingPlanId }, "Published update for training plan.");
         } else {
-            logger.error({ trainingPlanId }, "Failed to update training plan after generation.");
+            logger.error({ trainingPlanId }, 'Failed to update training plan after generation.');
             // Optionally publish a generation failed event
-            // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event with relevant ID/error
+            pubsub.publish(TRAINING_PLAN_GENERATION_FAILED, { trainingPlanId, error: 'Failed to update training plan after AI generation.' });
+            // Also update status to ERROR if DB update fails after generation
+            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Error });
         }
 
     } catch (error) {
-        logger.error({ error, trainingPlanId }, "Error during async training plan generation");
+        logger.error({ trainingPlanId, error }, 'Error during async training plan generation');
         // Optionally publish an error state via PubSub
-        // TODO: Publish a TRAINING_PLAN_GENERATION_FAILED event with relevant ID/error
+        pubsub.publish(TRAINING_PLAN_GENERATION_FAILED, { trainingPlanId, error: error instanceof Error ? error.message : 'Unknown error' });
+        // Set status to ERROR on any exception
+        await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Error });
     }
 }

@@ -1,4 +1,4 @@
-import { TrainingPlan } from "@/lib/types";
+import type { TrainingPlan } from "@/lib/types";
 
 /**
  * Placeholder function to simulate calling an AI model to generate training plan content.

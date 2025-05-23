@@ -345,21 +345,36 @@ export type SubscriptionTrainingPlanGeneratedArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
+/** Represents a structured training plan for an athlete. */
 export type TrainingPlan = {
   __typename?: 'TrainingPlan';
-  assistants?: Maybe<Array<Assistant>>;
-  athlete?: Maybe<Athlete>;
-  createdAt: Scalars['DateTime']['output'];
-  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  assistant?: Maybe<Assistant>;
+  assistantId?: Maybe<Scalars['ID']['output']>;
+  athlete: Athlete;
+  athleteId: Scalars['ID']['output'];
+  createdAt: Scalars['String']['output'];
+  endDate?: Maybe<Scalars['String']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
-  goals?: Maybe<Array<Goal>>;
+  goal?: Maybe<Goal>;
+  goalId?: Maybe<Scalars['ID']['output']>;
   id: Scalars['ID']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
   overview?: Maybe<Scalars['String']['output']>;
-  planJson: AiTrainingPlanContent;
+  planJson?: Maybe<Scalars['JSON']['output']>;
   sourcePrompt?: Maybe<Scalars['String']['output']>;
-  title: Scalars['String']['output'];
-  updatedAt: Scalars['DateTime']['output'];
+  startDate?: Maybe<Scalars['String']['output']>;
+  /** The current status of the training plan, reflecting its lifecycle. */
+  status: TrainingPlanStatus;
+  updatedAt: Scalars['String']['output'];
 };
+
+/** Represents the lifecycle status of a training plan. */
+export enum TrainingPlanStatus {
+  Draft = 'DRAFT',
+  Error = 'ERROR',
+  Generated = 'GENERATED',
+  Generating = 'GENERATING'
+}
 
 export type UpdateAthleteInput = {
   email?: InputMaybe<Scalars['String']['input']>;
@@ -491,6 +506,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   TrainingPlan: ResolverTypeWrapper<TrainingPlan>;
+  TrainingPlanStatus: TrainingPlanStatus;
   UpdateAthleteInput: UpdateAthleteInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
@@ -653,18 +669,23 @@ export type SubscriptionResolvers<ContextType = GraphQLContext, ParentType exten
 };
 
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
-  assistants?: Resolver<Maybe<Array<ResolversTypes['Assistant']>>, ParentType, ContextType>;
-  athlete?: Resolver<Maybe<ResolversTypes['Athlete']>, ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  assistant?: Resolver<Maybe<ResolversTypes['Assistant']>, ParentType, ContextType>;
+  assistantId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
+  athleteId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  goals?: Resolver<Maybe<Array<ResolversTypes['Goal']>>, ParentType, ContextType>;
+  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType>;
+  goalId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   overview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  planJson?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  planJson?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   sourcePrompt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['TrainingPlanStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -681,50 +702,4 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Subscription?: SubscriptionResolvers<ContextType>;
   TrainingPlan?: TrainingPlanResolvers<ContextType>;
 };
-
-export interface AiTrainingPlanContent {
-  planOverview: AiTrainingPlanOverview;
-  weeklyStructure: AiTrainingPlanWeeklyStructure[];
-  sessionTemplates: AiTrainingPlanSessionTemplate[];
-  progressionGuidelines: string;
-  tracking: AiTrainingPlanTracking;
-}
-
-export interface AiTrainingPlanOverview {
-  title: string;
-  durationWeeks: number;
-  sessionsPerWeek: number;
-  equipment: string[];
-  primaryGoals: string[];
-  secondaryGoals: string[];
-  intensityGuidelines: string;
-}
-
-export interface AiTrainingPlanWeeklyStructure {
-  week: number;
-  focus: string;
-  sessions: AiTrainingPlanSession[];
-}
-
-export interface AiTrainingPlanSession {
-  type: string;
-  focusArea: string;
-  templateRef: string;
-}
-
-export interface AiTrainingPlanSessionTemplate {
-  templateRef: string;
-  structure: {
-    warmup: string;
-    mainBlock: string;
-    supplementary: string;
-    cooldown: string;
-  };
-}
-
-export interface AiTrainingPlanTracking {
-  keyMetrics: string[];
-  warningSigns: string[];
-  adjustmentCriteria: string;
-}
 

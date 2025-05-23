@@ -7,7 +7,7 @@ interface PromptFileContent {
     name: string;
     description: string;
     model: string;
-    modelParameters?: { [key: string]: any };
+    modelParameters?: { [key: string]: unknown };
     messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>;
 }
 

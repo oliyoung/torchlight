@@ -79,19 +79,40 @@ type AIMetadata {
 	nextStepsGenerated: Boolean!
 }
 
+"""
+Represents a structured training plan for an athlete.
+"""
 type TrainingPlan {
 	id: ID!
-	assistants: [Assistant!]
-	goals: [Goal!]
-	athlete: Athlete
-	title: String!
+	athleteId: ID!
+	athlete: Athlete!
+	goalId: ID
+	goal: Goal
+	assistantId: ID
+	assistant: Assistant
+	createdAt: String!
+	updatedAt: String!
+	startDate: String
+	endDate: String
+	notes: String
+	planJson: JSON
 	overview: String
-	planJson: JSON!
-	createdAt: DateTime!
-	updatedAt: DateTime!
-	deletedAt: DateTime
-	generatedBy: String
 	sourcePrompt: String
+	generatedBy: String # ID of the Assistant that generated the plan content
+	"""
+	The current status of the training plan, reflecting its lifecycle.
+	"""
+	status: TrainingPlanStatus!
+}
+
+"""
+Represents the lifecycle status of a training plan.
+"""
+enum TrainingPlanStatus {
+	DRAFT
+	GENERATING
+	GENERATED
+	ERROR
 }
 
 input AssistantsFilter {

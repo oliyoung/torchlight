@@ -1,8 +1,8 @@
-import type { Athlete, CreateTrainingPlanInput, Goal, TrainingPlan } from "@/lib/types";
 import { generateTrainingPlanContent } from "@/ai/generateTrainingPlanContent";
+import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import { athleteRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";
-import type { GraphQLContext } from "@/app/api/graphql/route";
+import type { Athlete, CreateTrainingPlanInput, Goal, TrainingPlan } from "@/lib/types";
 
 export const createTrainingPlan = async (
     _: unknown,
@@ -27,7 +27,7 @@ export const createTrainingPlan = async (
     const goals = await goalRepository.getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
 
     if (!athlete || goals.length !== (input.goalIds ?? []).length) {
-        logger.error({ input, newTrainingPlan }, `Failed to fetch athlete`);
+        logger.error({ input, newTrainingPlan }, 'Failed to fetch athlete');
     }
 
     generateTrainingPlanContent(
@@ -35,7 +35,8 @@ export const createTrainingPlan = async (
         context?.user?.id ?? null,
         input.assistantIds ?? [],
         athlete as Athlete,
-        goals as Goal[]
+        goals as Goal[],
+        context.pubsub
     ).catch(console.error);
 
     return newTrainingPlan;
