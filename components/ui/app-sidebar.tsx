@@ -16,10 +16,10 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 
-import { NavDocuments } from "@/components/ui/nav-documents";
-import { NavMain } from "@/components/ui/nav-main";
-import { NavSecondary } from "@/components/ui/nav-secondary";
-import { NavUser } from "@/components/ui/nav-user";
+import { NavManage } from "@/components/ui/nav/nav-manage";
+import { NavMain } from "@/components/ui/nav/nav-main";
+import { NavSecondary } from "@/components/ui/nav/nav-secondary";
+import { NavUser } from "@/components/ui/nav/nav-user";
 import { Separator } from "@/components/ui/separator";
 import {
 	Sidebar,
@@ -30,6 +30,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavAthletes } from "./nav/nav-athletes";
 const data = {
 	user: {
 		name: "shadcn",
@@ -161,10 +162,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<Separator orientation="horizontal" className="mx-1" />
 			</SidebarHeader>
 
-			<SidebarContent>
-				<NavMain items={data.navMain} />
-				<NavDocuments items={data.documents} />
-				<NavSecondary items={data.navSecondary} className="mt-auto" />
+			<SidebarContent className="flex flex-col justify-between gap-2">
+				<div className="flex flex-col">
+					<NavMain items={data.navMain} />
+					<NavAthletes />
+				</div>
+				<div className="flex flex-col">
+					<NavManage items={data.documents} />
+					<NavSecondary items={data.navSecondary} />
+				</div>
 			</SidebarContent>
 			<SidebarFooter>
 				<Separator orientation="horizontal" className="mx-1" />

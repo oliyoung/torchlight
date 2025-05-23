@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	FolderIcon,
 	MoreHorizontalIcon,
@@ -24,7 +22,7 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 
-export function NavDocuments({
+export function NavManage({
 	items,
 }: {
 	items: {
@@ -37,7 +35,6 @@ export function NavDocuments({
 
 	return (
 		<SidebarGroup className="group-data-[collapsible=icon]:hidden">
-			<SidebarGroupLabel>Manage</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem key={item.name}>
