@@ -1,12 +1,14 @@
-import type { SessionLog, Goal, TrainingPlan, Athlete } from "@/lib/types";
+import type { SessionLog, Goal, Athlete } from "@/lib/types";
+import { trainingPlanSubscriptions } from "./training-plans";
 
 export default {
-  trainingPlanGenerated: {
-    subscribe: (): AsyncIterator<TrainingPlan> => {
-      // Logic for subscription
-      return {} as AsyncIterator<TrainingPlan>;
-    },
-  },
+  // Remove placeholder for trainingPlanGenerated
+  // trainingPlanGenerated: {
+  //   subscribe: (): AsyncIterator<TrainingPlan> => {
+  //     // Logic for subscription
+  //     return {} as AsyncIterator<TrainingPlan>;
+  //   },
+  // },
   sessionLogAdded: {
     subscribe: (): AsyncIterator<SessionLog> => {
       // Logic for subscription
@@ -37,4 +39,5 @@ export default {
       return {} as AsyncIterator<Athlete>;
     },
   },
+  ...trainingPlanSubscriptions, // Spread the actual training plan subscriptions
 }
