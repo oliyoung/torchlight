@@ -1,78 +1,53 @@
+import { logger } from "@/lib/logger"; // Import logger
 import type { TrainingPlan } from "@/lib/types";
+import { callAnthropic } from "./providers/anthropic";
+import { callOpenAI } from './providers/openai';
 
 /**
- * Placeholder function to simulate calling an AI model to generate training plan content.
- * In a real implementation, this would use an AI SDK (e.g., MCP) to interact with an LLM.
+ * Calls an AI model (currently OpenAI) to generate content based on a prompt.
+ * This function acts as an abstraction layer for different AI providers.
+ *
+ * @param prompt The prompt string to send to the AI.
+ * @returns A promise that resolves with the generated content in the expected format, or null if generation fails.
  */
-export const generateContentWithAI = async (prompt: string): Promise<Partial<TrainingPlan> | null> => {
-    console.log("Simulating AI call with prompt:", prompt);
+export const generateContentWithAI = async (prompt: string): Promise<Partial<TrainingPlan> | string | null> => {
+    logger.info("Calling AI with prompt.");
 
-    // TODO: Replace with actual AI call using MCP SDK
-    // For now, simulate a delay and return mock content that conforms to the new type
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+        const generatedText = await callOpenAI(prompt);
 
-    const mockContent: Partial<TrainingPlan> = {
-        planJson: {
-            planOverview: {
-                title: "Mock Training Plan",
-                durationWeeks: 4,
-                sessionsPerWeek: 3,
-                equipment: ["Gym", "Track"],
-                primaryGoals: ["Endurance"],
-                secondaryGoals: ["Strength"],
-                intensityGuidelines: "Moderate to High"
-            },
-            weeklyStructure: [
-                {
-                    week: 1,
-                    focus: "Base Building",
-                    sessions: [
-                        { type: "Run", focusArea: "Endurance", templateRef: "run-template" },
-                        { type: "Strength", focusArea: "Full Body", templateRef: "strength-template" },
-                        { type: "Run", focusArea: "Intervals", templateRef: "interval-template" },
-                    ]
-                }
-                // Add more weeks as needed for mock data
-            ],
-            sessionTemplates: [
-                {
-                    templateRef: "run-template",
-                    structure: {
-                        warmup: "5 min jog, dynamic stretches",
-                        mainBlock: "30 min easy run",
-                        supplementary: "",
-                        cooldown: "5 min walk, static stretches"
-                    }
-                },
-                {
-                    templateRef: "strength-template",
-                    structure: {
-                        warmup: "10 min cardio, dynamic stretches",
-                        mainBlock: "Squats, Push-ups, Rows (3x10)",
-                        supplementary: "Plank (3x30s)",
-                        cooldown: "5 min stretching"
-                    }
-                },
-                {
-                    templateRef: "interval-template",
-                    structure: {
-                        warmup: "10 min easy jog, dynamic stretches",
-                        mainBlock: "6 x 800m at goal pace with 400m recovery",
-                        supplementary: "",
-                        cooldown: "10 min easy jog, static stretches"
-                    }
-                }
-                // Add more templates as needed
-            ],
-            progressionGuidelines: "Increase volume by 10% weekly, increase intensity every 2 weeks.",
-            tracking: {
-                keyMetrics: ["Distance", "Time", "Heart Rate", "RPE"],
-                warningSigns: ["Persistent fatigue", "Pain", "Lack of motivation"],
-                adjustmentCriteria: "Adjust if RPE is too high or too low, or if feeling excessive soreness."
+        if (generatedText === null) {
+            logger.error("AI provider call failed.");
+            return null; // Return null if the AI call failed
+        }
+
+        // TODO: Implement logic to handle different expected output formats (e.g., JSON for plans, string for analysis)
+        // For now, based on how generateSessionPlanAI and analyzeProgressAI use this, we need to handle both string and JSON.
+        // A more robust solution would involve a parameter indicating the expected output type.
+
+        // Attempt to parse as JSON first (for training plans and session plans)
+        try {
+            const parsedContent = JSON.parse(generatedText);
+            // Basic check to see if it looks like a structured plan (could be more robust)
+            if (typeof parsedContent === 'object' && parsedContent !== null) {
+                logger.info("AI response parsed as JSON.");
+                // Assuming the structure includes a planJson field or is the plan object itself
+                // This part might need adjustment based on the exact output structure from the AI for plans
+                // For now, return the parsed object assuming it contains the necessary fields (like planJson for training plans)
+                return parsedContent as Partial<TrainingPlan>; // Cast to expected type for plans
             }
-        },
-        overview: "This is a mock AI-generated overview based on the prompt.",
-    };
+        } catch (parseError) {
+            // If JSON parsing fails, assume it's a plain text response (for analysis)
+            logger.info("AI response is plain text (JSON parsing failed).");
+            return generatedText; // Return as string for analysis
+        }
 
-    return mockContent;
+        // Fallback if neither parsing works (shouldn't happen if AI returns valid string/json)
+        logger.error("AI response in unexpected format.");
+        return null;
+
+    } catch (error) {
+        logger.error({ error }, "Error in generateContentWithAI.");
+        return null;
+    }
 };
