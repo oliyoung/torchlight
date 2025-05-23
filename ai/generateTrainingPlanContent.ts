@@ -31,16 +31,13 @@ export async function generateTrainingPlanContent(
     logger.info({ trainingPlanId, userId }, "Starting async generation for Training Plan");
 
     try {
-        // Set status to GENERATING
         await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
             status: TrainingPlanStatus.Generating
         });
 
-        // Fetch necessary data (Assistants and Session Logs)
         const assistants = assistantIds.length > 0 ? await assistantRepository.getAssistantsByIds(assistantIds) : [];
         const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athlete.id);
 
-        // Load and parse the prompt file
         const promptFileContent = loadPrompt(TRAINING_PLAN_PROMPT_FILE);
         if (!promptFileContent) {
             logger.error("Failed to load training plan prompt file.");
@@ -50,7 +47,6 @@ export async function generateTrainingPlanContent(
             return;
         }
 
-        // Extract the user message template and system message
         const userMessageTemplate = promptFileContent.messages.find(msg => msg.role === 'user')?.content;
         const systemMessage = promptFileContent.messages.find(msg => msg.role === 'system')?.content;
 
@@ -62,8 +58,6 @@ export async function generateTrainingPlanContent(
             return;
         }
 
-        // Prepare the prompt using the template and fetched data
-        // Extract notes and action items from recent session logs
         const previousSessionLogsContext = sessionLogs.map(log =>
             `Session on ${log.date.toDateString()}: Notes: ${log.notes || 'N/A'}, Action Items: ${(log.actionItems as string[]).join('; ') || 'N/A'}`
         ).join('\n');
@@ -71,9 +65,7 @@ export async function generateTrainingPlanContent(
         const progressNotes = sessionLogs.map(log => log.notes).filter(Boolean).join('\n');
         const actionItems = sessionLogs.flatMap(log => log.actionItems).filter(Boolean).join('; ');
 
-        // Populate the user message template
         let populatedUserMessage = userMessageTemplate;
-        // Use optional chaining and provide default values for athlete properties
         populatedUserMessage = populatedUserMessage.replace('{{age}}', (new Date().getFullYear() - new Date(athlete.birthday ?? '1980-01-01').getFullYear()).toString() || 'N/A');
         populatedUserMessage = populatedUserMessage.replace('{{gender}}', athlete.gender || 'N/A');
         populatedUserMessage = populatedUserMessage.replace('{{fitnessLevel}}', athlete.fitnessLevel || 'N/A');
@@ -85,12 +77,11 @@ export async function generateTrainingPlanContent(
         populatedUserMessage = populatedUserMessage.replace('{{progressNotes}}', progressNotes || 'None');
         populatedUserMessage = populatedUserMessage.replace('{{actionItems}}', actionItems || 'None');
         populatedUserMessage = populatedUserMessage.replace('{{assitantsBios}}', assistants.map(assistant => assistant.bio).join(" and "))
-        // Combine system and user messages for the final prompt (this format depends on the AI provider/MCP)
+
         const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`; // Simplified concatenation
 
         logger.info({ finalPrompt }, "Generated Prompt");
 
-        // Call the placeholder AI client function (replace with actual MCP call later)
         const generatedContent = await generateContentWithAI(finalPrompt);
 
         if (!generatedContent || !generatedContent.planJson) {
@@ -119,9 +110,7 @@ export async function generateTrainingPlanContent(
 
     } catch (error) {
         logger.error({ trainingPlanId, error }, 'Error during async training plan generation');
-        // Publish an error state via PubSub
         pubsub.publish(PubSubEvents.TrainingPlanGenerationFailed, { trainingPlanId, error: error instanceof Error ? error.message : 'Unknown error' });
-        // Set status to ERROR on any exception
         await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, { status: TrainingPlanStatus.Error });
     }
 }
