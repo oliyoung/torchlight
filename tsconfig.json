@@ -14,7 +14,7 @@
 		"jsx": "preserve",
 		"incremental": true,
 		"types": ["node", "jest"],
-		"noImplicitAny": false,
+		"noImplicitAny": true,
 		"plugins": [
 			{
 				"name": "next"

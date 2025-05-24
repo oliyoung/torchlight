@@ -86,7 +86,7 @@ const { handleRequest } = createYoga<GraphQLContext>({
       TrainingPlan: {
         athlete: async (parent, _args, context) => {
           try {
-            const athleteId = parent.athlete_id || parent.athlete?.id;
+            const athleteId = parent.athlete_id ?? parent.athlete?.id;
             if (!athleteId) return null;
             return context.loaders.athlete.load(athleteId);
           } catch (error) {
