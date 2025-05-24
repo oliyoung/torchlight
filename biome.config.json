@@ -1,12 +1,6 @@
 {
-	"files": [
-		"**/*.{ts,tsx,js,jsx}"
-	],
-	"exclude": [
-		"node_modules",
-		"build",
-		"dist"
-	],
+	"files": ["**/*.{ts,tsx,js,jsx}"],
+	"exclude": ["node_modules", "build", "dist"],
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "space",

@@ -17,7 +17,7 @@ alwaysApply: true
 
 - Naming Conventions
 
-  - All components go in /src/components and are named like new-component.tsx
+  - All components go in /components and are named like new-component.tsx
   - Use lowercase with dashes for directories (e.g., components/auth-wizard).
   - Favor named exports for components.
 
@@ -59,14 +59,14 @@ alwaysApply: true
     - Avoid for data fetching or state management.
   - Follow Next.js docs for Data Fetching, Rendering, and Routing.
   - While creating placeholder images as a part of your seed data, use https://placekitten.com/
-  - Place both the /app and /components folders under a /src directory. This organization offers several benefits:
+  - Use root-level /app and /components directories (NOT under /src). This organization offers several benefits:
     - Clean, organized, and scalable project structure.
-    - Clear separation between application logic (/src/app) and UI components (/src/components).
-    - Adheres to industry standards and separation of concerns.
+    - Clear separation between application logic (/app) and UI components (/components).
+    - Follows the project's established conventions and import path mappings.
 
 ## Components Organization
 
-Within the /src/components folder, consider organizing components by type or feature:
+Within the /components folder, consider organizing components by type or feature:
 
 By Type: Group components like forms, buttons, layout elements, etc.
 
@@ -74,7 +74,7 @@ By Feature: For larger applications, group components related to specific featur
 
 For example:
 
-  /src/components
+  /components
   ├── /ui
   │   ├── /Button
   │   ├── /Modal
@@ -88,15 +88,17 @@ For example:
 
 - Private Components: For components used only within specific pages, you can create a _components folder within the relevant /app subdirectory.
 
-- Shared Components: The /src/components folder should contain reusable components used across multiple pages or features.
+- Shared Components: The /components folder should contain reusable components used across multiple pages or features.
 
 - Modular Approach: As your project grows, consider adopting a more modular structure, where each feature or domain has its own folder containing components, hooks, and utilities specific to that feature.
 
 ## AI Features
 
-- All AI features (e.g., session summarization, next-step generation, progress analysis) must be stubbed/mocked for now. Return static or randomly generated data matching the schema shape.
-- Actual AI integration will use Model Context Protocol (MCP) with the TypeScript SDK. The specific LLM provider is still to be determined.
-- The AI integration layer is open for experimentation and prototyping.
+- AI features are LIVE and operational using Anthropic Claude SDK (`@anthropic-ai/sdk`)
+- Required environment variable: `ANTHROPIC_API_KEY`
+- AI functions located in `ai/` directory with prompt templates in `ai/prompts/`
+- GraphQL mutations for AI features call real AI services
+- The AI integration layer supports experimentation and can be extended with additional providers
 
 ## Authentication & Authorization
 
