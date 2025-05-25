@@ -51,14 +51,9 @@ alwaysApply: true
   - AI functions located in `ai/` directory (generateSession, generateTrainingPlan, etc.)
   - Sophisticated prompt templates in `ai/prompts/`
   - GraphQL mutations for AI features (`summarizeSessionLog`, `generateSession`, `analyzeProgress`) call real AI services
-- Actual integration uses the Model Context Protocol (MCP) approach with TypeScript SDK integration
+- The core AI client function, `generateContentWithAI` (`ai/lib/aiClient.ts`), provides a generic interface for AI provider responses with optional parser function support
+- When implementing AI features, ensure they correctly invoke the generic `generateContentWithAI` function and handle its output according to the expected schema shape
 - The AI integration layer supports experimentation and can be extended with additional providers
-## 4. AI Integration
-- Foundational work for AI integration has begun, including making the core client function generic to handle various AI provider responses. The end-user AI features corresponding to the `summarizeSessionLog`, `generateSession`, and `analyzeProgress` mutations in the GraphQL schema are the current focus and utilize this AI client.
-- When implementing these features, ensure they correctly invoke the generic `generateContentWithAI` function and handle its output according to the expected schema shape.
-- The core AI client function, `generateContentWithAI` (`ai/lib/aiClient.ts`), has been me formats by accepting an optional parser function.
-- Actual integration will use the Model Context Protocol (MCP) ([https://github.com/modelcontextprotocol](mdc:https:/github.com/modelcontextprotocol)), an open protocol for connecting LLMs to external data sources. Use the TypeScript SDK when ready. The specific LLM provider is still to be determined.
-- The AI integration layer is intentionally left open for experimentation. Contributors are encouraged to explore, prototype, and suggest new approaches for connecting to LLMs, using MCP, and building AI-powered features.
 
 
 ## 5. Authentication & Authorization
