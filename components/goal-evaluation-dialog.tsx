@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation } from "urql";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,11 +9,12 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
 import type { GoalEvaluationResponse } from "@/lib/types";
+import { useState } from "react";
+import { useMutation } from "urql";
 
 const EXTRACT_AND_EVALUATE_GOAL_MUTATION = `
 	mutation ExtractAndEvaluateGoal($input: AIExtractAndEvaluateGoalInput!) {
@@ -73,10 +73,10 @@ interface GoalEvaluationDialogProps {
 
 const QUALITY_THRESHOLD = 7; // Goals with score >= 7 will be created automatically
 
-export function GoalEvaluationDialog({ 
-	athleteId, 
+export function GoalEvaluationDialog({
+	athleteId,
 	trigger,
-	onGoalCreated 
+	onGoalCreated
 }: GoalEvaluationDialogProps) {
 	const [open, setOpen] = useState(false);
 	const [goalText, setGoalText] = useState("");
@@ -105,7 +105,7 @@ export function GoalEvaluationDialog({
 			setEvaluation(evaluationResponse);
 
 			const score = evaluationResponse?.goalEvaluation?.overallQualityScore || 0;
-			
+
 			if (score >= QUALITY_THRESHOLD) {
 				// Auto-create goal if score is high enough
 				await createGoal(evaluationResponse);
@@ -122,7 +122,7 @@ export function GoalEvaluationDialog({
 		try {
 			const coreGoal = evaluationResponse.coreGoal;
 			const refinedGoal = evaluationResponse.refinedGoalSuggestion;
-			
+
 			const goalTitle = coreGoal.primaryObjective;
 			const goalDescription = refinedGoal.improvedGoalStatement || goalText;
 			const sport = coreGoal.sport || "General";
@@ -179,7 +179,7 @@ export function GoalEvaluationDialog({
 				<DialogHeader>
 					<DialogTitle>Create New Goal</DialogTitle>
 				</DialogHeader>
-				
+
 				<div className="flex flex-1 gap-6 overflow-hidden">
 					{/* Left Side - Input */}
 					<div className="flex-1 flex flex-col gap-4">
@@ -194,8 +194,8 @@ export function GoalEvaluationDialog({
 								disabled={evaluating || creating}
 							/>
 						</div>
-						
-						<Button 
+
+						<Button
 							onClick={handleEvaluate}
 							disabled={!goalText.trim() || evaluating || creating}
 							className="w-full"
@@ -274,14 +274,14 @@ export function GoalEvaluationDialog({
 								</div>
 
 								<div className="flex gap-2 mt-auto">
-									<Button 
-										variant="outline" 
+									<Button
+										variant="outline"
 										onClick={resetDialog}
 										className="flex-1"
 									>
 										Revise Goal
 									</Button>
-									<Button 
+									<Button
 										onClick={handleCreateAfterFeedback}
 										disabled={creating}
 										className="flex-1"
