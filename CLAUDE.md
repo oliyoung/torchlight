@@ -67,9 +67,24 @@ yarn build                        # Production build
 
 ## Development Guidelines
 
+**Code Style:**
+- Write concise, technical TypeScript code with functional/declarative patterns
+- Use TypeScript for all code; prefer interfaces over types
+- Avoid enums; use maps instead
+- Do not use barrel files; always use named imports/exports
+- Use descriptive variable names with auxiliary verbs (isLoading, hasError)
+- Structure files: exported component, subcomponents, helpers, static content, types
+
+**Naming Conventions:**
+- Components: `/components/new-component.tsx` (lowercase with dashes)
+- Directories: lowercase with dashes (e.g., `components/auth-wizard`)
+- Favor named exports for components
+
 **File Organization:**
 - Use root-level `/app` and `/components` directories (NOT under `/src`)
 - Import paths use `@/*` which maps to the root directory
+- Private components: use `_components` folder within `/app` subdirectories
+- Shared components: `/components` for reusable across pages/features
 
 **GraphQL Schema:**
 - `app/api/graphql/schema.graphql` is the single source of truth
@@ -88,11 +103,14 @@ yarn build                        # Production build
 - AI responses handle both JSON and string formats
 - Prompt templates stored in `ai/prompts/` as YAML files
 
-**UI Components:**
-- Only use Shadcn UI components and Tailwind CSS
-- No custom component libraries or other design systems
-- Responsive, accessible, modern design required
-- Clean, professional but soft and fun branding
+**UI & Performance:**
+- Only use Shadcn UI components and Tailwind CSS (no custom libraries)
+- Ensure WCAG 2.1 AA compliance
+- Mobile-first responsive design with Tailwind CSS
+- Minimize `use client`, `useEffect`, `setState`; favor React Server Components
+- Wrap client components in Suspense with fallback
+- Use dynamic loading for non-critical components
+- Use `nuqs` for URL search parameter state management
 
 **Authentication:**
 - Supabase Auth for authentication
@@ -105,8 +123,9 @@ yarn build                        # Production build
 - Only two environments: local development and production
 
 **Testing:**
-- Prefer E2E and integration testing
-- Jest configured for unit/component tests
+- Prefer E2E and integration testing (Playwright)
+- Use Storybook for component-driven development
+- Jest and Testing Library for unit/component tests
 - Prioritize tests reflecting real user interactions
 
 ## Important Notes
