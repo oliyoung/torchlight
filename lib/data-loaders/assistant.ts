@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import type { Assistant } from '@/lib/types';
 import { logger } from '@/lib/logger';
-import { assistantRepository } from '@/lib/repository/entities';
+import { assistantRepository } from '@/lib/repository';
 
 /**
  * Creates a DataLoader for batching assistant requests

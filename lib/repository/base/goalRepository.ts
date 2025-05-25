@@ -51,7 +51,7 @@ const sessionLogGoalsConfig = {
 };
 
 // Training plan to goal relationship configuration
-const trainingPlanGoalsConfig = {
+export const trainingPlanGoalsConfig = {
   tableName: "training_plan_goals",
   sourceIdColumn: "goal_id",
   targetIdColumn: "training_plan_id",

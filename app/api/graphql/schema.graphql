@@ -212,6 +212,131 @@ input AIAnalyzeProgressInput {
 	endDate: DateTime!
 }
 
+input AIExtractAndEvaluateGoalInput {
+	athleteId: ID!
+	goalText: String!
+}
+
+type GoalEvaluationResponse {
+	coreGoal: CoreGoal!
+	goalEvaluation: GoalEvaluation!
+	refinedGoalSuggestion: RefinedGoalSuggestion!
+	timeline: Timeline!
+	motivation: Motivation!
+	availability: Availability!
+	constraints: Constraints!
+	successIndicators: SuccessIndicators!
+	extractionConfidence: ExtractionConfidence!
+	coachingFeedback: CoachingFeedback!
+}
+
+type CoreGoal {
+	type: String!
+	primaryObjective: String!
+	sport: String!
+	measurableOutcome: String
+}
+
+type GoalEvaluation {
+	overallQualityScore: Int!
+	specificityScore: Int!
+	feasibilityScore: Int!
+	relevanceScore: Int!
+	timeStructureScore: Int!
+	motivationScore: Int!
+	evaluationSummary: EvaluationSummary!
+}
+
+type EvaluationSummary {
+	strengths: [String!]!
+	weaknesses: [String!]!
+	riskFactors: [String!]!
+	improvementPriorities: [String!]!
+}
+
+type RefinedGoalSuggestion {
+	improvedGoalStatement: String
+	keyChanges: [String!]!
+	rationale: String!
+}
+
+type Timeline {
+	targetDate: String
+	duration: String
+	urgencyLevel: UrgencyLevel!
+	milestones: [String!]!
+}
+
+enum UrgencyLevel {
+	IMMEDIATE
+	SHORT_TERM
+	MEDIUM_TERM
+	LONG_TERM
+}
+
+type Motivation {
+	whyItMatters: String!
+	externalDrivers: [String!]!
+	emotionalContext: String!
+	supportSystem: [String!]!
+}
+
+type Availability {
+	trainingTime: String
+	scheduleConstraints: [String!]!
+	location: String
+	equipment: [String!]!
+	budget: String
+}
+
+type Constraints {
+	physicalLimitations: [String!]!
+	experienceLevel: ExperienceLevel!
+	previousChallenges: [String!]!
+	riskFactors: [String!]!
+}
+
+enum ExperienceLevel {
+	BEGINNER
+	INTERMEDIATE
+	ADVANCED
+	RETURNING
+}
+
+type SuccessIndicators {
+	measurementMethods: [String!]!
+	successDefinition: String!
+	secondaryBenefits: [String!]!
+}
+
+type ExtractionConfidence {
+	overallConfidence: ConfidenceLevel!
+	missingInformation: [String!]!
+	assumptions: [String!]!
+	suggestedQuestions: [String!]!
+}
+
+enum ConfidenceLevel {
+	HIGH
+	MEDIUM
+	LOW
+}
+
+type CoachingFeedback {
+	dataQuality: DataQuality!
+	keyGapsIdentified: [String!]!
+	improvementSuggestions: [String!]!
+	riskFlags: [String!]!
+	coachDevelopmentInsight: String!
+}
+
+enum DataQuality {
+	EXCELLENT
+	GOOD
+	LIMITED
+	INSUFFICIENT
+}
+
 input UpdateTrainingPlanInput {
 	title: String
 	overview: String
@@ -238,6 +363,7 @@ type Mutation {
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
 	generateSession(input: AIGenerateSessionInput!): SessionLog!
 	analyzeProgress(input: AIAnalyzeProgressInput!): String!
+	extractAndEvaluateGoal(input: AIExtractAndEvaluateGoalInput!): GoalEvaluationResponse!
 }
 
 type Subscription {

@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import type { Goal } from '@/lib/types';
 import { logger } from '@/lib/logger';
-import { goalRepository } from '@/lib/repository/entities';
+import { goalRepository } from '@/lib/repository';
 
 /**
  * Creates a DataLoader for batching goal requests

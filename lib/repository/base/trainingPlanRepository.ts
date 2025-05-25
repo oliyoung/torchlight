@@ -34,7 +34,7 @@ const trainingPlanMapping: EntityMapping<TrainingPlan> = {
 };
 
 // Join table configurations
-const trainingPlanAssistantsConfig = {
+export const trainingPlanAssistantsConfig = {
   tableName: 'training_plan_assistants',
   sourceIdColumn: 'training_plan_id',
   targetIdColumn: 'assistant_id'

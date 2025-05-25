@@ -1,20 +1,13 @@
 import { logger } from '@/lib/logger';
-import {
-  // Removed imports from deleted relations.ts
-  // getGoalSessionLogIds,
-  // getGoalTrainingPlanIds,
-  // getSessionLogGoalIds,
-  // getTrainingPlanAssistantIds,
-  // getTrainingPlanGoalIds,
-  // getTrainingPlanIdsByAthleteId
-} from '@/lib/repository/relations'; // This import will be removed
+import { relationRepository } from '@/lib/repository';
+// All relation functions are now handled by repositories directly
 import { supabaseServiceRole } from '@/lib/supabase/serviceRoleClient';
 import DataLoader from 'dataloader';
-import { relationRepository } from '@/lib/repository';
 
 // Import JoinTableConfig objects from base repositories
-import { goalSessionLogsConfig, trainingPlanGoalsConfig } from '@/lib/repository/base/goalRepository';
+import { trainingPlanGoalsConfig } from '@/lib/repository/base/goalRepository';
 import { trainingPlanAssistantsConfig } from '@/lib/repository/base/trainingPlanRepository';
+import { goalSessionLogsConfig } from '../repository/base/sessionLogRepository';
 
 /**
  * Creates a DataLoader for batching athlete → training plan IDs requests
@@ -51,13 +44,12 @@ export function createAthleteTrainingPlanIdsLoader(userId: string | null) {
         logger.error({ fetchError }, 'Error fetching training plan IDs and athlete IDs');
         return athleteIds.map(() => []);
       }
-
       const athletePlanMap = new Map<string, string[]>();
-      plansWithAthleteId.forEach(plan => {
+      for (const plan of plansWithAthleteId) {
         const currentIds = athletePlanMap.get(plan.athlete_id) || [];
         currentIds.push(plan.id);
         athletePlanMap.set(plan.athlete_id, currentIds);
-      });
+      }
 
       return athleteIds.map(id => athletePlanMap.get(id) || []);
 

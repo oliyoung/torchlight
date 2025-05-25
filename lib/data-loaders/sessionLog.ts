@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import type { SessionLog } from '@/lib/types';
 import { logger } from '@/lib/logger';
-import { sessionLogRepository } from '@/lib/repository/entities';
+import { sessionLogRepository } from '@/lib/repository';
 
 /**
  * Creates a DataLoader for batching session log requests

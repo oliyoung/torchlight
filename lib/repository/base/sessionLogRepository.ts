@@ -34,7 +34,7 @@ const sessionLogMapping: EntityMapping<SessionLog> = {
 };
 
 // Goal to session log relationship configuration
-const goalSessionLogsConfig = {
+export const goalSessionLogsConfig = {
   tableName: 'goal_session_logs',
   sourceIdColumn: 'session_log_id',
   targetIdColumn: 'goal_id'
