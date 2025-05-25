@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(yarn biome:fix:*)",
+      "Bash(yarn build)",
+      "Bash(npx tsc:*)",
+      "Bash(timeout:*)"
+    ],
+    "deny": []
+  }
+}
