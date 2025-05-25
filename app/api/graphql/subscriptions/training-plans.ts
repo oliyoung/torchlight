@@ -1,6 +1,6 @@
 import type { GraphQLContext } from "@/app/api/graphql/route";
+import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from "@/lib/logger";
-import { PubSubEvents } from '@/lib/types';
 import type { TrainingPlan } from "@/lib/types";
 
 export const trainingPlanSubscriptions = {

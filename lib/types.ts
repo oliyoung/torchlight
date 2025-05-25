@@ -18,33 +18,57 @@ export type Scalars = {
   JSON: { input: any; output: any; }
 };
 
+/**
+ * Input for AI progress analysis across a date range.
+ * Analyzes athlete progress and provides insights and recommendations.
+ */
 export type AiAnalyzeProgressInput = {
   athleteId: Scalars['ID']['input'];
   endDate: Scalars['DateTime']['input'];
   startDate: Scalars['DateTime']['input'];
 };
 
+/**
+ * Input for AI goal extraction and evaluation from natural language.
+ * Processes goal text and provides structured evaluation and recommendations.
+ */
 export type AiExtractAndEvaluateGoalInput = {
   athleteId: Scalars['ID']['input'];
   goalText: Scalars['String']['input'];
 };
 
+/**
+ * Input for AI session planning and generation.
+ * Creates suggested session content based on athlete goals and historical data.
+ */
 export type AiGenerateSessionInput = {
   athleteId: Scalars['ID']['input'];
   goalIds: Array<Scalars['ID']['input']>;
   sessionLogIds: Array<Scalars['ID']['input']>;
 };
 
+/**
+ * Metadata tracking AI processing status for session logs.
+ * Used to track which AI features have been applied to avoid duplicate processing.
+ */
 export type AiMetadata = {
   __typename?: 'AIMetadata';
   nextStepsGenerated: Scalars['Boolean']['output'];
   summaryGenerated: Scalars['Boolean']['output'];
 };
 
+/**
+ * Input for triggering AI summarization of a session log.
+ * Generates summary and action items using AI analysis of session content.
+ */
 export type AiSummarizeSessionLogInput = {
   sessionLogId: Scalars['ID']['input'];
 };
 
+/**
+ * AI Assistant entity representing coaching specialists for different sports and roles.
+ * Assistants provide AI-powered insights and generate training content based on their expertise.
+ */
 export type Assistant = {
   __typename?: 'Assistant';
   bio: Scalars['String']['output'];
@@ -59,16 +83,23 @@ export type Assistant = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** Filter criteria for finding assistants based on sport, role, and expertise. */
 export type AssistantsFilter = {
   role?: InputMaybe<Scalars['String']['input']>;
   sport: Scalars['String']['input'];
   strengths?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
+/** Input wrapper for assistant queries with optional filtering. */
 export type AssistantsInput = {
   filter?: InputMaybe<AssistantsFilter>;
 };
 
+/**
+ * Athlete entity representing individuals receiving coaching.
+ * Contains personal information, physical attributes, and relationships to goals, sessions, and training plans.
+ * All athlete data is automatically scoped to the authenticated coach's user account.
+ */
 export type Athlete = {
   __typename?: 'Athlete';
   birthday?: Maybe<Scalars['String']['output']>;
@@ -93,6 +124,7 @@ export type Athlete = {
   weight?: Maybe<Scalars['Float']['output']>;
 };
 
+/** Resource availability and practical constraints for goal achievement. */
 export type Availability = {
   __typename?: 'Availability';
   budget?: Maybe<Scalars['String']['output']>;
@@ -102,6 +134,7 @@ export type Availability = {
   trainingTime?: Maybe<Scalars['String']['output']>;
 };
 
+/** Coach-specific feedback and development insights. */
 export type CoachingFeedback = {
   __typename?: 'CoachingFeedback';
   coachDevelopmentInsight: Scalars['String']['output'];
@@ -111,12 +144,14 @@ export type CoachingFeedback = {
   riskFlags: Array<Scalars['String']['output']>;
 };
 
+/** Confidence level in AI analysis and recommendations. */
 export enum ConfidenceLevel {
   High = 'HIGH',
   Low = 'LOW',
   Medium = 'MEDIUM'
 }
 
+/** Limitations and challenges that may impact goal achievement. */
 export type Constraints = {
   __typename?: 'Constraints';
   experienceLevel: ExperienceLevel;
@@ -125,6 +160,10 @@ export type Constraints = {
   riskFactors: Array<Scalars['String']['output']>;
 };
 
+/**
+ * Core goal information extracted from natural language input.
+ * Represents the fundamental objective and sport context.
+ */
 export type CoreGoal = {
   __typename?: 'CoreGoal';
   measurableOutcome?: Maybe<Scalars['String']['output']>;
@@ -133,6 +172,10 @@ export type CoreGoal = {
   type: Scalars['String']['output'];
 };
 
+/**
+ * Input for creating a new athlete record.
+ * All fields are validated and the athlete is automatically associated with the authenticated coach.
+ */
 export type CreateAthleteInput = {
   birthday: Scalars['DateTime']['input'];
   email: Scalars['String']['input'];
@@ -143,6 +186,10 @@ export type CreateAthleteInput = {
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+/**
+ * Input for creating a new goal for an athlete.
+ * Goals are automatically associated with the specified athlete and authenticated coach.
+ */
 export type CreateGoalInput = {
   athleteId: Scalars['ID']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
@@ -151,6 +198,10 @@ export type CreateGoalInput = {
   title: Scalars['String']['input'];
 };
 
+/**
+ * Input for creating a new session log entry.
+ * Session logs capture training session details and progress toward goals.
+ */
 export type CreateSessionLogInput = {
   athleteId: Scalars['ID']['input'];
   date: Scalars['DateTime']['input'];
@@ -159,12 +210,17 @@ export type CreateSessionLogInput = {
   transcript?: InputMaybe<Scalars['String']['input']>;
 };
 
+/**
+ * Input for creating a new training plan.
+ * Plan content will be generated by AI based on specified goals and assistant expertise.
+ */
 export type CreateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   athleteId: Scalars['ID']['input'];
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/** Assessment of data quality for coaching analysis. */
 export enum DataQuality {
   Excellent = 'EXCELLENT',
   Good = 'GOOD',
@@ -172,6 +228,7 @@ export enum DataQuality {
   Limited = 'LIMITED'
 }
 
+/** Detailed breakdown of goal evaluation highlighting key areas. */
 export type EvaluationSummary = {
   __typename?: 'EvaluationSummary';
   improvementPriorities: Array<Scalars['String']['output']>;
@@ -180,6 +237,7 @@ export type EvaluationSummary = {
   weaknesses: Array<Scalars['String']['output']>;
 };
 
+/** Experience level classification for training planning. */
 export enum ExperienceLevel {
   Advanced = 'ADVANCED',
   Beginner = 'BEGINNER',
@@ -187,6 +245,7 @@ export enum ExperienceLevel {
   Returning = 'RETURNING'
 }
 
+/** AI confidence assessment and information gaps in goal analysis. */
 export type ExtractionConfidence = {
   __typename?: 'ExtractionConfidence';
   assumptions: Array<Scalars['String']['output']>;
@@ -195,6 +254,10 @@ export type ExtractionConfidence = {
   suggestedQuestions: Array<Scalars['String']['output']>;
 };
 
+/**
+ * Goal entity representing specific training objectives for athletes.
+ * Goals can be linked to multiple session logs and training plans for comprehensive tracking.
+ */
 export type Goal = {
   __typename?: 'Goal';
   athlete: Athlete;
@@ -212,6 +275,10 @@ export type Goal = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/**
+ * Detailed scoring and evaluation of goal quality across multiple dimensions.
+ * Each score is typically 1-10 scale with 10 being highest quality.
+ */
 export type GoalEvaluation = {
   __typename?: 'GoalEvaluation';
   evaluationSummary: EvaluationSummary;
@@ -223,6 +290,10 @@ export type GoalEvaluation = {
   timeStructureScore: Scalars['Int']['output'];
 };
 
+/**
+ * Comprehensive response from AI goal extraction and evaluation.
+ * Provides detailed analysis, scoring, and recommendations for goal refinement.
+ */
 export type GoalEvaluationResponse = {
   __typename?: 'GoalEvaluationResponse';
   availability: Availability;
@@ -237,12 +308,14 @@ export type GoalEvaluationResponse = {
   timeline: Timeline;
 };
 
+/** Goal lifecycle status indicating current state and progress. */
 export enum GoalStatus {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Paused = 'PAUSED'
 }
 
+/** Motivational factors and emotional context driving the goal. */
 export type Motivation = {
   __typename?: 'Motivation';
   emotionalContext: Scalars['String']['output'];
@@ -251,6 +324,11 @@ export type Motivation = {
   whyItMatters: Scalars['String']['output'];
 };
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type Mutation = {
   __typename?: 'Mutation';
   analyzeProgress: Scalars['String']['output'];
@@ -271,84 +349,163 @@ export type Mutation = {
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationAnalyzeProgressArgs = {
   input: AiAnalyzeProgressInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationCreateAthleteArgs = {
   input: CreateAthleteInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationCreateGoalArgs = {
   input: CreateGoalInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationCreateSessionLogArgs = {
   input: CreateSessionLogInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationCreateTrainingPlanArgs = {
   input: CreateTrainingPlanInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationDeleteAthleteArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationDeleteGoalArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationDeleteSessionLogArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationExtractAndEvaluateGoalArgs = {
   input: AiExtractAndEvaluateGoalInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationGenerateSessionArgs = {
   input: AiGenerateSessionInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationSummarizeSessionLogArgs = {
   input: AiSummarizeSessionLogInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateAthleteArgs = {
   id: Scalars['ID']['input'];
   input: UpdateAthleteInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateGoalArgs = {
   id: Scalars['ID']['input'];
   input: UpdateGoalInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateSessionLogArgs = {
   id: Scalars['ID']['input'];
   input: UpdateSessionLogInput;
 };
 
 
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateTrainingPlanArgs = {
   id: Scalars['ID']['input'];
   input: UpdateTrainingPlanInput;
 };
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type Query = {
   __typename?: 'Query';
   assistants: Array<Maybe<Assistant>>;
@@ -363,46 +520,79 @@ export type Query = {
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryAssistantsArgs = {
   input?: InputMaybe<AssistantsInput>;
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryAthleteArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryGoalArgs = {
   athleteId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryGoalsArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QuerySessionLogArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QuerySessionLogsArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryTrainingPlanArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QueryTrainingPlansArgs = {
   athleteId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+/** AI-generated suggestions for improving the goal statement. */
 export type RefinedGoalSuggestion = {
   __typename?: 'RefinedGoalSuggestion';
   improvedGoalStatement?: Maybe<Scalars['String']['output']>;
@@ -410,6 +600,11 @@ export type RefinedGoalSuggestion = {
   rationale: Scalars['String']['output'];
 };
 
+/**
+ * SessionLog entity representing individual training session records.
+ * Captures session details, progress notes, and AI-generated insights.
+ * Note: Called "SessionLog" instead of "Session" to avoid confusion with authentication sessions.
+ */
 export type SessionLog = {
   __typename?: 'SessionLog';
   actionItems?: Maybe<Array<Scalars['String']['output']>>;
@@ -426,6 +621,11 @@ export type SessionLog = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type Subscription = {
   __typename?: 'Subscription';
   athleteUpdated: Athlete;
@@ -437,35 +637,66 @@ export type Subscription = {
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionAthleteUpdatedArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionGoalAddedArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionGoalUpdatedArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionSessionLogAddedArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionSessionLogUpdatedArgs = {
   id: Scalars['ID']['input'];
 };
 
 
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionTrainingPlanGeneratedArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
+/** Success measurement criteria and expected outcomes. */
 export type SuccessIndicators = {
   __typename?: 'SuccessIndicators';
   measurementMethods: Array<Scalars['String']['output']>;
@@ -473,6 +704,7 @@ export type SuccessIndicators = {
   successDefinition: Scalars['String']['output'];
 };
 
+/** Timeline analysis and planning information for the goal. */
 export type Timeline = {
   __typename?: 'Timeline';
   duration?: Maybe<Scalars['String']['output']>;
@@ -481,30 +713,34 @@ export type Timeline = {
   urgencyLevel: UrgencyLevel;
 };
 
-/** Represents a structured training plan for an athlete. */
+/**
+ * TrainingPlan entity representing structured, AI-generated training programs for athletes.
+ * Plans are created by AI assistants based on specific goals and can include detailed schedules,
+ * exercises, and progression tracking. Plans support real-time generation status updates.
+ */
 export type TrainingPlan = {
   __typename?: 'TrainingPlan';
-  assistant?: Maybe<Assistant>;
-  assistantId?: Maybe<Scalars['ID']['output']>;
+  assistants?: Maybe<Array<Assistant>>;
   athlete: Athlete;
-  athleteId: Scalars['ID']['output'];
   createdAt: Scalars['String']['output'];
   endDate?: Maybe<Scalars['String']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
-  goal?: Maybe<Goal>;
-  goalId?: Maybe<Scalars['ID']['output']>;
+  goals?: Maybe<Array<Goal>>;
   id: Scalars['ID']['output'];
   notes?: Maybe<Scalars['String']['output']>;
   overview?: Maybe<Scalars['String']['output']>;
   planJson?: Maybe<Scalars['JSON']['output']>;
   sourcePrompt?: Maybe<Scalars['String']['output']>;
   startDate?: Maybe<Scalars['String']['output']>;
-  /** The current status of the training plan, reflecting its lifecycle. */
+  /** The current status of the training plan, reflecting its lifecycle and generation state. */
   status: TrainingPlanStatus;
   updatedAt: Scalars['String']['output'];
 };
 
-/** Represents the lifecycle status of a training plan. */
+/**
+ * Training plan lifecycle status indicating generation progress and readiness.
+ * Used for real-time updates during AI generation process.
+ */
 export enum TrainingPlanStatus {
   Draft = 'DRAFT',
   Error = 'ERROR',
@@ -512,6 +748,10 @@ export enum TrainingPlanStatus {
   Generating = 'GENERATING'
 }
 
+/**
+ * Input for updating an existing athlete record.
+ * All fields are optional - only provided fields will be updated.
+ */
 export type UpdateAthleteInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
@@ -521,6 +761,10 @@ export type UpdateAthleteInput = {
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+/**
+ * Input for updating an existing goal.
+ * All fields are optional - only provided fields will be updated.
+ */
 export type UpdateGoalInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -531,6 +775,10 @@ export type UpdateGoalInput = {
   trainingPlanIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/**
+ * Input for updating an existing session log.
+ * Supports both manual updates and AI-generated content addition.
+ */
 export type UpdateSessionLogInput = {
   actionItems?: InputMaybe<Array<Scalars['String']['input']>>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -539,6 +787,10 @@ export type UpdateSessionLogInput = {
   transcript?: InputMaybe<Scalars['String']['input']>;
 };
 
+/**
+ * Input for updating an existing training plan.
+ * All fields are optional - only provided fields will be updated.
+ */
 export type UpdateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
@@ -546,6 +798,7 @@ export type UpdateTrainingPlanInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Urgency classification for goal timeline planning. */
 export enum UrgencyLevel {
   Immediate = 'IMMEDIATE',
   LongTerm = 'LONG_TERM',
@@ -950,15 +1203,12 @@ export type TimelineResolvers<ContextType = GraphQLContext, ParentType extends R
 };
 
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
-  assistant?: Resolver<Maybe<ResolversTypes['Assistant']>, ParentType, ContextType>;
-  assistantId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  assistants?: Resolver<Maybe<Array<ResolversTypes['Assistant']>>, ParentType, ContextType>;
   athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
-  athleteId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   endDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType>;
-  goalId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  goals?: Resolver<Maybe<Array<ResolversTypes['Goal']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   overview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

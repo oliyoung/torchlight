@@ -1,9 +1,10 @@
 import { generateContentWithAI } from '@/ai/lib/aiClient';
 import { loadPrompt } from '@/ai/lib/promptLoader';
+import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from '@/lib/logger';
 import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
 import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
-import { PubSubEvents, TrainingPlanStatus } from '@/lib/types';
+import { TrainingPlanStatus } from '@/lib/types';
 import type { PubSub } from 'graphql-subscriptions';
 
 // Define the path to the training plan prompt file

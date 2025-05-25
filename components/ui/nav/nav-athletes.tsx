@@ -1,5 +1,5 @@
 import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Athlete } from "@/lib/types";
+import type { Athlete } from "@/lib/types";
 import Link from "next/link";
 import { useQuery } from "urql";
 
@@ -15,9 +15,8 @@ const AthletesQuery = `
 	}
 `;
 
-
 export function NavAthletes() {
-    const [{ data, fetching, error }] = useQuery<{ athletes: Athlete[] }>({
+    const [{ data }] = useQuery<{ athletes: Athlete[] }>({
         query: AthletesQuery,
     });
 

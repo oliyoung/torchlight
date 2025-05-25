@@ -1,6 +1,5 @@
 import { analyzeProgress } from './ai/analyzeProgress';
 import { extractAndEvaluateGoal } from './ai/extractAndEvaluateGoal';
-import { generateSession } from "./ai/generateSessionPlan";
 import { summarizeSessionLog } from "./ai/summarizeSessionLog";
 import { createAthlete } from "./athletes/createAthlete";
 import { createTrainingPlan } from "./training-plans/createTrainingPlan";
@@ -11,7 +10,6 @@ export default {
   createAthlete,
   createTrainingPlan,
   extractAndEvaluateGoal,
-  generateSession,
   summarizeSessionLog,
-  updateTrainingPlan,
+  updateTrainingPlan
 };

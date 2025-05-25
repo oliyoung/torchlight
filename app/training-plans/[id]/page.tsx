@@ -13,15 +13,15 @@ import {
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
 import { Loading } from "@/components/ui/loading";
-import { useStringParamId } from "@/lib/hooks/use-string-param-id";
 import { logger } from "@/lib/logger";
 import type { Assistant, Goal } from "@/lib/types";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import type React from "react";
-import { useMutation, useQuery } from "urql";
+import { gql, useMutation, useQuery } from "urql";
 
-const TrainingPlanQuery = `
+const TrainingPlanQuery = gql`
   query TrainingPlan($id: ID!) {
     trainingPlan(id: $id) {
       id
@@ -75,7 +75,8 @@ const UpdateTrainingPlanMutation = `
 `;
 
 const TrainingPlanDetailPage: React.FC = () => {
-	const id = useStringParamId();
+	const { id } = useParams();
+
 	const [{ data, fetching, error }, refetchTrainingPlan] = useQuery({
 		query: TrainingPlanQuery,
 		variables: { id },
@@ -309,52 +310,52 @@ const TrainingPlanDetailPage: React.FC = () => {
 						{(monitoringStrategies.length > 0 ||
 							progressionGuidelines.length > 0 ||
 							recoveryRecommendations.length > 0) && (
-							<Card>
-								<CardHeader>
-									<CardTitle>Implementation Guidelines</CardTitle>
-								</CardHeader>
-								<CardContent className="space-y-6">
-									{monitoringStrategies.length > 0 && (
-										<div>
-											<h3 className="font-medium mb-2">
-												Monitoring Strategies
-											</h3>
-											<ul className="list-disc list-inside text-sm space-y-1">
-												{monitoringStrategies.map((item: string) => (
-													<li key={`strategy-${item}`}>{item}</li>
-												))}
-											</ul>
-										</div>
-									)}
+								<Card>
+									<CardHeader>
+										<CardTitle>Implementation Guidelines</CardTitle>
+									</CardHeader>
+									<CardContent className="space-y-6">
+										{monitoringStrategies.length > 0 && (
+											<div>
+												<h3 className="font-medium mb-2">
+													Monitoring Strategies
+												</h3>
+												<ul className="list-disc list-inside text-sm space-y-1">
+													{monitoringStrategies.map((item: string) => (
+														<li key={`strategy-${item}`}>{item}</li>
+													))}
+												</ul>
+											</div>
+										)}
 
-									{progressionGuidelines.length > 0 && (
-										<div>
-											<h3 className="font-medium mb-2">
-												Progression Guidelines
-											</h3>
-											<ul className="list-disc list-inside text-sm space-y-1">
-												{progressionGuidelines.map((item: string) => (
-													<li key={`guideline-${item}`}>{item}</li>
-												))}
-											</ul>
-										</div>
-									)}
+										{progressionGuidelines.length > 0 && (
+											<div>
+												<h3 className="font-medium mb-2">
+													Progression Guidelines
+												</h3>
+												<ul className="list-disc list-inside text-sm space-y-1">
+													{progressionGuidelines.map((item: string) => (
+														<li key={`guideline-${item}`}>{item}</li>
+													))}
+												</ul>
+											</div>
+										)}
 
-									{recoveryRecommendations.length > 0 && (
-										<div>
-											<h3 className="font-medium mb-2">
-												Recovery Recommendations
-											</h3>
-											<ul className="list-disc list-inside text-sm space-y-1">
-												{recoveryRecommendations.map((item: string) => (
-													<li key={`recovery-${item}`}>{item}</li>
-												))}
-											</ul>
-										</div>
-									)}
-								</CardContent>
-							</Card>
-						)}
+										{recoveryRecommendations.length > 0 && (
+											<div>
+												<h3 className="font-medium mb-2">
+													Recovery Recommendations
+												</h3>
+												<ul className="list-disc list-inside text-sm space-y-1">
+													{recoveryRecommendations.map((item: string) => (
+														<li key={`recovery-${item}`}>{item}</li>
+													))}
+												</ul>
+											</div>
+										)}
+									</CardContent>
+								</Card>
+							)}
 					</div>
 
 					{/* Assistants and Goals column */}

@@ -23,8 +23,8 @@ const TrainingPlansQuery = `
 	query {
 		trainingPlans {
 			id
-			title
 			overview
+			status
 			athlete {
 				id
 				firstName
@@ -99,28 +99,22 @@ function TrainingPlansList() {
 								<Link
 									href={`/training-plans/${plan.id}`}
 									className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
-									aria-label={`View training plan: ${plan.title || "Untitled Training Plan"}`}
 								>
-									{plan.title || "Untitled Training Plan"}
+									{plan.athlete.firstName} {plan.athlete.lastName}
 								</Link>
 							</CardTitle>
 							{plan.athlete && (
 								<CardDescription>
-									<Link
-										href={`/athletes/${plan.athlete.id}`}
-										className="text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1"
-									>
-										Athlete: {plan.athlete.firstName} {plan.athlete.lastName}
-									</Link>
+
+									{plan.overview && (
+										<p className="text-sm text-muted-foreground line-clamp-3 mb-2">
+											{plan.overview}
+										</p>
+									)}
 								</CardDescription>
 							)}
 						</CardHeader>
 						<CardContent className="flex-grow">
-							{plan.overview && (
-								<p className="text-sm text-muted-foreground line-clamp-3 mb-2">
-									{plan.overview}
-								</p>
-							)}
 							<p className="text-xs text-muted-foreground">
 								<span className="sr-only">Date created:</span>
 								<time dateTime={new Date(plan.createdAt).toISOString()}>
@@ -134,9 +128,6 @@ function TrainingPlansList() {
 								className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 ml-auto transition-colors"
 							>
 								View details
-								<span className="sr-only">
-									about {plan.title || "Untitled Training Plan"}
-								</span>
 							</Link>
 						</CardFooter>
 					</Card>

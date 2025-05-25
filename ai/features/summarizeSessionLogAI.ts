@@ -1,7 +1,7 @@
+import { PubSubEvents } from "@/app/api/graphql/subscriptions/types";
 import { logger } from "@/lib/logger";
 import { sessionLogRepository } from "@/lib/repository";
 import type { SessionLog } from "@/lib/types";
-import { PubSubEvents } from "@/lib/types";
 import type { PubSub } from "graphql-subscriptions";
 
 /**

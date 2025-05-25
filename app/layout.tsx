@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Inter, Source_Sans_3, Epilogue } from "next/font/google";
+import { Epilogue, Inter, Source_Sans_3 } from "next/font/google";
 import "@/app/globals.css";
-import { SidebarInset } from "@/components/ui/sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { AppSidebar } from "@/components/ui/app-sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { UrqlProvider } from "@/components/ui/urql-provider";
 
 const geistSans = Geist({
@@ -57,7 +57,7 @@ export default function RootLayout({
 					<SidebarProvider>
 						<AppSidebar />
 						<SidebarInset>
-							{/* <Header /> */}
+							<Header />
 							<main className="flex-col justify-start align-top flex flex-1 p-4 gap-2">
 								{children}
 							</main>
