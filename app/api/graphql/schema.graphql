@@ -1,376 +1,565 @@
+# CoachBase GraphQL Schema
+# A comprehensive sports coaching platform with AI-powered training insights
+# This schema defines all entities, queries, mutations, and subscriptions for the platform
+
+# Custom scalar types for date/time handling and flexible JSON data
 scalar DateTime
 scalar JSON
 
+"""
+AI Assistant entity representing coaching specialists for different sports and roles.
+Assistants provide AI-powered insights and generate training content based on their expertise.
+"""
 type Assistant {
 	id: ID!
 	name: String!
-	sport: String!
-	role: String!
-	strengths: [String!]!
-	bio: String!
-	promptTemplate: String!
+	sport: String! # The sport this assistant specializes in
+	role: String! # The specific role/focus area (e.g., "Strength Coach", "Technical Coach")
+	strengths: [String!]! # Key areas of expertise
+	bio: String! # Assistant's background and experience description
+	promptTemplate: String! # AI prompt template used for generating content
 	createdAt: DateTime!
 	updatedAt: DateTime!
-	deletedAt: DateTime
+	deletedAt: DateTime # Soft delete timestamp
 }
 
+"""
+Athlete entity representing individuals receiving coaching.
+Contains personal information, physical attributes, and relationships to goals, sessions, and training plans.
+All athlete data is automatically scoped to the authenticated coach's user account.
+"""
 type Athlete {
-	userId: ID!
+	userId: ID! # ID of the coach who owns this athlete record
 	id: ID!
-	birthday: String
-	gender: String
-	fitnessLevel: String
-	trainingHistory: String
-	height: Float
-	weight: Float
+	birthday: String # Date of birth for age calculations and program planning
+	gender: String # Gender information for training considerations
+	fitnessLevel: String # Current fitness assessment (beginner, intermediate, advanced)
+	trainingHistory: String # Previous training background and experience
+	height: Float # Height in centimeters
+	weight: Float # Weight in kilograms
 	firstName: String!
 	lastName: String!
 	email: String!
-	tags: [String!]
-	notes: String
-	sport: String!
+	tags: [String!] # Custom tags for categorization and filtering
+	notes: String # General notes about the athlete
+	sport: String! # Primary sport focus
 	createdAt: DateTime!
 	updatedAt: DateTime!
-	deletedAt: DateTime
-	goals: [Goal!]
-	sessionLogs: [SessionLog!]
-	trainingPlans: [TrainingPlan!]!
-}
-
-type Goal {
-	id: ID!
-	athlete: Athlete!
-	title: String!
-	description: String
-	status: GoalStatus!
-	createdAt: DateTime!
-	updatedAt: DateTime!
-	deletedAt: DateTime
-	dueDate: DateTime
-	progressNotes: String
-	sessionLogs: [SessionLog!]!
-	sport: String
-	trainingPlans: [TrainingPlan!]
-}
-
-enum GoalStatus {
-	ACTIVE
-	COMPLETED
-	PAUSED
-}
-
-type SessionLog {
-	id: ID!
-	athlete: Athlete!
-	date: DateTime!
-	notes: String
-	transcript: String
-	summary: String
-	actionItems: [String!]
-	goals: [Goal!]!
-	aiMetadata: AIMetadata
-	createdAt: DateTime!
-	updatedAt: DateTime!
-	deletedAt: DateTime
-}
-
-type AIMetadata {
-	summaryGenerated: Boolean!
-	nextStepsGenerated: Boolean!
+	deletedAt: DateTime # Soft delete timestamp
+	# Relationships
+	goals: [Goal!] # Associated training goals
+	sessionLogs: [SessionLog!] # Training session records
+	trainingPlans: [TrainingPlan!]! # Structured training programs
 }
 
 """
-Represents a structured training plan for an athlete.
+Goal entity representing specific training objectives for athletes.
+Goals can be linked to multiple session logs and training plans for comprehensive tracking.
+"""
+type Goal {
+	id: ID!
+	athlete: Athlete! # The athlete this goal belongs to
+	title: String! # Short, descriptive goal title
+	description: String # Detailed goal description and context
+	status: GoalStatus! # Current goal status
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete timestamp
+	dueDate: DateTime # Target completion date
+	progressNotes: String # Coach notes on progress toward the goal
+	sport: String # Sport-specific classification
+	# Relationships
+	sessionLogs: [SessionLog!]! # Sessions that worked toward this goal
+	trainingPlans: [TrainingPlan!] # Training plans that include this goal
+}
+
+"""
+Goal lifecycle status indicating current state and progress.
+"""
+enum GoalStatus {
+	ACTIVE # Goal is currently being worked on
+	COMPLETED # Goal has been successfully achieved
+	PAUSED # Goal is temporarily on hold
+}
+
+"""
+SessionLog entity representing individual training session records.
+Captures session details, progress notes, and AI-generated insights.
+Note: Called "SessionLog" instead of "Session" to avoid confusion with authentication sessions.
+"""
+type SessionLog {
+	id: ID!
+	athlete: Athlete! # The athlete this session belongs to
+	date: DateTime! # When the session took place
+	notes: String # Coach's notes about the session
+	transcript: String # Raw session transcript or detailed notes
+	summary: String # AI-generated summary of the session
+	actionItems: [String!] # AI-generated action items and next steps
+	goals: [Goal!]! # Goals that were worked on during this session
+	aiMetadata: AIMetadata # Metadata about AI processing status
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete timestamp
+}
+
+"""
+Metadata tracking AI processing status for session logs.
+Used to track which AI features have been applied to avoid duplicate processing.
+"""
+type AIMetadata {
+	summaryGenerated: Boolean! # Whether AI summary has been generated
+	nextStepsGenerated: Boolean! # Whether AI action items have been generated
+}
+
+"""
+TrainingPlan entity representing structured, AI-generated training programs for athletes.
+Plans are created by AI assistants based on specific goals and can include detailed schedules,
+exercises, and progression tracking. Plans support real-time generation status updates.
 """
 type TrainingPlan {
 	id: ID!
-	athleteId: ID!
-	athlete: Athlete!
-	goalId: ID
-	goal: Goal
-	assistantId: ID
-	assistant: Assistant
+	athlete: Athlete! # Athlete relationship
+	goals: [Goal!] # Multiple goals this plan addresses
+	assistants: [Assistant!] # AI assistants that contributed to plan generation
 	createdAt: String!
 	updatedAt: String!
-	startDate: String
-	endDate: String
-	notes: String
-	planJson: JSON
-	overview: String
-	sourcePrompt: String
+	startDate: String # When the training plan should begin
+	endDate: String # When the training plan should conclude
+	notes: String # Coach notes about the plan
+	planJson: JSON # Structured plan data (exercises, schedules, etc.)
+	overview: String # High-level plan description and objectives
+	sourcePrompt: String # Original prompt used to generate the plan
 	generatedBy: String # ID of the Assistant that generated the plan content
 	"""
-	The current status of the training plan, reflecting its lifecycle.
+	The current status of the training plan, reflecting its lifecycle and generation state.
 	"""
 	status: TrainingPlanStatus!
 }
 
 """
-Represents the lifecycle status of a training plan.
+Training plan lifecycle status indicating generation progress and readiness.
+Used for real-time updates during AI generation process.
 """
 enum TrainingPlanStatus {
-	DRAFT
-	GENERATING
-	GENERATED
-	ERROR
+	DRAFT # Plan created but content not yet generated
+	GENERATING # AI is currently generating plan content
+	GENERATED # Plan generation completed successfully
+	ERROR # Plan generation failed or encountered errors
 }
 
+# Input types for filtering and searching
+
+"""
+Filter criteria for finding assistants based on sport, role, and expertise.
+"""
 input AssistantsFilter {
-	sport: String!
-	role: String
-	strengths: [String]
+	sport: String! # Required sport filter
+	role: String # Optional specific role filter
+	strengths: [String] # Optional strengths/expertise filter
 }
 
+"""
+Input wrapper for assistant queries with optional filtering.
+"""
 input AssistantsInput {
-	filter: AssistantsFilter
+	filter: AssistantsFilter # Optional filter criteria
 }
 
+# Query operations for data retrieval
+
+"""
+Root query type providing read access to all platform entities.
+All queries are automatically scoped to the authenticated coach's data.
+"""
 type Query {
-	assistants(input: AssistantsInput): [Assistant]!
-	athletes: [Athlete!]!
-	athlete(id: ID!): Athlete
-	goals(athleteId: ID!): [Goal!]!
-	goal(id: ID!, athleteId: ID!): Goal
-	sessionLogs(athleteId: ID!): [SessionLog!]!
-	sessionLog(id: ID!): SessionLog
-	trainingPlan(id: ID!): TrainingPlan
-	trainingPlans(athleteId: ID): [TrainingPlan!]!
+	# Assistant queries
+	assistants(input: AssistantsInput): [Assistant]! # Get assistants with optional filtering
+
+	# Athlete queries
+	athletes: [Athlete!]! # Get all athletes for the authenticated coach
+	athlete(id: ID!): Athlete # Get specific athlete by ID
+
+	# Goal queries
+	goals(athleteId: ID!): [Goal!]! # Get all goals for a specific athlete
+	goal(id: ID!, athleteId: ID!): Goal # Get specific goal by ID and athlete
+
+	# Session log queries
+	sessionLogs(athleteId: ID!): [SessionLog!]! # Get all session logs for an athlete
+	sessionLog(id: ID!): SessionLog # Get specific session log by ID
+
+	# Training plan queries
+	trainingPlan(id: ID!): TrainingPlan # Get specific training plan by ID
+	trainingPlans(athleteId: ID): [TrainingPlan!]! # Get training plans, optionally filtered by athlete
 }
 
+# Input types for entity creation and updates
+
+"""
+Input for creating a new athlete record.
+All fields are validated and the athlete is automatically associated with the authenticated coach.
+"""
 input CreateAthleteInput {
 	firstName: String!
 	lastName: String!
-	birthday: DateTime!
-	email: String!
-	tags: [String!]
-	notes: String
-	sport: String!
+	birthday: DateTime! # Required for age-appropriate training planning
+	email: String! # Required for communication
+	tags: [String!] # Optional categorization tags
+	notes: String # Optional general notes
+	sport: String! # Required primary sport focus
 }
 
+"""
+Input for updating an existing athlete record.
+All fields are optional - only provided fields will be updated.
+"""
 input UpdateAthleteInput {
 	firstName: String
 	lastName: String
 	email: String
-	tags: [String!]
+	tags: [String!] # Replaces existing tags entirely
 	notes: String
 	sport: String
 }
 
+"""
+Input for creating a new goal for an athlete.
+Goals are automatically associated with the specified athlete and authenticated coach.
+"""
 input CreateGoalInput {
-	athleteId: ID!
-	title: String!
-	description: String
-	dueDate: DateTime
-	sport: String!
+	athleteId: ID! # The athlete this goal belongs to
+	title: String! # Required descriptive title
+	description: String # Optional detailed description
+	dueDate: DateTime # Optional target completion date
+	sport: String! # Required sport classification
 }
 
+"""
+Input for updating an existing goal.
+All fields are optional - only provided fields will be updated.
+"""
 input UpdateGoalInput {
 	title: String
 	description: String
 	dueDate: DateTime
-	status: GoalStatus
-	progressNotes: String
+	status: GoalStatus # Update goal progress status
+	progressNotes: String # Coach notes on progress
 	sport: String
-	trainingPlanIds: [ID!]
+	trainingPlanIds: [ID!] # Associate goal with training plans
 }
 
+"""
+Input for creating a new session log entry.
+Session logs capture training session details and progress toward goals.
+"""
 input CreateSessionLogInput {
-	athleteId: ID!
-	date: DateTime!
-	notes: String
-	transcript: String
-	goalIds: [ID!]
+	athleteId: ID! # The athlete this session belongs to
+	date: DateTime! # Required session date
+	notes: String # Optional coach notes
+	transcript: String # Optional detailed session transcript
+	goalIds: [ID!] # Optional goals addressed in this session
 }
 
+"""
+Input for updating an existing session log.
+Supports both manual updates and AI-generated content addition.
+"""
 input UpdateSessionLogInput {
-	notes: String
-	transcript: String
-	goalIds: [ID!]
-	summary: String
-	actionItems: [String!]
+	notes: String # Coach notes
+	transcript: String # Session transcript
+	goalIds: [ID!] # Goals addressed in session (replaces existing)
+	summary: String # AI-generated or manual summary
+	actionItems: [String!] # AI-generated or manual action items
 }
 
+# AI-powered input types for intelligent features
+
+"""
+Input for triggering AI summarization of a session log.
+Generates summary and action items using AI analysis of session content.
+"""
 input AISummarizeSessionLogInput {
-	sessionLogId: ID!
+	sessionLogId: ID! # The session log to summarize
 }
 
+"""
+Input for creating a new training plan.
+Plan content will be generated by AI based on specified goals and assistant expertise.
+"""
 input CreateTrainingPlanInput {
-	athleteId: ID!
-	assistantIds: [ID!]
-	goalIds: [ID!]
+	athleteId: ID! # The athlete this plan is for
+	assistantIds: [ID!] # AI assistants to use for plan generation
+	goalIds: [ID!] # Goals this plan should address
 }
 
+"""
+Input for AI session planning and generation.
+Creates suggested session content based on athlete goals and historical data.
+"""
 input AIGenerateSessionInput {
-	athleteId: ID!
-	goalIds: [ID!]!
-	sessionLogIds: [ID!]!
+	athleteId: ID! # The athlete to generate a session for
+	goalIds: [ID!]! # Goals to focus on in the session
+	sessionLogIds: [ID!]! # Previous sessions to consider for context
 }
 
+"""
+Input for AI progress analysis across a date range.
+Analyzes athlete progress and provides insights and recommendations.
+"""
 input AIAnalyzeProgressInput {
-	athleteId: ID!
-	startDate: DateTime!
-	endDate: DateTime!
+	athleteId: ID! # The athlete to analyze
+	startDate: DateTime! # Analysis period start date
+	endDate: DateTime! # Analysis period end date
 }
 
+"""
+Input for AI goal extraction and evaluation from natural language.
+Processes goal text and provides structured evaluation and recommendations.
+"""
 input AIExtractAndEvaluateGoalInput {
-	athleteId: ID!
-	goalText: String!
+	athleteId: ID! # The athlete the goal is for
+	goalText: String! # Natural language goal description to analyze
 }
 
+# AI Goal Evaluation Response Types
+# These types represent the structured output from AI goal analysis
+
+"""
+Comprehensive response from AI goal extraction and evaluation.
+Provides detailed analysis, scoring, and recommendations for goal refinement.
+"""
 type GoalEvaluationResponse {
-	coreGoal: CoreGoal!
-	goalEvaluation: GoalEvaluation!
-	refinedGoalSuggestion: RefinedGoalSuggestion!
-	timeline: Timeline!
-	motivation: Motivation!
-	availability: Availability!
-	constraints: Constraints!
-	successIndicators: SuccessIndicators!
-	extractionConfidence: ExtractionConfidence!
-	coachingFeedback: CoachingFeedback!
+	coreGoal: CoreGoal! # Extracted core goal information
+	goalEvaluation: GoalEvaluation! # Detailed goal scoring and analysis
+	refinedGoalSuggestion: RefinedGoalSuggestion! # AI recommendations for improvement
+	timeline: Timeline! # Timeline analysis and planning
+	motivation: Motivation! # Motivational factors and drivers
+	availability: Availability! # Resource and schedule availability
+	constraints: Constraints! # Limitations and challenges
+	successIndicators: SuccessIndicators! # Success measurement criteria
+	extractionConfidence: ExtractionConfidence! # AI confidence in analysis
+	coachingFeedback: CoachingFeedback! # Coach-specific insights and recommendations
 }
 
+"""
+Core goal information extracted from natural language input.
+Represents the fundamental objective and sport context.
+"""
 type CoreGoal {
-	type: String!
-	primaryObjective: String!
-	sport: String!
-	measurableOutcome: String
+	type: String! # Goal category (performance, skill development, etc.)
+	primaryObjective: String! # Main goal statement
+	sport: String! # Sport context
+	measurableOutcome: String # Specific measurable target if identified
 }
 
+"""
+Detailed scoring and evaluation of goal quality across multiple dimensions.
+Each score is typically 1-10 scale with 10 being highest quality.
+"""
 type GoalEvaluation {
-	overallQualityScore: Int!
-	specificityScore: Int!
-	feasibilityScore: Int!
-	relevanceScore: Int!
-	timeStructureScore: Int!
-	motivationScore: Int!
-	evaluationSummary: EvaluationSummary!
+	overallQualityScore: Int! # Overall goal quality assessment
+	specificityScore: Int! # How specific and clear the goal is
+	feasibilityScore: Int! # How achievable the goal appears
+	relevanceScore: Int! # How relevant to athlete's sport/context
+	timeStructureScore: Int! # How well-defined the timeline is
+	motivationScore: Int! # How motivating/engaging the goal appears
+	evaluationSummary: EvaluationSummary! # Detailed breakdown of assessment
 }
 
+"""
+Detailed breakdown of goal evaluation highlighting key areas.
+"""
 type EvaluationSummary {
-	strengths: [String!]!
-	weaknesses: [String!]!
-	riskFactors: [String!]!
-	improvementPriorities: [String!]!
+	strengths: [String!]! # Positive aspects of the goal
+	weaknesses: [String!]! # Areas needing improvement
+	riskFactors: [String!]! # Potential challenges or obstacles
+	improvementPriorities: [String!]! # Most important areas to address
 }
 
+"""
+AI-generated suggestions for improving the goal statement.
+"""
 type RefinedGoalSuggestion {
-	improvedGoalStatement: String
-	keyChanges: [String!]!
-	rationale: String!
+	improvedGoalStatement: String # Suggested improved goal text
+	keyChanges: [String!]! # List of specific changes made
+	rationale: String! # Explanation of why changes were suggested
 }
 
+"""
+Timeline analysis and planning information for the goal.
+"""
 type Timeline {
-	targetDate: String
-	duration: String
-	urgencyLevel: UrgencyLevel!
-	milestones: [String!]!
+	targetDate: String # Suggested or extracted target completion date
+	duration: String # Expected time to achieve goal
+	urgencyLevel: UrgencyLevel! # How urgent/time-sensitive the goal is
+	milestones: [String!]! # Suggested intermediate milestones
 }
 
+"""
+Urgency classification for goal timeline planning.
+"""
 enum UrgencyLevel {
-	IMMEDIATE
-	SHORT_TERM
-	MEDIUM_TERM
-	LONG_TERM
+	IMMEDIATE # Needs attention within days/weeks
+	SHORT_TERM # 1-3 months
+	MEDIUM_TERM # 3-12 months
+	LONG_TERM # Over 1 year
 }
 
+"""
+Motivational factors and emotional context driving the goal.
+"""
 type Motivation {
-	whyItMatters: String!
-	externalDrivers: [String!]!
-	emotionalContext: String!
-	supportSystem: [String!]!
+	whyItMatters: String! # Core reason why this goal is important
+	externalDrivers: [String!]! # External factors motivating the goal
+	emotionalContext: String! # Emotional significance and personal meaning
+	supportSystem: [String!]! # People/resources available for support
 }
 
+"""
+Resource availability and practical constraints for goal achievement.
+"""
 type Availability {
-	trainingTime: String
-	scheduleConstraints: [String!]!
-	location: String
-	equipment: [String!]!
-	budget: String
+	trainingTime: String # Available time for training per week
+	scheduleConstraints: [String!]! # Schedule limitations and conflicts
+	location: String # Available training locations/facilities
+	equipment: [String!]! # Available equipment and resources
+	budget: String # Budget considerations for training
 }
 
+"""
+Limitations and challenges that may impact goal achievement.
+"""
 type Constraints {
-	physicalLimitations: [String!]!
-	experienceLevel: ExperienceLevel!
-	previousChallenges: [String!]!
-	riskFactors: [String!]!
+	physicalLimitations: [String!]! # Physical restrictions or injuries
+	experienceLevel: ExperienceLevel! # Current skill/experience level
+	previousChallenges: [String!]! # Past obstacles and difficulties
+	riskFactors: [String!]! # Potential risks or concerns
 }
 
+"""
+Experience level classification for training planning.
+"""
 enum ExperienceLevel {
-	BEGINNER
-	INTERMEDIATE
-	ADVANCED
-	RETURNING
+	BEGINNER # New to the sport/activity
+	INTERMEDIATE # Some experience and skill development
+	ADVANCED # High skill level and experience
+	RETURNING # Previously experienced but returning after break
 }
 
+"""
+Success measurement criteria and expected outcomes.
+"""
 type SuccessIndicators {
-	measurementMethods: [String!]!
-	successDefinition: String!
-	secondaryBenefits: [String!]!
+	measurementMethods: [String!]! # How progress/success will be measured
+	successDefinition: String! # Clear definition of goal achievement
+	secondaryBenefits: [String!]! # Additional benefits beyond main goal
 }
 
+"""
+AI confidence assessment and information gaps in goal analysis.
+"""
 type ExtractionConfidence {
-	overallConfidence: ConfidenceLevel!
-	missingInformation: [String!]!
-	assumptions: [String!]!
-	suggestedQuestions: [String!]!
+	overallConfidence: ConfidenceLevel! # Overall confidence in analysis
+	missingInformation: [String!]! # Key information not provided
+	assumptions: [String!]! # Assumptions made by AI in analysis
+	suggestedQuestions: [String!]! # Questions to clarify unclear aspects
 }
 
+"""
+Confidence level in AI analysis and recommendations.
+"""
 enum ConfidenceLevel {
-	HIGH
-	MEDIUM
-	LOW
+	HIGH # Very confident in analysis
+	MEDIUM # Moderately confident
+	LOW # Low confidence, more info needed
 }
 
+"""
+Coach-specific feedback and development insights.
+"""
 type CoachingFeedback {
-	dataQuality: DataQuality!
-	keyGapsIdentified: [String!]!
-	improvementSuggestions: [String!]!
-	riskFlags: [String!]!
-	coachDevelopmentInsight: String!
+	dataQuality: DataQuality! # Quality of information provided
+	keyGapsIdentified: [String!]! # Important missing information
+	improvementSuggestions: [String!]! # Specific recommendations for coaches
+	riskFlags: [String!]! # Warning flags requiring attention
+	coachDevelopmentInsight: String! # Insights for coach development
 }
 
+"""
+Assessment of data quality for coaching analysis.
+"""
 enum DataQuality {
-	EXCELLENT
-	GOOD
-	LIMITED
-	INSUFFICIENT
+	EXCELLENT # Comprehensive, detailed information
+	GOOD # Sufficient information for analysis
+	LIMITED # Some gaps but workable
+	INSUFFICIENT # Too little information for proper analysis
 }
 
+"""
+Input for updating an existing training plan.
+All fields are optional - only provided fields will be updated.
+"""
 input UpdateTrainingPlanInput {
-	title: String
-	overview: String
-	assistantIds: [ID!]
-	goalIds: [ID!]
+	title: String # Plan title/name
+	overview: String # Plan overview description
+	assistantIds: [ID!] # Update associated AI assistants
+	goalIds: [ID!] # Update associated goals
 }
 
+# Mutation operations for data modification
+
+"""
+Root mutation type providing write access to all platform entities.
+All mutations are automatically scoped to the authenticated coach's data.
+Includes both standard CRUD operations and AI-powered features.
+"""
 type Mutation {
-	createAthlete(input: CreateAthleteInput!): Athlete!
-	updateAthlete(id: ID!, input: UpdateAthleteInput!): Athlete!
-	deleteAthlete(id: ID!): Boolean!
+	# Athlete mutations
+	createAthlete(input: CreateAthleteInput!): Athlete! # Create new athlete
+	updateAthlete(id: ID!, input: UpdateAthleteInput!): Athlete! # Update athlete details
+	deleteAthlete(id: ID!): Boolean! # Soft delete athlete (sets deleted_at)
 
-	createGoal(input: CreateGoalInput!): Goal!
-	updateGoal(id: ID!, input: UpdateGoalInput!): Goal!
-	deleteGoal(id: ID!): Boolean!
+	# Goal mutations
+	createGoal(input: CreateGoalInput!): Goal! # Create new goal for athlete
+	updateGoal(id: ID!, input: UpdateGoalInput!): Goal! # Update goal details and status
+	deleteGoal(id: ID!): Boolean! # Soft delete goal
 
-	createSessionLog(input: CreateSessionLogInput!): SessionLog!
-	updateSessionLog(id: ID!, input: UpdateSessionLogInput!): SessionLog!
-	deleteSessionLog(id: ID!): Boolean!
+	# Session log mutations
+	createSessionLog(input: CreateSessionLogInput!): SessionLog! # Create new session record
+	updateSessionLog(id: ID!, input: UpdateSessionLogInput!): SessionLog! # Update session details
+	deleteSessionLog(id: ID!): Boolean! # Soft delete session log
 
-	createTrainingPlan(input: CreateTrainingPlanInput!): TrainingPlan!
-	updateTrainingPlan(id: ID!, input: UpdateTrainingPlanInput!): TrainingPlan!
+	# Training plan mutations
+	createTrainingPlan(input: CreateTrainingPlanInput!): TrainingPlan! # Create new training plan (triggers AI generation)
+	updateTrainingPlan(id: ID!, input: UpdateTrainingPlanInput!): TrainingPlan! # Update plan metadata
 
-	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog!
-	generateSession(input: AIGenerateSessionInput!): SessionLog!
-	analyzeProgress(input: AIAnalyzeProgressInput!): String!
-	extractAndEvaluateGoal(input: AIExtractAndEvaluateGoalInput!): GoalEvaluationResponse!
+	# AI-powered mutations
+	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog! # Generate AI summary for session
+	generateSession(input: AIGenerateSessionInput!): SessionLog! # Generate AI session plan
+	analyzeProgress(input: AIAnalyzeProgressInput!): String! # Analyze athlete progress with AI
+	extractAndEvaluateGoal(
+		input: AIExtractAndEvaluateGoalInput!
+	): GoalEvaluationResponse! # AI goal analysis and evaluation
 }
 
+# Real-time subscription operations
+
+"""
+Root subscription type providing real-time updates for platform entities.
+Subscriptions enable live updates in the UI during AI processing and data changes.
+All subscriptions are automatically scoped to the authenticated coach's data.
+"""
 type Subscription {
-	trainingPlanGenerated(athleteId: ID!): TrainingPlan!
-	sessionLogAdded(athleteId: ID!): SessionLog!
-	goalAdded(athleteId: ID!): Goal!
-	sessionLogUpdated(id: ID!): SessionLog!
-	goalUpdated(id: ID!): Goal!
-	athleteUpdated(id: ID!): Athlete!
+	# Training plan subscriptions
+	trainingPlanGenerated(athleteId: ID!): TrainingPlan! # Real-time updates during AI plan generation
+
+	# Session log subscriptions
+	sessionLogAdded(athleteId: ID!): SessionLog! # New session log created for athlete
+	sessionLogUpdated(id: ID!): SessionLog! # Session log updated (e.g., AI summary added)
+
+	# Goal subscriptions
+	goalAdded(athleteId: ID!): Goal! # New goal created for athlete
+	goalUpdated(id: ID!): Goal! # Goal updated (status, progress, etc.)
+
+	# Athlete subscriptions
+	athleteUpdated(id: ID!): Athlete! # Athlete information updated
 }
