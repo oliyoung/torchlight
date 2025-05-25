@@ -2,7 +2,6 @@ import { generateContentWithAI } from "@/ai/lib/aiClient";
 import { loadPrompt } from "@/ai/lib/promptLoader";
 import { logger } from "@/lib/logger";
 import { athleteRepository } from "@/lib/repository";
-import type { Athlete } from "@/lib/types";
 
 // Define the path to the goal evaluation prompt file
 const GOAL_EVALUATION_PROMPT_FILE = "ai/prompts/goal_evaluation.prompt.yml";
@@ -179,13 +178,13 @@ export const extractAndEvaluateGoalAI = async (
 
         // Populate the user message template with athlete context and goal text
         let populatedUserMessage = userMessageTemplate;
-        Object.entries(athleteContext).forEach(([key, value]) => {
+        for (const [key, value] of Object.entries(athleteContext)) {
             const placeholder = `{{${key}}}`;
             populatedUserMessage = populatedUserMessage.replace(
                 new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'),
                 value
             );
-        });
+        }
 
         // Combine system and user messages for the final prompt
         const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`;

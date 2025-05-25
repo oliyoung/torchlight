@@ -7,11 +7,11 @@ import { createTrainingPlan } from "./training-plans/createTrainingPlan";
 import { updateTrainingPlan } from "./training-plans/updateTrainingPlan";
 
 export default {
-  summarizeSessionLog,
-  generateSession,
   analyzeProgress,
-  extractAndEvaluateGoal,
-  createTrainingPlan,
-  updateTrainingPlan,
   createAthlete,
+  createTrainingPlan,
+  extractAndEvaluateGoal,
+  generateSession,
+  summarizeSessionLog,
+  updateTrainingPlan,
 };
