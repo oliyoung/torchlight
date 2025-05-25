@@ -42,6 +42,7 @@ alwaysApply: true
   - Experiences a modern, responsive, and accessible UI with dark mode support and mobile-friendly layouts.
   - All flows are designed for clarity, quick navigation, and actionable insights, with future extensibility for notifications, chat, and integrations.
 - No wireframes, mockups, or formal user stories exist; development proceeds directly in code and browser.
+- Refer to [visual_style_prompt.mdc](mdc:.cursor/rules/visual_style_prompt.mdc) for more context
 
 ## 4. AI Integration - LIVE IMPLEMENTATION
 - **Real AI integration** is implemented and operational using Anthropic Claude:
@@ -52,6 +53,13 @@ alwaysApply: true
   - GraphQL mutations for AI features (`summarizeSessionLog`, `generateSession`, `analyzeProgress`) call real AI services
 - Actual integration uses the Model Context Protocol (MCP) approach with TypeScript SDK integration
 - The AI integration layer supports experimentation and can be extended with additional providers
+## 4. AI Integration
+- Foundational work for AI integration has begun, including making the core client function generic to handle various AI provider responses. The end-user AI features corresponding to the `summarizeSessionLog`, `generateSession`, and `analyzeProgress` mutations in the GraphQL schema are the current focus and utilize this AI client.
+- When implementing these features, ensure they correctly invoke the generic `generateContentWithAI` function and handle its output according to the expected schema shape.
+- The core AI client function, `generateContentWithAI` (`ai/lib/aiClient.ts`), has been me formats by accepting an optional parser function.
+- Actual integration will use the Model Context Protocol (MCP) ([https://github.com/modelcontextprotocol](mdc:https:/github.com/modelcontextprotocol)), an open protocol for connecting LLMs to external data sources. Use the TypeScript SDK when ready. The specific LLM provider is still to be determined.
+- The AI integration layer is intentionally left open for experimentation. Contributors are encouraged to explore, prototype, and suggest new approaches for connecting to LLMs, using MCP, and building AI-powered features.
+
 
 ## 5. Authentication & Authorization
 - Supabase Auth is used for authentication ([Supabase Auth docs](mdc:https:/supabase.com/auth)).
