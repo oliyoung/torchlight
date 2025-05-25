@@ -175,7 +175,7 @@ export function GoalEvaluationDialog({
 			<DialogTrigger asChild>
 				{trigger || <Button>Add Goal</Button>}
 			</DialogTrigger>
-			<DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+			<DialogContent className="flex flex-col">
 				<DialogHeader>
 					<DialogTitle>Create New Goal</DialogTitle>
 				</DialogHeader>
@@ -242,7 +242,7 @@ export function GoalEvaluationDialog({
 												<strong>Areas for Improvement:</strong>
 												<ul className="list-disc list-inside mt-1">
 													{evaluation.goalEvaluation.evaluationSummary.weaknesses.map((weakness, i) => (
-														<li key={i} className="text-sm">{weakness}</li>
+														<li key={weakness} className="text-sm">{weakness}</li>
 													))}
 												</ul>
 											</AlertDescription>
