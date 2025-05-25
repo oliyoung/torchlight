@@ -24,6 +24,11 @@ export type AiAnalyzeProgressInput = {
   startDate: Scalars['DateTime']['input'];
 };
 
+export type AiExtractAndEvaluateGoalInput = {
+  athleteId: Scalars['ID']['input'];
+  goalText: Scalars['String']['input'];
+};
+
 export type AiGenerateSessionInput = {
   athleteId: Scalars['ID']['input'];
   goalIds: Array<Scalars['ID']['input']>;
@@ -88,6 +93,46 @@ export type Athlete = {
   weight?: Maybe<Scalars['Float']['output']>;
 };
 
+export type Availability = {
+  __typename?: 'Availability';
+  budget?: Maybe<Scalars['String']['output']>;
+  equipment: Array<Scalars['String']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  scheduleConstraints: Array<Scalars['String']['output']>;
+  trainingTime?: Maybe<Scalars['String']['output']>;
+};
+
+export type CoachingFeedback = {
+  __typename?: 'CoachingFeedback';
+  coachDevelopmentInsight: Scalars['String']['output'];
+  dataQuality: DataQuality;
+  improvementSuggestions: Array<Scalars['String']['output']>;
+  keyGapsIdentified: Array<Scalars['String']['output']>;
+  riskFlags: Array<Scalars['String']['output']>;
+};
+
+export enum ConfidenceLevel {
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export type Constraints = {
+  __typename?: 'Constraints';
+  experienceLevel: ExperienceLevel;
+  physicalLimitations: Array<Scalars['String']['output']>;
+  previousChallenges: Array<Scalars['String']['output']>;
+  riskFactors: Array<Scalars['String']['output']>;
+};
+
+export type CoreGoal = {
+  __typename?: 'CoreGoal';
+  measurableOutcome?: Maybe<Scalars['String']['output']>;
+  primaryObjective: Scalars['String']['output'];
+  sport: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
 export type CreateAthleteInput = {
   birthday: Scalars['DateTime']['input'];
   email: Scalars['String']['input'];
@@ -120,6 +165,36 @@ export type CreateTrainingPlanInput = {
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+export enum DataQuality {
+  Excellent = 'EXCELLENT',
+  Good = 'GOOD',
+  Insufficient = 'INSUFFICIENT',
+  Limited = 'LIMITED'
+}
+
+export type EvaluationSummary = {
+  __typename?: 'EvaluationSummary';
+  improvementPriorities: Array<Scalars['String']['output']>;
+  riskFactors: Array<Scalars['String']['output']>;
+  strengths: Array<Scalars['String']['output']>;
+  weaknesses: Array<Scalars['String']['output']>;
+};
+
+export enum ExperienceLevel {
+  Advanced = 'ADVANCED',
+  Beginner = 'BEGINNER',
+  Intermediate = 'INTERMEDIATE',
+  Returning = 'RETURNING'
+}
+
+export type ExtractionConfidence = {
+  __typename?: 'ExtractionConfidence';
+  assumptions: Array<Scalars['String']['output']>;
+  missingInformation: Array<Scalars['String']['output']>;
+  overallConfidence: ConfidenceLevel;
+  suggestedQuestions: Array<Scalars['String']['output']>;
+};
+
 export type Goal = {
   __typename?: 'Goal';
   athlete: Athlete;
@@ -137,11 +212,44 @@ export type Goal = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type GoalEvaluation = {
+  __typename?: 'GoalEvaluation';
+  evaluationSummary: EvaluationSummary;
+  feasibilityScore: Scalars['Int']['output'];
+  motivationScore: Scalars['Int']['output'];
+  overallQualityScore: Scalars['Int']['output'];
+  relevanceScore: Scalars['Int']['output'];
+  specificityScore: Scalars['Int']['output'];
+  timeStructureScore: Scalars['Int']['output'];
+};
+
+export type GoalEvaluationResponse = {
+  __typename?: 'GoalEvaluationResponse';
+  availability: Availability;
+  coachingFeedback: CoachingFeedback;
+  constraints: Constraints;
+  coreGoal: CoreGoal;
+  extractionConfidence: ExtractionConfidence;
+  goalEvaluation: GoalEvaluation;
+  motivation: Motivation;
+  refinedGoalSuggestion: RefinedGoalSuggestion;
+  successIndicators: SuccessIndicators;
+  timeline: Timeline;
+};
+
 export enum GoalStatus {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Paused = 'PAUSED'
 }
+
+export type Motivation = {
+  __typename?: 'Motivation';
+  emotionalContext: Scalars['String']['output'];
+  externalDrivers: Array<Scalars['String']['output']>;
+  supportSystem: Array<Scalars['String']['output']>;
+  whyItMatters: Scalars['String']['output'];
+};
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -153,6 +261,7 @@ export type Mutation = {
   deleteAthlete: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteSessionLog: Scalars['Boolean']['output'];
+  extractAndEvaluateGoal: GoalEvaluationResponse;
   generateSession: SessionLog;
   summarizeSessionLog: SessionLog;
   updateAthlete: Athlete;
@@ -199,6 +308,11 @@ export type MutationDeleteGoalArgs = {
 
 export type MutationDeleteSessionLogArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationExtractAndEvaluateGoalArgs = {
+  input: AiExtractAndEvaluateGoalInput;
 };
 
 
@@ -289,6 +403,13 @@ export type QueryTrainingPlansArgs = {
   athleteId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type RefinedGoalSuggestion = {
+  __typename?: 'RefinedGoalSuggestion';
+  improvedGoalStatement?: Maybe<Scalars['String']['output']>;
+  keyChanges: Array<Scalars['String']['output']>;
+  rationale: Scalars['String']['output'];
+};
+
 export type SessionLog = {
   __typename?: 'SessionLog';
   actionItems?: Maybe<Array<Scalars['String']['output']>>;
@@ -343,6 +464,21 @@ export type SubscriptionSessionLogUpdatedArgs = {
 
 export type SubscriptionTrainingPlanGeneratedArgs = {
   athleteId: Scalars['ID']['input'];
+};
+
+export type SuccessIndicators = {
+  __typename?: 'SuccessIndicators';
+  measurementMethods: Array<Scalars['String']['output']>;
+  secondaryBenefits: Array<Scalars['String']['output']>;
+  successDefinition: Scalars['String']['output'];
+};
+
+export type Timeline = {
+  __typename?: 'Timeline';
+  duration?: Maybe<Scalars['String']['output']>;
+  milestones: Array<Scalars['String']['output']>;
+  targetDate?: Maybe<Scalars['String']['output']>;
+  urgencyLevel: UrgencyLevel;
 };
 
 /** Represents a structured training plan for an athlete. */
@@ -409,6 +545,13 @@ export type UpdateTrainingPlanInput = {
   overview?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
+
+export enum UrgencyLevel {
+  Immediate = 'IMMEDIATE',
+  LongTerm = 'LONG_TERM',
+  MediumTerm = 'MEDIUM_TERM',
+  ShortTerm = 'SHORT_TERM'
+}
 
 
 
@@ -482,6 +625,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   AIAnalyzeProgressInput: AiAnalyzeProgressInput;
+  AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
   AIGenerateSessionInput: AiGenerateSessionInput;
   AIMetadata: ResolverTypeWrapper<AiMetadata>;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
@@ -489,33 +633,51 @@ export type ResolversTypes = {
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
   Athlete: ResolverTypeWrapper<Athlete>;
+  Availability: ResolverTypeWrapper<Availability>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CoachingFeedback: ResolverTypeWrapper<CoachingFeedback>;
+  ConfidenceLevel: ConfidenceLevel;
+  Constraints: ResolverTypeWrapper<Constraints>;
+  CoreGoal: ResolverTypeWrapper<CoreGoal>;
   CreateAthleteInput: CreateAthleteInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
+  DataQuality: DataQuality;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  EvaluationSummary: ResolverTypeWrapper<EvaluationSummary>;
+  ExperienceLevel: ExperienceLevel;
+  ExtractionConfidence: ResolverTypeWrapper<ExtractionConfidence>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Goal: ResolverTypeWrapper<Goal>;
+  GoalEvaluation: ResolverTypeWrapper<GoalEvaluation>;
+  GoalEvaluationResponse: ResolverTypeWrapper<GoalEvaluationResponse>;
   GoalStatus: GoalStatus;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
+  Motivation: ResolverTypeWrapper<Motivation>;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
+  RefinedGoalSuggestion: ResolverTypeWrapper<RefinedGoalSuggestion>;
   SessionLog: ResolverTypeWrapper<SessionLog>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  SuccessIndicators: ResolverTypeWrapper<SuccessIndicators>;
+  Timeline: ResolverTypeWrapper<Timeline>;
   TrainingPlan: ResolverTypeWrapper<TrainingPlan>;
   TrainingPlanStatus: TrainingPlanStatus;
   UpdateAthleteInput: UpdateAthleteInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
+  UrgencyLevel: UrgencyLevel;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   AIAnalyzeProgressInput: AiAnalyzeProgressInput;
+  AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
   AIGenerateSessionInput: AiGenerateSessionInput;
   AIMetadata: AiMetadata;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
@@ -523,21 +685,34 @@ export type ResolversParentTypes = {
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
   Athlete: Athlete;
+  Availability: Availability;
   Boolean: Scalars['Boolean']['output'];
+  CoachingFeedback: CoachingFeedback;
+  Constraints: Constraints;
+  CoreGoal: CoreGoal;
   CreateAthleteInput: CreateAthleteInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
   DateTime: Scalars['DateTime']['output'];
+  EvaluationSummary: EvaluationSummary;
+  ExtractionConfidence: ExtractionConfidence;
   Float: Scalars['Float']['output'];
   Goal: Goal;
+  GoalEvaluation: GoalEvaluation;
+  GoalEvaluationResponse: GoalEvaluationResponse;
   ID: Scalars['ID']['output'];
+  Int: Scalars['Int']['output'];
   JSON: Scalars['JSON']['output'];
+  Motivation: Motivation;
   Mutation: {};
   Query: {};
+  RefinedGoalSuggestion: RefinedGoalSuggestion;
   SessionLog: SessionLog;
   String: Scalars['String']['output'];
   Subscription: {};
+  SuccessIndicators: SuccessIndicators;
+  Timeline: Timeline;
   TrainingPlan: TrainingPlan;
   UpdateAthleteInput: UpdateAthleteInput;
   UpdateGoalInput: UpdateGoalInput;
@@ -589,9 +764,59 @@ export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends Re
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type AvailabilityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Availability'] = ResolversParentTypes['Availability']> = {
+  budget?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  equipment?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  scheduleConstraints?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  trainingTime?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CoachingFeedbackResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CoachingFeedback'] = ResolversParentTypes['CoachingFeedback']> = {
+  coachDevelopmentInsight?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dataQuality?: Resolver<ResolversTypes['DataQuality'], ParentType, ContextType>;
+  improvementSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  keyGapsIdentified?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  riskFlags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ConstraintsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Constraints'] = ResolversParentTypes['Constraints']> = {
+  experienceLevel?: Resolver<ResolversTypes['ExperienceLevel'], ParentType, ContextType>;
+  physicalLimitations?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  previousChallenges?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  riskFactors?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CoreGoalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CoreGoal'] = ResolversParentTypes['CoreGoal']> = {
+  measurableOutcome?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  primaryObjective?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
+
+export type EvaluationSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EvaluationSummary'] = ResolversParentTypes['EvaluationSummary']> = {
+  improvementPriorities?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  riskFactors?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  strengths?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  weaknesses?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type ExtractionConfidenceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExtractionConfidence'] = ResolversParentTypes['ExtractionConfidence']> = {
+  assumptions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  missingInformation?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  overallConfidence?: Resolver<ResolversTypes['ConfidenceLevel'], ParentType, ContextType>;
+  suggestedQuestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type GoalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Goal'] = ResolversParentTypes['Goal']> = {
   athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
@@ -610,9 +835,42 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type GoalEvaluationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoalEvaluation'] = ResolversParentTypes['GoalEvaluation']> = {
+  evaluationSummary?: Resolver<ResolversTypes['EvaluationSummary'], ParentType, ContextType>;
+  feasibilityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  motivationScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  overallQualityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  relevanceScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  specificityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timeStructureScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type GoalEvaluationResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoalEvaluationResponse'] = ResolversParentTypes['GoalEvaluationResponse']> = {
+  availability?: Resolver<ResolversTypes['Availability'], ParentType, ContextType>;
+  coachingFeedback?: Resolver<ResolversTypes['CoachingFeedback'], ParentType, ContextType>;
+  constraints?: Resolver<ResolversTypes['Constraints'], ParentType, ContextType>;
+  coreGoal?: Resolver<ResolversTypes['CoreGoal'], ParentType, ContextType>;
+  extractionConfidence?: Resolver<ResolversTypes['ExtractionConfidence'], ParentType, ContextType>;
+  goalEvaluation?: Resolver<ResolversTypes['GoalEvaluation'], ParentType, ContextType>;
+  motivation?: Resolver<ResolversTypes['Motivation'], ParentType, ContextType>;
+  refinedGoalSuggestion?: Resolver<ResolversTypes['RefinedGoalSuggestion'], ParentType, ContextType>;
+  successIndicators?: Resolver<ResolversTypes['SuccessIndicators'], ParentType, ContextType>;
+  timeline?: Resolver<ResolversTypes['Timeline'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
+
+export type MotivationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Motivation'] = ResolversParentTypes['Motivation']> = {
+  emotionalContext?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  externalDrivers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  supportSystem?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  whyItMatters?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   analyzeProgress?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeProgressArgs, 'input'>>;
@@ -623,6 +881,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAthlete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAthleteArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
   deleteSessionLog?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSessionLogArgs, 'id'>>;
+  extractAndEvaluateGoal?: Resolver<ResolversTypes['GoalEvaluationResponse'], ParentType, ContextType, RequireFields<MutationExtractAndEvaluateGoalArgs, 'input'>>;
   generateSession?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationGenerateSessionArgs, 'input'>>;
   summarizeSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationSummarizeSessionLogArgs, 'input'>>;
   updateAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationUpdateAthleteArgs, 'id' | 'input'>>;
@@ -641,6 +900,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogsArgs, 'athleteId'>>;
   trainingPlan?: Resolver<Maybe<ResolversTypes['TrainingPlan']>, ParentType, ContextType, RequireFields<QueryTrainingPlanArgs, 'id'>>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType, Partial<QueryTrainingPlansArgs>>;
+};
+
+export type RefinedGoalSuggestionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RefinedGoalSuggestion'] = ResolversParentTypes['RefinedGoalSuggestion']> = {
+  improvedGoalStatement?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  keyChanges?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  rationale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SessionLogResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SessionLog'] = ResolversParentTypes['SessionLog']> = {
@@ -668,6 +934,21 @@ export type SubscriptionResolvers<ContextType = GraphQLContext, ParentType exten
   trainingPlanGenerated?: SubscriptionResolver<ResolversTypes['TrainingPlan'], "trainingPlanGenerated", ParentType, ContextType, RequireFields<SubscriptionTrainingPlanGeneratedArgs, 'athleteId'>>;
 };
 
+export type SuccessIndicatorsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SuccessIndicators'] = ResolversParentTypes['SuccessIndicators']> = {
+  measurementMethods?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  secondaryBenefits?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  successDefinition?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TimelineResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Timeline'] = ResolversParentTypes['Timeline']> = {
+  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  milestones?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  targetDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  urgencyLevel?: Resolver<ResolversTypes['UrgencyLevel'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
   assistant?: Resolver<Maybe<ResolversTypes['Assistant']>, ParentType, ContextType>;
   assistantId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
@@ -693,13 +974,25 @@ export type Resolvers<ContextType = GraphQLContext> = {
   AIMetadata?: AiMetadataResolvers<ContextType>;
   Assistant?: AssistantResolvers<ContextType>;
   Athlete?: AthleteResolvers<ContextType>;
+  Availability?: AvailabilityResolvers<ContextType>;
+  CoachingFeedback?: CoachingFeedbackResolvers<ContextType>;
+  Constraints?: ConstraintsResolvers<ContextType>;
+  CoreGoal?: CoreGoalResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  EvaluationSummary?: EvaluationSummaryResolvers<ContextType>;
+  ExtractionConfidence?: ExtractionConfidenceResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
+  GoalEvaluation?: GoalEvaluationResolvers<ContextType>;
+  GoalEvaluationResponse?: GoalEvaluationResponseResolvers<ContextType>;
   JSON?: GraphQLScalarType;
+  Motivation?: MotivationResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RefinedGoalSuggestion?: RefinedGoalSuggestionResolvers<ContextType>;
   SessionLog?: SessionLogResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
+  SuccessIndicators?: SuccessIndicatorsResolvers<ContextType>;
+  Timeline?: TimelineResolvers<ContextType>;
   TrainingPlan?: TrainingPlanResolvers<ContextType>;
 };
 
