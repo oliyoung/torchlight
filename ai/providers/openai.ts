@@ -1,5 +1,7 @@
 import { logger } from "@/lib/logger"; // Import logger
 import OpenAI from "openai";
+import { zodTextFormat } from "openai/helpers/zod";
+import type { z } from "zod";
 
 /**
  * Calls the OpenAI API to generate content based on a prompt.
@@ -10,36 +12,56 @@ import OpenAI from "openai";
  * @param prompt The prompt string to send to the AI.
  * @returns A promise that resolves with the generated content string, or null if an error occurs.
  */
-export const callOpenAI = async (prompt: string): Promise<string | null> => {
-    const model = process.env.NEXT_PUBLIC_OPEN_AI_MODEL;
+export const callOpenAI = async <T>(
+    model: string,
+    temperature: number,
+    instructions: string,
+    input: string,
+    schema: z.AnyZodObject,
+): Promise<z.infer<typeof schema>> => {
     const token = process.env.NEXT_PUBLIC_OPEN_AI_TOKEN;
     const endpoint = process.env.NEXT_PUBLIC_OPEN_AI_ENDPOINT;
-    const temperature = process.env.NEXT_PUBLIC_OPEN_AI_TEMPERATURE || 1.0;
 
     if (!model || !token || !endpoint) {
-        logger.error("OpenAI environment variables not set.");
-        return null;
+        logger.error(
+            { model, token, endpoint },
+            "OpenAI environment variables not set.",
+        );
+        return {};
     }
 
     try {
         const client = new OpenAI({ baseURL: endpoint, apiKey: token });
-
-        // Assuming the simple string prompt should be used in a user message for the API
-        const response = await client.chat.completions.create({
-            messages: [
-                { role: "user", content: prompt }
-            ],
-            temperature: Number(temperature),
-            top_p: 1.0,
-            model: model
+        const response = await client.responses.create({
+            model,
+            instructions,
+            input,
+            temperature,
+            text: {
+                format: zodTextFormat(schema, "response"),
+            },
         });
 
-        const generatedContent = response.choices[0].message.content;
-        logger.info("Successfully called OpenAI API.");
-        return generatedContent;
+        if (
+            response.status === "incomplete" &&
+            response?.incomplete_details?.reason
+        ) {
+            throw new Error(
+                `${response.status} ${response?.incomplete_details?.reason}`,
+            );
+        }
+
+        if (response.status === "completed") {
+            const generatedContent = schema.parse(response.output_text);
+            logger.info({ generatedContent }, "Successfully called OpenAI API.");
+            return generatedContent;
+        }
+        return {};
     } catch (error) {
+        if (JSON.parse(error as string).status === "401") {
+            logger.error("OpenAI Authorisation Error ");
+        }
         logger.error({ error }, "Error calling OpenAI API.");
-        return null;
+        return {};
     }
 };
-

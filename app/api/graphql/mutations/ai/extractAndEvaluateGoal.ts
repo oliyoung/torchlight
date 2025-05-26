@@ -1,4 +1,4 @@
-import { extractAndEvaluateGoalAI, type GoalEvaluationResponse } from '@/ai/features/extractAndEvaluateGoalAI';
+import { type GoalEvaluationResponse, extractAndEvaluateGoalAI } from '@/ai/features/extractAndEvaluateGoalAI';
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiExtractAndEvaluateGoalInput } from "@/lib/types";
@@ -43,12 +43,12 @@ export const extractAndEvaluateGoal = async (
         });
 
         logger.info(
-            { 
-                athleteId, 
-                userId, 
+            {
+                athleteId,
+                userId,
                 goalTextLength: goalText.length,
-                overallScore: evaluationResult.goalEvaluation.overallQualityScore 
-            }, 
+                overallScore: evaluationResult.goalEvaluation.overallQualityScore
+            },
             "extractAndEvaluateGoal mutation completed successfully."
         );
 

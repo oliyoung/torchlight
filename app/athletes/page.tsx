@@ -32,15 +32,15 @@ function AthletesList() {
 		);
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
+		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
 			{data?.athletes?.map((athlete) => (
 				<div
 					key={athlete.id}
-					className="border rounded px-3 py-2 bg-white shadow-sm"
+					className="border rounded px-3 py-2"
 				>
 					<Link
 						href={`/athletes/${athlete.id}`}
-						className="font-semibold text-lg"
+						className="font-epilogue text-lg"
 					>
 						{athlete.firstName} {athlete.lastName}
 					</Link>
@@ -53,16 +53,18 @@ function AthletesList() {
 
 export default function AthleteListPage() {
 	return (
-		<>
-			<Breadcrumbs />
-			<Heading>Athletes</Heading>
-			<Button asChild accessKey="a" variant={"default"}>
-				<Link href="/athletes/new">
-					<PlusIcon className="w-4 h-4" />
-					Add Athlete
-				</Link>
-			</Button>
+		<div className="p-6 flex flex-col gap-4">
+			<Breadcrumbs breadcrumbs={[{ label: "Athletes", href: "/athletes" }]} />
+			<div className="flex flex-row justify-between">
+				<Heading>Athletes</Heading>
+				<Button asChild accessKey="a">
+					<Link href="/athletes/new">
+						<PlusIcon className="w-4 h-4" />
+						Add Athlete
+					</Link>
+				</Button>
+			</div>
 			<AthletesList />
-		</>
+		</div>
 	);
 }

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
 import { Epilogue, Inter, Source_Sans_3 } from "next/font/google";
 import "@/app/globals.css";
 import Footer from "@/components/footer";
@@ -9,17 +9,6 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { UrqlProvider } from "@/components/ui/urql-provider";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
-	subsets: ["latin"],
-});
-
-// Define the new Google Fonts
 const inter = Inter({
 	variable: '--font-inter',
 	subsets: ['latin'],
@@ -50,15 +39,13 @@ export default function RootLayout({
 }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
-			<body
-				className={`${inter.variable} ${sourceSansPro.variable} ${epilogue.variable} antialiased`}
-			>
+			<body className="antialiased">
 				<UrqlProvider>
 					<SidebarProvider>
 						<AppSidebar />
 						<SidebarInset>
 							<Header />
-							<main className="flex-col justify-start align-top flex flex-1 p-4 gap-2">
+							<main className="bg-background text-foreground flex-col align-top flex flex-1 gap-2">
 								{children}
 							</main>
 						</SidebarInset>

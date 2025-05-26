@@ -1,84 +1,90 @@
-import { generateContentWithAI } from "@/ai/lib/aiClient";
 import { loadPrompt } from "@/ai/lib/promptLoader";
 import { logger } from "@/lib/logger";
 import { athleteRepository } from "@/lib/repository";
+import { z } from "zod";
+import { callOpenAI } from "../providers/openai";
 
 // Define the path to the goal evaluation prompt file
 const GOAL_EVALUATION_PROMPT_FILE = "ai/prompts/goal_evaluation.prompt.yml";
 
 /**
+ * Zod schema for the goal evaluation response structure matching the prompt template
+ */
+const goalEvaluationResponseSchema = z.object({
+    coreGoal: z.object({
+        type: z.string(),
+        primaryObjective: z.string(),
+        sport: z.string(),
+        measurableOutcome: z.string().nullable(),
+    }),
+    goalEvaluation: z.object({
+        overallQualityScore: z.number(),
+        specificityScore: z.number(),
+        feasibilityScore: z.number(),
+        relevanceScore: z.number(),
+        timeStructureScore: z.number(),
+        motivationScore: z.number(),
+        evaluationSummary: z.object({
+            strengths: z.array(z.string()),
+            weaknesses: z.array(z.string()),
+            riskFactors: z.array(z.string()),
+            improvementPriorities: z.array(z.string()),
+        }),
+    }),
+    refinedGoalSuggestion: z.object({
+        improvedGoalStatement: z.string().nullable(),
+        keyChanges: z.array(z.string()),
+        rationale: z.string(),
+    }),
+    timeline: z.object({
+        targetDate: z.string().nullable(),
+        duration: z.string().nullable(),
+        urgencyLevel: z.enum(["immediate", "short-term", "medium-term", "long-term"]),
+        milestones: z.array(z.string()),
+    }),
+    motivation: z.object({
+        whyItMatters: z.string(),
+        externalDrivers: z.array(z.string()),
+        emotionalContext: z.string(),
+        supportSystem: z.array(z.string()),
+    }),
+    availability: z.object({
+        trainingTime: z.string().nullable(),
+        scheduleConstraints: z.array(z.string()),
+        location: z.string().nullable(),
+        equipment: z.array(z.string()),
+        budget: z.string().nullable(),
+    }),
+    constraints: z.object({
+        physicalLimitations: z.array(z.string()),
+        experienceLevel: z.enum(["beginner", "intermediate", "advanced", "returning"]),
+        previousChallenges: z.array(z.string()),
+        riskFactors: z.array(z.string()),
+    }),
+    successIndicators: z.object({
+        measurementMethods: z.array(z.string()),
+        successDefinition: z.string(),
+        secondaryBenefits: z.array(z.string()),
+    }),
+    extractionConfidence: z.object({
+        overallConfidence: z.enum(["high", "medium", "low"]),
+        missingInformation: z.array(z.string()),
+        assumptions: z.array(z.string()),
+        suggestedQuestions: z.array(z.string()),
+    }),
+    coachingFeedback: z.object({
+        dataQuality: z.enum(["excellent", "good", "limited", "insufficient"]),
+        keyGapsIdentified: z.array(z.string()),
+        improvementSuggestions: z.array(z.string()),
+        riskFlags: z.array(z.string()),
+        coachDevelopmentInsight: z.string(),
+    }),
+});
+
+/**
  * Goal evaluation response structure matching the prompt template
  */
-export interface GoalEvaluationResponse {
-    coreGoal: {
-        type: string;
-        primaryObjective: string;
-        sport: string;
-        measurableOutcome: string | null;
-    };
-    goalEvaluation: {
-        overallQualityScore: number;
-        specificityScore: number;
-        feasibilityScore: number;
-        relevanceScore: number;
-        timeStructureScore: number;
-        motivationScore: number;
-        evaluationSummary: {
-            strengths: string[];
-            weaknesses: string[];
-            riskFactors: string[];
-            improvementPriorities: string[];
-        };
-    };
-    refinedGoalSuggestion: {
-        improvedGoalStatement: string | null;
-        keyChanges: string[];
-        rationale: string;
-    };
-    timeline: {
-        targetDate: string | null;
-        duration: string | null;
-        urgencyLevel: "immediate" | "short-term" | "medium-term" | "long-term";
-        milestones: string[];
-    };
-    motivation: {
-        whyItMatters: string;
-        externalDrivers: string[];
-        emotionalContext: string;
-        supportSystem: string[];
-    };
-    availability: {
-        trainingTime: string | null;
-        scheduleConstraints: string[];
-        location: string | null;
-        equipment: string[];
-        budget: string | null;
-    };
-    constraints: {
-        physicalLimitations: string[];
-        experienceLevel: "beginner" | "intermediate" | "advanced" | "returning";
-        previousChallenges: string[];
-        riskFactors: string[];
-    };
-    successIndicators: {
-        measurementMethods: string[];
-        successDefinition: string;
-        secondaryBenefits: string[];
-    };
-    extractionConfidence: {
-        overallConfidence: "high" | "medium" | "low";
-        missingInformation: string[];
-        assumptions: string[];
-        suggestedQuestions: string[];
-    };
-    coachingFeedback: {
-        dataQuality: "excellent" | "good" | "limited" | "insufficient";
-        keyGapsIdentified: string[];
-        improvementSuggestions: string[];
-        riskFlags: string[];
-        coachDevelopmentInsight: string;
-    };
-}
+export type GoalEvaluationResponse = z.infer<typeof goalEvaluationResponseSchema>;
 
 /**
  * Input parameters for goal evaluation
@@ -121,10 +127,7 @@ export const extractAndEvaluateGoalAI = async (
         // Fetch athlete data for context
         const athlete = await athleteRepository.getAthleteById(userId, athleteId);
         if (!athlete) {
-            logger.error(
-                { athleteId, userId },
-                "Athlete not found for goal evaluation."
-            );
+            logger.error({ athleteId, userId }, "Athlete not found for goal evaluation.");
             throw new Error("Athlete not found");
         }
 
@@ -186,17 +189,18 @@ export const extractAndEvaluateGoalAI = async (
             );
         }
 
-        // Combine system and user messages for the final prompt
-        const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`;
-
         logger.info(
             { athleteId, userId, goalTextLength: goalText.length },
             "Generated prompt for goal evaluation"
         );
 
         // Call the AI client with structured output
-        const evaluationResult = await generateContentWithAI<GoalEvaluationResponse>(
-            finalPrompt
+        const evaluationResult = await callOpenAI(
+            promptFileContent.model,
+            Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
+            systemMessage,
+            populatedUserMessage,
+            goalEvaluationResponseSchema
         );
 
         if (!evaluationResult || typeof evaluationResult !== "object") {
@@ -228,7 +232,7 @@ export const extractAndEvaluateGoalAI = async (
             "Successfully completed goal evaluation"
         );
 
-        return evaluationResult;
+        return evaluationResult as GoalEvaluationResponse;
 
     } catch (error) {
         logger.error(

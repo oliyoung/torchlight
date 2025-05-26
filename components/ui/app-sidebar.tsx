@@ -22,6 +22,7 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { NavAthletes } from "./nav/nav-athletes";
 import { NavGroup } from "./nav/nav-group";
@@ -83,8 +84,8 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
-		<Sidebar collapsible="offcanvas" {...props}>
-			<SidebarHeader>
+		<Sidebar className="font-source-sans-pro bg-sidebar text-sidebar-foreground" collapsible="offcanvas" {...props}>
+			< SidebarHeader >
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
@@ -92,26 +93,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<a href="/">
-								<span className="text-base font-semibold">CoachCraft</span>
+								<span className="text-sidebar-accent-foreground font-semibold">CoachCraft</span>
 							</a>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
-			</SidebarHeader>
-			<Separator orientation="horizontal" />
+			</SidebarHeader >
+			<SidebarSeparator />
 			<SidebarContent>
 				<NavGroup items={data.navMain} />
 				<NavAthletes />
 			</SidebarContent>
-			<Separator orientation="horizontal" />
+			<SidebarSeparator />
 			<SidebarContent>
 				<NavGroup items={data.navSecondary} />
 				<NavGroup items={data.documents} />
 			</SidebarContent>
-			<Separator orientation="horizontal" />
+			<SidebarSeparator />
 			<SidebarFooter>
 				<NavUser user={data.user} />
 			</SidebarFooter>
-		</Sidebar>
+		</Sidebar >
 	);
 }

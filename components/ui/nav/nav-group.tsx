@@ -43,7 +43,7 @@ export function NavGroup({
 	const menuItems = items.map((item) => (
 		<SidebarMenuItem key={item.title}>
 			<SidebarMenuButton asChild>
-				<LinkComponent href={item.url}>
+				<LinkComponent href={item.url} className="text-sidebar-accent-foreground hover:bg-sidebar-accent-background">
 					{item.icon && <item.icon />}
 					{renderContent ? renderContent(item) : <span>{item.title}</span>}
 				</LinkComponent>

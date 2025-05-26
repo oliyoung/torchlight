@@ -51,17 +51,6 @@ export default {
                     DEFAULT: 'hsl(var(--card))',
                     foreground: 'hsl(var(--card-foreground))',
                 },
-                // Custom Colors from Visual Style Guide
-                'brand-sage': '#4A5D23',
-                'brand-charcoal': '#2D3436',
-                'brand-cream': '#FAF7F2',
-                'accent-blue': '#6C7B95',
-                'accent-clay': '#D47B47',
-                'support-gray': '#8B9DC3',
-                'success-sage': '#7FB069',
-                'warn-amber': '#F4A261',
-                'alert-coral': '#E76F51',
-                'bg-light-sage': '#E8F5E8',
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -84,9 +73,9 @@ export default {
             },
             // Custom Font Families from Visual Style Guide
             fontFamily: {
-                inter: ['var(--font-inter)', ...fontFamily.sans],
-                source: ['var(--font-source-sans-pro)', ...fontFamily.sans],
-                epilogue: ['var(--font-epilogue)', ...fontFamily.sans],
+                inter: ['var(--font-inter)', 'sans-serif'],
+                source: ['var(--font-source-sans-pro)', 'sans-serif'],
+                epilogue: ['var(--font-epilogue)', 'sans-serif'],
             },
             lineHeight: {
                 relaxed: '1.7',

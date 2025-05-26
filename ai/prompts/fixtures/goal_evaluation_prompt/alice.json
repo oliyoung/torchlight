@@ -1,0 +1,127 @@
+{
+    "coreGoal": {
+        "type": "Skill Development",
+        "primaryObjective": "Learn to dribble through traffic",
+        "sport": "Basketball",
+        "measurableOutcome": null
+    },
+    "goalEvaluation": {
+        "overallQualityScore": 30,
+        "specificityScore": 4,
+        "feasibilityScore": 6,
+        "relevanceScore": 7,
+        "timeStructureScore": 3,
+        "motivationScore": 5,
+        "evaluationSummary": {
+            "strengths": [
+                "Focus on a fundamental skill in basketball",
+                "Relevant to the athlete's sport and experience level"
+            ],
+            "weaknesses": [
+                "Lacks measurable outcomes and specific milestones",
+                "No clear timeline for achieving the goal"
+            ],
+            "riskFactors": [
+                "Potential for frustration if progress is not tracked",
+                "Skill development may be hindered without structured practice"
+            ],
+            "improvementPriorities": [
+                "Define measurable outcomes",
+                "Establish a timeline and milestones for progress"
+            ]
+        }
+    },
+    "refinedGoalSuggestion": {
+        "improvedGoalStatement": "Improve dribbling skills to successfully navigate through traffic during games by practicing twice a week for the next three months.",
+        "keyChanges": [
+            "Added measurable outcomes (successfully navigate through traffic)",
+            "Specified practice frequency and timeline"
+        ],
+        "rationale": "This refined goal provides clarity on what success looks like and establishes a timeframe for improvement, making it more actionable."
+    },
+    "timeline": {
+        "targetDate": "2024-01-01",
+        "duration": "3 months",
+        "urgencyLevel": "medium-term",
+        "milestones": [
+            "Practice dribbling drills twice a week",
+            "Demonstrate improved dribbling in practice games after 6 weeks",
+            "Evaluate progress at the end of 3 months"
+        ]
+    },
+    "motivation": {
+        "whyItMatters": "Improving dribbling skills will enhance overall basketball performance and confidence during games.",
+        "externalDrivers": [
+            "Upcoming basketball season",
+            "Desire to contribute more effectively to the team"
+        ],
+        "emotionalContext": "Excited to improve but may feel overwhelmed without clear guidance.",
+        "supportSystem": [
+            "Current coach",
+            "Team members"
+        ]
+    },
+    "availability": {
+        "trainingTime": "Twice per week",
+        "scheduleConstraints": [
+            "School commitments",
+            "Family obligations"
+        ],
+        "location": "Local basketball court",
+        "equipment": [
+            "Basketball",
+            "Dribbling cones (if available)"
+        ],
+        "budget": null
+    },
+    "constraints": {
+        "physicalLimitations": [],
+        "experienceLevel": "intermediate",
+        "previousChallenges": [
+            "Difficulty navigating through defenders in games"
+        ],
+        "riskFactors": []
+    },
+    "successIndicators": {
+        "measurementMethods": [
+            "Coach feedback during practice",
+            "Self-assessment of dribbling ability in game situations"
+        ],
+        "successDefinition": "Ability to dribble effectively through traffic during practice and games.",
+        "secondaryBenefits": [
+            "Increased confidence in handling the ball",
+            "Improved overall basketball skills"
+        ]
+    },
+    "extractionConfidence": {
+        "overallConfidence": "medium",
+        "missingInformation": [
+            "Specific measurable outcomes",
+            "Detailed timeline for achieving the goal"
+        ],
+        "assumptions": [
+            "Assuming Alice has access to a basketball and training facilities",
+            "Assuming she has the support of her coach for skill development"
+        ],
+        "suggestedQuestions": [
+            "What specific skills does Alice want to improve in her dribbling?",
+            "How will she measure her progress in dribbling through traffic?",
+            "What is her preferred timeline for achieving this goal?"
+        ]
+    },
+    "coachingFeedback": {
+        "dataQuality": "good",
+        "keyGapsIdentified": [
+            "Lack of measurable outcomes",
+            "No defined timeline for the goal"
+        ],
+        "improvementSuggestions": [
+            "Encourage Alice to set specific targets for her dribbling skills",
+            "Help her establish a timeline with milestones for tracking progress"
+        ],
+        "riskFlags": [
+            "Potential for frustration without clear progress indicators"
+        ],
+        "coachDevelopmentInsight": "Encouraging athletes to articulate specific skills they want to improve can lead to more structured and effective training plans."
+    }
+}

@@ -10,9 +10,9 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { LoadingSpinner } from "@/components/ui/loading";
 import { Textarea } from "@/components/ui/textarea";
 import type { GoalEvaluationResponse } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useMutation } from "urql";
 
@@ -179,39 +179,17 @@ export function GoalEvaluationDialog({
 				<DialogHeader>
 					<DialogTitle>Create New Goal</DialogTitle>
 				</DialogHeader>
-
-				<div className="flex flex-1 gap-6 overflow-hidden">
-					{/* Left Side - Input */}
-					<div className="flex-1 flex flex-col gap-4">
-						<div className="space-y-2">
-							<Label htmlFor="goal-text">Describe the goal:</Label>
-							<Textarea
-								id="goal-text"
-								value={goalText}
-								onChange={(e) => setGoalText(e.target.value)}
-								placeholder="Enter a detailed description of the training goal..."
-								className="min-h-[200px] resize-none"
-								disabled={evaluating || creating}
-							/>
-						</div>
-
-						<Button
-							onClick={handleEvaluate}
-							disabled={!goalText.trim() || evaluating || creating}
-							className="w-full"
-						>
-							{evaluating ? (
-								<>
-									<LoadingSpinner className="w-4 h-4 mr-2" />
-									Evaluating Goal...
-								</>
-							) : (
-								"Evaluate Goal"
-							)}
-						</Button>
+				<div className="gap-4">
+					<div className="flex-2 flex flex-col gap-4">
+						<Textarea
+							id="goal-text"
+							value={goalText}
+							onChange={(e) => setGoalText(e.target.value)}
+							placeholder="Enter a detailed description of the training goal..."
+							className="min-h-[200px] resize-none"
+							disabled={evaluating || creating}
+						/>
 					</div>
-
-					{/* Right Side - Feedback/Results */}
 					<div className="flex-1 flex flex-col gap-4 overflow-auto">
 						{evaluation && showFeedback && (
 							<>
@@ -265,7 +243,7 @@ export function GoalEvaluationDialog({
 												<strong>Coaching Recommendations:</strong>
 												<ul className="list-disc list-inside mt-1">
 													{evaluation.coachingFeedback.improvementSuggestions.map((suggestion, i) => (
-														<li key={i} className="text-sm">{suggestion}</li>
+														<li key={suggestion} className="text-sm">{suggestion}</li>
 													))}
 												</ul>
 											</AlertDescription>
@@ -288,7 +266,7 @@ export function GoalEvaluationDialog({
 									>
 										{creating ? (
 											<>
-												<LoadingSpinner className="w-4 h-4 mr-2" />
+												<Loader2 className="w-4 h-4 mr-2 animate-spin" />
 												Creating...
 											</>
 										) : (
@@ -309,19 +287,33 @@ export function GoalEvaluationDialog({
 									<p className="text-muted-foreground mb-4">
 										Your goal meets our quality standards and has been created automatically.
 									</p>
-									<LoadingSpinner className="w-8 h-8 mx-auto" />
+									<Loader2 className="w-8 h-8 mx-auto animate-spin" />
 									<p className="text-sm text-muted-foreground mt-2">Creating goal...</p>
 								</div>
 							</div>
 						)}
 
 						{!evaluation && !evaluating && (
-							<div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+							<div className="flex flex-col  h-full text-muted-foreground">
 								<p>Enter a goal description and click "Evaluate Goal" to see AI analysis and feedback.</p>
 							</div>
 						)}
 					</div>
 				</div>
+				<Button
+					onClick={handleEvaluate}
+					disabled={!goalText.trim() || evaluating || creating}
+					className="w-full"
+				>
+					{evaluating ? (
+						<>
+							<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+							Evaluating Goal...
+						</>
+					) : (
+						"Evaluate Goal"
+					)}
+				</Button>
 			</DialogContent>
 		</Dialog>
 	);

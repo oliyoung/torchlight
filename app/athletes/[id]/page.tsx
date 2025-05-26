@@ -45,16 +45,16 @@ const GoalsQuery = gql`
 export default function Page() {
     const { id } = useParams();
 
-    const [{ data, fetching, error }] = useQuery<{ athlete: Athlete; }>({ 
-        query: AthleteQuery, 
-        variables: { id }, 
-        pause: !id 
+    const [{ data, fetching, error }] = useQuery<{ athlete: Athlete; }>({
+        query: AthleteQuery,
+        variables: { id },
+        pause: !id
     });
 
-    const [{ data: goalsData, fetching: goalsFetching, error: goalsError }, refetchGoals] = useQuery<{ goals: Goal[] }>({ 
-        query: GoalsQuery, 
-        variables: { athleteId: id }, 
-        pause: !id 
+    const [{ data: goalsData, fetching: goalsFetching, error: goalsError }, refetchGoals] = useQuery<{ goals: Goal[] }>({
+        query: GoalsQuery,
+        variables: { athleteId: id },
+        pause: !id
     });
 
     if (fetching) return <Loading />;
@@ -66,11 +66,12 @@ export default function Page() {
     };
 
     return (
-        <>
-            <Breadcrumbs />
+        <div className="p-6 flex flex-col gap-4">
+            <Breadcrumbs breadcrumbs={[{ label: "Athletes", href: "/athletes" }, { label: data.athlete.lastName.toLocaleUpperCase(), href: "#" }]} />
             <Heading>
                 {data.athlete.firstName} {data.athlete.lastName.toLocaleUpperCase()}
             </Heading>
+
             <p className="text-gray-600 mb-1">
                 Email:{" "}
                 <span className="text-black dark:text-white">{data.athlete.email}</span>
@@ -99,8 +100,8 @@ export default function Page() {
 
             <section className="mt-8">
                 <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-semibold">Goals</h2>
-                    <GoalEvaluationDialog 
+                    <Heading level={2}>Goals</Heading>
+                    <GoalEvaluationDialog
                         athleteId={id as string}
                         onGoalCreated={handleGoalCreated}
                         trigger={
@@ -111,25 +112,24 @@ export default function Page() {
                         }
                     />
                 </div>
-                
+
                 {goalsFetching && <Loading />}
                 {goalsError && <ErrorMessage message={goalsError.toString()} />}
-                
+
                 {!goalsFetching && !goalsError && (
                     <div className="space-y-4">
                         {goalsData?.goals && goalsData.goals.length > 0 ? (
                             goalsData.goals.map((goal) => (
-                                <div 
-                                    key={goal.id} 
+                                <div
+                                    key={goal.id}
                                     className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg p-4"
                                 >
                                     <div className="flex items-start justify-between mb-2">
                                         <h3 className="font-semibold text-lg">{goal.title}</h3>
-                                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                            goal.status === 'ACTIVE' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+                                        <span className={`px-2 py-1 rounded text-xs font-medium ${goal.status === 'ACTIVE' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
                                             goal.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' :
-                                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                                        }`}>
+                                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                                            }`}>
                                             {goal.status}
                                         </span>
                                     </div>
@@ -159,6 +159,6 @@ export default function Page() {
                     </div>
                 )}
             </section>
-        </>
+        </div>
     );
 };

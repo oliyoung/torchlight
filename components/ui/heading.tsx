@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 
 interface HeadingProps {
@@ -8,13 +9,12 @@ interface HeadingProps {
 
 export const Heading: React.FC<HeadingProps> = ({
 	children,
-	level = 1,
-	className = "",
+	level = 1
 }) =>
 	React.createElement(
 		`h${level}`,
 		{
-			className: `text-2xl font-bold${level === 2 ? " text-xl" : ""} ${className}`,
+			className: cn("text-xl font-epilogue", level === 2 ? " text-xl" : "", level === 1 ? " text-3xl" : ""),
 		},
 		children,
 	);
