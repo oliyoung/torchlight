@@ -1,6 +1,6 @@
-import { updateTrainingPlan } from "./updateTrainingPlan";
+
 import { trainingPlanRepository } from "@/lib/repository";
-import { logger } from "@/lib/logger";
+import { updateTrainingPlan } from "../updateTrainingPlan";
 
 jest.mock("@/lib/repository");
 jest.mock("@/lib/logger");

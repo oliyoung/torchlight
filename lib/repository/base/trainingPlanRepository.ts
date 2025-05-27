@@ -1,5 +1,6 @@
 import { logger } from "@/lib/logger";
 import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
+import { athleteRepository } from "..";
 import { type EntityMapping, EntityRepository } from "./entityRepository";
 import { RelationRepository } from "./relationRepository";
 
@@ -86,21 +87,22 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
    */
   async createTrainingPlan(
     userId: string | null,
-    data: CreateTrainingPlanInput & { overview: string; planJson: any; generatedBy?: string; sourcePrompt?: string },
+    data: CreateTrainingPlanInput
   ): Promise<TrainingPlan | null> {
     if (!userId) return null;
 
     logger.info({ data }, "Creating training plan");
 
     try {
-      // Map the input fields to our database schema
+      const athlete = await athleteRepository.getAthleteById(userId, data.athleteId);
+
+      if (!athlete) {
+        logger.error({ data }, "Athlete not found");
+        return null;
+      }
+
       const dbTrainingPlan = {
-        title: data.overview ? `Training Plan - ${new Date().toLocaleDateString()}` : "New Training Plan",
-        overview: data.overview,
-        plan_json: data.planJson,
-        athlete_id: data.athleteId,
-        generated_by: data.generatedBy,
-        source_prompt: data.sourcePrompt
+        athlete: athlete
       };
 
       // Create the training plan
@@ -151,7 +153,6 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     try {
       // Create a flag to track if we need to update the main entity
       const hasEntityChanges = !!(
-        data.title !== undefined ||
         data.overview !== undefined ||
         data.planJson !== undefined ||
         data.athleteId !== undefined ||
@@ -165,7 +166,6 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
       if (hasEntityChanges) {
         const dbTrainingPlan: Record<string, unknown> = {};
 
-        if (data.title !== undefined) dbTrainingPlan.title = data.title;
         if (data.overview !== undefined) dbTrainingPlan.overview = data.overview;
         if (data.planJson !== undefined) dbTrainingPlan.plan_json = data.planJson;
         if (data.athleteId !== undefined) dbTrainingPlan.athlete_id = data.athleteId;

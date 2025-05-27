@@ -58,10 +58,10 @@ export const callOpenAI = async <T>(
         }
         return {};
     } catch (error) {
-        if (JSON.parse(error as string).status === "401") {
-            logger.error("OpenAI Authorisation Error ");
+        if (error instanceof OpenAI.APIError) {
+            logger.error({ error }, "OpenAI API Error.");
+            return {};
         }
-        logger.error({ error }, "Error calling OpenAI API.");
         return {};
     }
 };

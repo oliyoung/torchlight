@@ -292,13 +292,12 @@ input CreateTrainingPlanInput {
 }
 
 """
-Input for AI session planning and generation.
-Creates suggested session content based on athlete goals and historical data.
+Input for AI training plan generation.
+Creates suggested training plan content based on athlete goals and historical data.
 """
-input AIGenerateSessionInput {
+input AIGenerateTrainingPlanInput {
 	athleteId: ID! # The athlete to generate a session for
 	goalIds: [ID!]! # Goals to focus on in the session
-	sessionLogIds: [ID!]! # Previous sessions to consider for context
 }
 
 """
@@ -534,7 +533,7 @@ type Mutation {
 
 	# AI-powered mutations
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog! # Generate AI summary for session
-	generateSession(input: AIGenerateSessionInput!): SessionLog! # Generate AI session plan
+	generateTrainingPlan(input: AIGenerateTrainingPlanInput!): TrainingPlan! # Generate AI training plan
 	analyzeProgress(input: AIAnalyzeProgressInput!): String! # Analyze athlete progress with AI
 	extractAndEvaluateGoal(
 		input: AIExtractAndEvaluateGoalInput!

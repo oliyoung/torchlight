@@ -1,0 +1,8 @@
+{
+	"client": {
+		"service": {
+			"name": "coachbase",
+			"url": "http://localhost:3000/api/graphql"
+		}
+	}
+}

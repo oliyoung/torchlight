@@ -1,5 +1,5 @@
-import { generateContentWithAI } from "@/ai/lib/aiClient";
 import { loadPrompt } from "@/ai/lib/promptLoader";
+import { callOpenAI } from "@/ai/providers/openai";
 import { logger } from "@/lib/logger";
 import {
     athleteRepository,
@@ -7,14 +7,20 @@ import {
     sessionLogRepository,
 } from "@/lib/repository";
 import type {
-    AiAnalyzeProgressInput,
     Athlete,
     Goal,
-    SessionLog,
 } from "@/lib/types";
+import { z } from "zod";
 
 // Define the path to the progress analysis prompt file
 const PROGRESS_ANALYSIS_PROMPT_FILE = "ai/prompts/progress_analysis.prompt.yml";
+
+const analyzeProgressSchema = z.object({
+    planJson: z.string(),
+    overview: z.string(),
+});
+
+export type AnalyzeProgressResponse = z.infer<typeof analyzeProgressSchema>;
 
 /**
  * Analyzes an athlete's progress over a specified date range using AI.
@@ -31,7 +37,7 @@ export const analyzeProgressAI = async (
     startDate: string, // Assuming date strings in input
     endDate: string, // Assuming date strings in input
     userId: string | null,
-): Promise<string> => {
+): Promise<AnalyzeProgressResponse> => {
     logger.info(
         { userId, athleteId, startDate, endDate },
         "Starting AI progress analysis for athlete",
@@ -61,11 +67,9 @@ export const analyzeProgressAI = async (
 
         // Fetch session logs within the date range
         const sessionLogs =
-            await sessionLogRepository.getSessionLogsByAthleteIdAndDateRange(
+            await sessionLogRepository.getSessionLogsByAthleteId(
                 userId,
-                athleteId,
-                new Date(startDate),
-                new Date(endDate),
+                athleteId
             );
 
         // Load and parse the prompt file
@@ -107,42 +111,42 @@ export const analyzeProgressAI = async (
             (
                 new Date().getFullYear() -
                 new Date(athlete.birthday ?? "1980-01-01").getFullYear()
-            ).toString() || "N/A",
+            ).toString() ?? "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{gender}}",
-            athlete.gender || "N/A",
+            athlete.gender ?? "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{fitnessLevel}}",
-            athlete.fitnessLevel || "N/A",
+            athlete.fitnessLevel ? String(athlete.fitnessLevel) : "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{trainingHistory}}",
-            athlete.trainingHistory || "N/A",
+            athlete.trainingHistory ?? "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{height}}",
-            athlete.height?.toString() || "N/A",
+            athlete.height?.toString() ?? "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{weight}}",
-            athlete.weight?.toString() || "N/A",
+            athlete.weight?.toString() ?? "N/A",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{athleteNotes}}",
-            athlete.notes || "None",
+            athlete.notes ?? "None",
         );
         // Populate goal and session log context
         populatedUserMessage = populatedUserMessage.replace(
             "{{activeGoals}}",
             goals
-                .map((g) => `${g.title} (ID: ${g.id}): ${g.description || "N/A"}`)
-                .join("\n") || "None",
+                .map((g) => `${g.title} (ID: ${g.id}): ${g.description ?? "N/A"}`)
+                .join("\n") ?? "None",
         );
         populatedUserMessage = populatedUserMessage.replace(
             "{{sessionLogs}}",
-            sessionLogsContext || "None",
+            sessionLogsContext ?? "None",
         );
         // Populate date range
         populatedUserMessage = populatedUserMessage.replace(
@@ -164,7 +168,13 @@ export const analyzeProgressAI = async (
 
         // Call the generic AI client function - expecting string output for analysis
         const generatedContent =
-            await generateContentWithAI<AiAnalyzeProgressInput>(finalPrompt);
+            await callOpenAI(
+                promptFileContent.model,
+                Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
+                systemMessage,
+                populatedUserMessage,
+                analyzeProgressSchema
+            );
 
         if (!generatedContent || typeof generatedContent !== "string") {
             // Expecting a string output for this feature

@@ -38,13 +38,12 @@ export type AiExtractAndEvaluateGoalInput = {
 };
 
 /**
- * Input for AI session planning and generation.
- * Creates suggested session content based on athlete goals and historical data.
+ * Input for AI training plan generation.
+ * Creates suggested training plan content based on athlete goals and historical data.
  */
-export type AiGenerateSessionInput = {
+export type AiGenerateTrainingPlanInput = {
   athleteId: Scalars['ID']['input'];
   goalIds: Array<Scalars['ID']['input']>;
-  sessionLogIds: Array<Scalars['ID']['input']>;
 };
 
 /**
@@ -340,7 +339,7 @@ export type Mutation = {
   deleteGoal: Scalars['Boolean']['output'];
   deleteSessionLog: Scalars['Boolean']['output'];
   extractAndEvaluateGoal: GoalEvaluationResponse;
-  generateSession: SessionLog;
+  generateTrainingPlan: TrainingPlan;
   summarizeSessionLog: SessionLog;
   updateAthlete: Athlete;
   updateGoal: Goal;
@@ -444,8 +443,8 @@ export type MutationExtractAndEvaluateGoalArgs = {
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
  */
-export type MutationGenerateSessionArgs = {
-  input: AiGenerateSessionInput;
+export type MutationGenerateTrainingPlanArgs = {
+  input: AiGenerateTrainingPlanInput;
 };
 
 
@@ -879,7 +878,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   AIAnalyzeProgressInput: AiAnalyzeProgressInput;
   AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
-  AIGenerateSessionInput: AiGenerateSessionInput;
+  AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
   AIMetadata: ResolverTypeWrapper<AiMetadata>;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
   Assistant: ResolverTypeWrapper<Assistant>;
@@ -931,7 +930,7 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   AIAnalyzeProgressInput: AiAnalyzeProgressInput;
   AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
-  AIGenerateSessionInput: AiGenerateSessionInput;
+  AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
   AIMetadata: AiMetadata;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
   Assistant: Assistant;
@@ -1135,7 +1134,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
   deleteSessionLog?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSessionLogArgs, 'id'>>;
   extractAndEvaluateGoal?: Resolver<ResolversTypes['GoalEvaluationResponse'], ParentType, ContextType, RequireFields<MutationExtractAndEvaluateGoalArgs, 'input'>>;
-  generateSession?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationGenerateSessionArgs, 'input'>>;
+  generateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationGenerateTrainingPlanArgs, 'input'>>;
   summarizeSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationSummarizeSessionLogArgs, 'input'>>;
   updateAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationUpdateAthleteArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;

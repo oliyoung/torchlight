@@ -1,4 +1,3 @@
-import { generateContentWithAI } from '@/ai/lib/aiClient';
 import { loadPrompt } from '@/ai/lib/promptLoader';
 import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from '@/lib/logger';
@@ -6,9 +5,18 @@ import { assistantRepository, sessionLogRepository, trainingPlanRepository } fro
 import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
 import { TrainingPlanStatus } from '@/lib/types';
 import type { PubSub } from 'graphql-subscriptions';
+import { z } from 'zod';
+import { callOpenAI } from '../providers/openai';
 
 // Define the path to the training plan prompt file
 const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/training_plan.prompt.yml';
+
+const trainingPlanResponseSchema = z.object({
+    planJson: z.string(),
+    overview: z.string(),
+});
+
+export type TrainingPlanResponse = z.infer<typeof trainingPlanResponseSchema>;
 
 /**
  * Generates training plan content using AI based on athlete data, goals, and session logs.
@@ -83,7 +91,13 @@ export async function generateTrainingPlanContent(
 
         logger.info({ finalPrompt }, "Generated Prompt");
 
-        const generatedContent = await generateContentWithAI<TrainingPlan>(finalPrompt);
+        const generatedContent = await callOpenAI(
+            promptFileContent.model,
+            Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
+            systemMessage,
+            populatedUserMessage,
+            trainingPlanResponseSchema
+        );
 
         if (!generatedContent || !generatedContent) {
             logger.error("AI content generation failed or returned empty.");

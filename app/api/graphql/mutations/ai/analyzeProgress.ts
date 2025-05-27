@@ -1,4 +1,7 @@
-import { analyzeProgressAI } from '@/ai/features/analyzeProgressAI'; // Import the AI feature function
+import {
+    type AnalyzeProgressResponse,
+    analyzeProgressAI,
+} from "@/ai/features/analyzeProgressAI"; // Import the AI feature function
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiAnalyzeProgressInput } from "@/lib/types";
@@ -16,8 +19,8 @@ import type { AiAnalyzeProgressInput } from "@/lib/types";
 export const analyzeProgress = async (
     _: unknown,
     { input }: { input: AiAnalyzeProgressInput },
-    context: GraphQLContext
-): Promise<string> => {
+    context: GraphQLContext,
+): Promise<AnalyzeProgressResponse> => {
     logger.info({ input }, "analyzeProgress mutation called");
 
     const athleteId = input.athleteId;
@@ -32,11 +35,22 @@ export const analyzeProgress = async (
 
     try {
         // Delegate the core progress analysis logic to the AI feature function
-        const analysisResult = await analyzeProgressAI(athleteId, startDate, endDate, userId);
-        logger.info({ athleteId, startDate, endDate }, "analyzeProgress mutation completed successfully.");
+        const analysisResult = await analyzeProgressAI(
+            athleteId,
+            startDate,
+            endDate,
+            userId,
+        );
+        logger.info(
+            { athleteId, startDate, endDate },
+            "analyzeProgress mutation completed successfully.",
+        );
         return analysisResult;
     } catch (error) {
-        logger.error({ athleteId, userId, startDate, endDate, error }, "Error in analyzeProgress mutation.");
+        logger.error(
+            { athleteId, userId, startDate, endDate, error },
+            "Error in analyzeProgress mutation.",
+        );
         // Rethrow the error to be handled by the GraphQL error handling layer
         throw error;
     }

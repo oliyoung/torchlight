@@ -1,8 +1,8 @@
 import { loadPrompt } from "@/ai/lib/promptLoader";
+import { callOpenAI } from "@/ai/providers/openai";
 import { logger } from "@/lib/logger";
 import { athleteRepository } from "@/lib/repository";
 import { z } from "zod";
-import { callOpenAI } from "../providers/openai";
 
 // Define the path to the goal evaluation prompt file
 const GOAL_EVALUATION_PROMPT_FILE = "ai/prompts/goal_evaluation.prompt.yml";
@@ -194,10 +194,12 @@ export const extractAndEvaluateGoalAI = async (
             "Generated prompt for goal evaluation"
         );
 
+        const temperature = Number(promptFileContent?.modelParameters?.temperature) ?? 0.9;
+
         // Call the AI client with structured output
         const evaluationResult = await callOpenAI(
             promptFileContent.model,
-            Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
+            temperature,
             systemMessage,
             populatedUserMessage,
             goalEvaluationResponseSchema
