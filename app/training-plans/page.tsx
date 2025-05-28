@@ -10,8 +10,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Heading } from "@/components/ui/heading";
 import { Loading } from "@/components/ui/loading";
+import { PageWrapper } from "@/components/ui/page-wrapper";
 import { logger } from "@/lib/logger";
 import type { TrainingPlan } from "@/lib/types";
 import { PlusIcon } from "lucide-react";
@@ -51,8 +51,6 @@ function TrainingPlansList() {
 			/>
 		);
 	}
-
-	logger.info({ data }, "Training plans data");
 
 	if (!data?.trainingPlans?.length) {
 		return (
@@ -105,7 +103,6 @@ function TrainingPlansList() {
 							</CardTitle>
 							{plan.athlete && (
 								<CardDescription>
-
 									{plan.overview && (
 										<p className="text-sm text-muted-foreground line-clamp-3 mb-2">
 											{plan.overview}
@@ -139,23 +136,20 @@ function TrainingPlansList() {
 
 export default function TrainingPlansPage() {
 	return (
-		<>
-			<Breadcrumbs />
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-				<div className="space-y-1">
-					<Heading>Training Plans</Heading>
-					<CardDescription className="text-sm text-muted-foreground">
-						Create and manage all your athlete training plans in one place
-					</CardDescription>
-				</div>
-				<Button asChild size="sm">
-					<Link href="/training-plans/new" className="whitespace-nowrap">
-						<PlusIcon className="w-4 h-4 mr-2" aria-hidden="true" />
+		<PageWrapper
+			title="Training Plans"
+			description="Create and manage all your athlete training plans in one place"
+			breadcrumbs={[{ label: "Training Plans", href: "/training-plans" }]}
+			actions={
+				<Button asChild>
+					<Link href="/training-plans/new">
+						<PlusIcon className="w-4 h-4 mr-2" />
 						New Training Plan
 					</Link>
 				</Button>
-			</div>
+			}
+		>
 			<TrainingPlansList />
-		</>
+		</PageWrapper>
 	);
 }

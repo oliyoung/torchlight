@@ -99,12 +99,8 @@
   --secondary: hsl(192, 5%, 44%);
   --secondary-foreground: hsl(192, 14%, 87%);
 
-  --card: hsl(42,
-      100%,
-      70%);
-  --card-foreground: hsl(42,
-      100%,
-      7%);
+  --card: hsl(0, 0%, 95%);
+  --card-foreground: hsl(42, 100%, 7%);
 
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);

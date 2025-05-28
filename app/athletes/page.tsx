@@ -1,13 +1,14 @@
 "use client";
-import Breadcrumbs from "@/components/breadcrumbs";
+
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Heading } from "@/components/ui/heading";
+import { PageCard, PageGrid, PageWrapper } from "@/components/ui/page-wrapper";
 import type { Athlete } from "@/lib/types";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { useQuery } from "urql";
+
 const AthletesQuery = `
 	query {
 		athletes {
@@ -32,39 +33,42 @@ function AthletesList() {
 		);
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+		<PageGrid columns={4}>
 			{data?.athletes?.map((athlete) => (
-				<div
+				<PageCard
 					key={athlete.id}
-					className="border rounded px-3 py-2"
+					className="hover:shadow-md transition-shadow"
 				>
-					<Link
-						href={`/athletes/${athlete.id}`}
-						className="font-epilogue text-lg"
-					>
-						{athlete.firstName} {athlete.lastName}
+					<Link href={`/athletes/${athlete.id}`} className="block">
+						<h3 className="font-epilogue text-lg font-medium">
+							{athlete.firstName} {athlete.lastName}
+						</h3>
+						<p className="text-sm text-muted-foreground mt-1">
+							{athlete.sport}
+						</p>
 					</Link>
-					<p className="text-xs text-muted-foreground">{athlete.sport}</p>
-				</div>
+				</PageCard>
 			))}
-		</div>
+		</PageGrid>
 	);
 }
 
-export default function AthleteListPage() {
+export default function Page() {
 	return (
-		<div className="p-6 flex flex-col gap-4">
-			<Breadcrumbs breadcrumbs={[{ label: "Athletes", href: "/athletes" }]} />
-			<div className="flex flex-row justify-between">
-				<Heading>Athletes</Heading>
-				<Button asChild accessKey="a">
+		<PageWrapper
+			title="Athletes"
+			description="Manage and view all your athletes"
+			breadcrumbs={[{ label: "Athletes", href: "/athletes" }]}
+			actions={
+				<Button asChild>
 					<Link href="/athletes/new">
-						<PlusIcon className="w-4 h-4" />
+						<PlusIcon className="w-4 h-4 mr-2" />
 						Add Athlete
 					</Link>
 				</Button>
-			</div>
+			}
+		>
 			<AthletesList />
-		</div>
+		</PageWrapper>
 	);
 }

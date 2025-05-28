@@ -88,7 +88,7 @@ const { handleRequest } = createYoga<GraphQLContext>({
           try {
             const athleteId = parent.athlete_id ?? parent.athlete?.id;
             if (!athleteId) return null;
-            return context.loaders.athlete.load(athleteId);
+            return await context.loaders.athlete.load(athleteId);
           } catch (error) {
             logger.error({ error, parent }, 'Error resolving training plan athlete');
             return null;

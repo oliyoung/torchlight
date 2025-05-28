@@ -1,5 +1,6 @@
 "use client";
 import Breadcrumbs from "@/components/breadcrumbs";
+import { AthleteCombobox } from "@/components/ui/athlete-combobox";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -9,10 +10,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { AthleteCombobox } from "@/components/ui/athlete-combobox";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { GoalMultiSelect } from "@/components/ui/goal-multi-select";
 import { Loading } from "@/components/ui/loading";
+import { PageWrapper } from "@/components/ui/page-wrapper";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -68,12 +69,13 @@ const NewTrainingPlanForm: React.FC = () => {
 	const athleteId = searchParams.get("athleteId");
 	const router = useRouter();
 
-	const [{ data: athleteData, fetching: athleteFetching, error: athleteError }] =
-		useQuery({
-			query: AthleteQuery,
-			variables: { id: athleteId || "" },
-			pause: !athleteId,
-		});
+	const [
+		{ data: athleteData, fetching: athleteFetching, error: athleteError },
+	] = useQuery({
+		query: AthleteQuery,
+		variables: { id: athleteId || "" },
+		pause: !athleteId,
+	});
 
 	const selectedAthleteIdRef = useRef<string | null>(athleteId);
 	const [{ data: goalsData, fetching: goalsFetching }] = useQuery({
@@ -150,94 +152,89 @@ const NewTrainingPlanForm: React.FC = () => {
 	}
 
 	return (
-		<Card className="max-w-md mx-auto mt-8 shadow">
-			<CardHeader>
-				<CardTitle>{`Create Training Plan ${athleteName}`}</CardTitle>
-				<CardDescription>
-					Create a personalized training plan to help your athlete achieve their
-					fitness goals
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form
-					id="new-training-plan-form"
-					onSubmit={handleSubmit(onSubmit)}
-					className="space-y-6"
-				>
-					{result.error && <ErrorMessage message={result.error.message} />}
-					{success && (
-						<SuccessMessage message="Training plan created successfully! Redirecting..." />
-					)}
+		<>
+			<form
+				id="new-training-plan-form"
+				onSubmit={handleSubmit(onSubmit)}
+				className="space-y-6"
+			>
+				{result.error && <ErrorMessage message={result.error.message} />}
+				{success && (
+					<SuccessMessage message="Training plan created successfully! Redirecting..." />
+				)}
+				<div>
+					<Controller
+						name="athleteId"
+						control={control}
+						render={({ field }) => (
+							<AthleteCombobox
+								label="Athlete"
+								value={field.value}
+								onChange={(value) => {
+									field.onChange(value);
+									// Reset goals when athlete changes
+									setValue("goalIds", []);
+								}}
+								error={errors.athleteId?.message}
+								disabled={!!athleteId} // Disable if athleteId is provided in URL
+							/>
+						)}
+					/>
+				</div>
+
+				{selectedAthleteId && (
 					<div>
 						<Controller
-							name="athleteId"
+							name="goalIds"
 							control={control}
 							render={({ field }) => (
-								<AthleteCombobox
-									label="Athlete"
-									value={field.value}
-									onChange={(value) => {
-										field.onChange(value);
-										// Reset goals when athlete changes
-										setValue("goalIds", []);
-									}}
-									error={errors.athleteId?.message}
-									disabled={!!athleteId} // Disable if athleteId is provided in URL
+								<GoalMultiSelect
+									label="Athlete Goals"
+									goals={goals}
+									selectedGoalIds={field.value || []}
+									onChange={field.onChange}
+									placeholder="Select athlete goals to include"
+									disabled={isLoadingGoals}
+									error={errors.goalIds?.message}
 								/>
 							)}
 						/>
+						{isLoadingGoals && (
+							<p className="text-sm text-muted-foreground mt-2">
+								Loading athlete goals...
+							</p>
+						)}
+						{!isLoadingGoals && goals.length === 0 && (
+							<p className="text-sm text-muted-foreground mt-2">
+								This athlete has no goals yet
+							</p>
+						)}
 					</div>
-
-					{selectedAthleteId && (
-						<div>
-							<Controller
-								name="goalIds"
-								control={control}
-								render={({ field }) => (
-									<GoalMultiSelect
-										label="Athlete Goals"
-										goals={goals}
-										selectedGoalIds={field.value || []}
-										onChange={field.onChange}
-										placeholder="Select athlete goals to include"
-										disabled={isLoadingGoals}
-										error={errors.goalIds?.message}
-									/>
-								)}
-							/>
-							{isLoadingGoals && (
-								<p className="text-sm text-muted-foreground mt-2">
-									Loading athlete goals...
-								</p>
-							)}
-							{!isLoadingGoals && goals.length === 0 && (
-								<p className="text-sm text-muted-foreground mt-2">
-									This athlete has no goals yet
-								</p>
-							)}
-						</div>
-					)}
-				</form>
-			</CardContent>
-			<CardFooter>
-				<Button
-					type="submit"
-					form="new-training-plan-form"
-					disabled={isSubmitting || result.fetching}
-					className="w-full"
-				>
-					{result.fetching ? "Creating..." : "Create Training Plan"}
-				</Button>
-			</CardFooter>
-		</Card>
+				)}
+			</form>
+			<Button
+				type="submit"
+				form="new-training-plan-form"
+				disabled={isSubmitting || result.fetching}
+				className="w-full"
+			>
+				{result.fetching ? "Creating..." : "Create Training Plan"}
+			</Button>
+		</>
 	);
 };
 
 export default function NewTrainingPlanPage() {
 	return (
-		<>
-			<Breadcrumbs />
+		<PageWrapper
+			title="Add New Training Plan"
+			description="Add a new training plan to your database"
+			breadcrumbs={[
+				{ label: "Training Plans", href: "/training-plans" },
+				{ label: "New", href: "/training-plans/new" },
+			]}
+		>
 			<NewTrainingPlanForm />
-		</>
+		</PageWrapper>
 	);
 }

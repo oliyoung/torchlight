@@ -3,6 +3,7 @@
 import Breadcrumbs from "@/components/breadcrumbs";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Heading } from "@/components/ui/heading";
+import { PageCard, PageGrid, PageWrapper } from "@/components/ui/page-wrapper";
 import type { Assistant } from "@/lib/types";
 import { useQuery } from "urql";
 const AssistantsQuery = `
@@ -30,11 +31,11 @@ function AssistantsList() {
 		);
 
 	return (
-		<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-4">
+		<PageGrid columns={4}>
 			{data?.assistants?.map((assistant) => (
-				<div
+				<PageCard
 					key={assistant.id}
-					className="border rounded px-3 py-2 bg-white shadow-sm"
+					className="hover:shadow-md transition-shadow"
 				>
 					<div className="font-semibold text-lg">{assistant.name}</div>
 					<div className="text-sm text-muted-foreground">
@@ -49,19 +50,21 @@ function AssistantsList() {
 							{assistant.bio}
 						</div>
 					)}
-				</div>
+				</PageCard>
 			))}
-		</div>
+		</PageGrid>
 	);
 }
 
 const AssistantsPage = () => {
 	return (
-		<>
-			<Breadcrumbs />
-			<Heading>Assistants</Heading>
+		<PageWrapper
+			title="Assistants"
+			description="Manage and view all your assistants"
+			breadcrumbs={[{ label: "Assistants", href: "/assistants" }]}
+		>
 			<AssistantsList />
-		</>
+		</PageWrapper>
 	);
 };
 

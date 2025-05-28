@@ -2,13 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Input } from "@/components/ui/input";
+import { PageWrapper } from "@/components/ui/page-wrapper";
 import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type * as React from "react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
 
@@ -69,11 +69,7 @@ const NewAthleteForm: React.FC = () => {
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit(onSubmit)}
-			className="max-w-md mx-auto mt-8 space-y-6 bg-white p-6 rounded-lg shadow"
-		>
-			<h1 className="text-2xl font-bold mb-2">Add New Athlete</h1>
+		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 			{result.error && <ErrorMessage message={result.error.message} />}
 			{success && <SuccessMessage message="Athlete created successfully!" />}
 			<div>
@@ -199,4 +195,17 @@ const NewAthleteForm: React.FC = () => {
 	);
 };
 
-export default NewAthleteForm;
+export default function Page() {
+	return (
+		<PageWrapper
+			title="Add New Athlete"
+			description="Add a new athlete to your database"
+			breadcrumbs={[
+				{ label: "Athletes", href: "/athletes" },
+				{ label: "New", href: "/athletes/new" },
+			]}
+		>
+			<NewAthleteForm />
+		</PageWrapper>
+	);
+}

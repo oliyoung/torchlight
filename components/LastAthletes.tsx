@@ -31,7 +31,6 @@ const LastAthletes: React.FC = () => {
 
 	return (
 		<Card className="p-4">
-			<h2 className="text-lg font-bold mb-2">Last 5 Updated Athletes</h2>
 			{fetching ? (
 				<div>Loading athletes...</div>
 			) : error ? (
@@ -42,7 +41,7 @@ const LastAthletes: React.FC = () => {
 						<li key={athlete.id}>
 							<Link
 								href={`/athletes/${athlete.id}`}
-								className="text-primary underline"
+								className="text-primary underline hover:text-primary/80"
 							>
 								{athlete.firstName} {athlete.lastName}
 							</Link>

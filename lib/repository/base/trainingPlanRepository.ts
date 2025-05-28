@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
-import { athleteRepository } from "..";
+import { TrainingPlanStatus } from "@/lib/types";
 import { type EntityMapping, EntityRepository } from "./entityRepository";
 import { RelationRepository } from "./relationRepository";
 
@@ -30,7 +30,10 @@ const trainingPlanMapping: EntityMapping<TrainingPlan> = {
       frequency: data.frequency || null,
       duration: data.duration || null,
       summary: data.summary || null,
-    } as TrainingPlan;
+      // These will be populated by GraphQL resolvers
+      athlete: undefined,
+      status: TrainingPlanStatus.Draft, // Default status
+    } as unknown as TrainingPlan;
   }
 };
 
@@ -94,15 +97,10 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     logger.info({ data }, "Creating training plan");
 
     try {
-      const athlete = await athleteRepository.getAthleteById(userId, data.athleteId);
-
-      if (!athlete) {
-        logger.error({ data }, "Athlete not found");
-        return null;
-      }
-
+      // Remove the athlete lookup - just use the athleteId directly
       const dbTrainingPlan = {
-        athlete: athlete
+        athlete_id: data.athleteId,
+        status: TrainingPlanStatus.Draft // Set initial status
       };
 
       // Create the training plan

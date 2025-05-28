@@ -18,7 +18,7 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Implement MCP (Model Context Protocol) integration
 - [ ] Session transcript analysis for automatic tagging
 - [ ] AI-powered progress tracking and trend identification
-- [ ] Personalized plan generation based on athlete history
+- [x] Personalized plan generation based on athlete history
 - [ ] Coach conversation analysis with insight extraction
 - [ ] Voice transcription for in-session recording
 - [ ] Risk detection for potential athlete challenges/roadblocks
@@ -27,7 +27,7 @@ This document tracks planned features and future ideas for the congenial-carniva
 
 - [ ] Automated Progress Narratives (generate athlete progress stories)
 - [ ] Personalized Motivation Nudges (contextual encouragements/reminders)
-- [ ] Goal Refinement Assistant (SMART goal suggestions and flagging)
+- [x] Goal Refinement Assistant (SMART goal suggestions and flagging)
 - [ ] Session Log Sentiment & Theme Analysis (emotional tone, recurring themes)
 - [ ] Risk & Burnout Detection (early warning for overtraining/disengagement)
 - [ ] Automated Action Item Extraction (from session notes/transcripts)

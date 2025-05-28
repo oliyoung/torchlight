@@ -10,23 +10,16 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { UrqlProvider } from "@/components/ui/urql-provider";
 
 const inter = Inter({
-	variable: '--font-inter',
-	subsets: ['latin'],
-	display: 'swap',
+	variable: "--font-inter",
+	subsets: ["latin"],
+	display: "swap",
 });
 
 const sourceSansPro = Source_Sans_3({
-	variable: '--font-source-sans-pro',
-	subsets: ['latin'],
-	display: 'swap',
-	weight: ['400', '600'], // Specify the weights you need
-});
-
-const epilogue = Epilogue({
-	variable: '--font-epilogue',
-	subsets: ['latin'],
-	display: 'swap',
-	weight: ['400', '600'], // Specify the weights you need
+	variable: "--font-source-sans-pro",
+	subsets: ["latin"],
+	display: "swap",
+	weight: ["400", "600"], // Specify the weights you need
 });
 
 export const metadata: Metadata = {
@@ -36,15 +29,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
 	children,
-}: { children: React.ReactNode }) {
+}: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en">
-			<body className="antialiased">
+			<body
+				className={`antialiased ${inter.className} ${sourceSansPro.className}`}
+			>
 				<UrqlProvider>
 					<SidebarProvider>
 						<AppSidebar />
 						<SidebarInset>
-							<Header />
+							{/* <Header /> */}
 							<main className="bg-background text-foreground flex-col align-top flex flex-1 gap-2">
 								{children}
 							</main>
