@@ -1,8 +1,7 @@
-import React from "react";
-import { Search } from "@/components/ui/search-input";
 import { Menu } from "@/components/ui/menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Search } from "@/components/ui/search-input";
 import { Separator } from "@/components/ui/separator";
+import React from "react";
 const Header = () => {
 	return (
 		<header className="p-4 border-b border-slate-200 flex items-center justify-between">

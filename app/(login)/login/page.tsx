@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
+import { supabase } from "@/lib/supabase";
+import type React from "react";
+import { useState } from "react";
 
-const Auth = () => {
+export default () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
@@ -89,5 +90,3 @@ const Auth = () => {
 		</div>
 	);
 };
-
-export default Auth;

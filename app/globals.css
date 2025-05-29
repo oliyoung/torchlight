@@ -19,6 +19,9 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
+  --page-background: oklch(0.97 0.001 106.424);
+  --screen-background: oklch(0.97 0.001 106.424);
+
   --font-sans: var(--font-source-sans-pro);
   --font-mono: var(--font-geist-mono);
 
@@ -64,34 +67,12 @@
   }
 }
 
-/*
-                                // Renamed colors based on purpose and intent
-                                'brand-primary': '#B8DBD9',
-                                // Deep Sage - Primary brand color
-                                'text-primary': '#141414',
-                                // Warm Charcoal - Main text and interface elements
-                                'background-primary': '#F4F4F9',
-                                // Soft Cream - Primary background
-                                'action-secondary': '#6C7B95',
-                                // Dusty Blue - Secondary actions, calm focus states
-                                'highlight-accent': '#D47B47',
-                                // Clay Orange - Accent color for highlights
-                                'text-support': '#8B9DC3',
-                                // Warm Gray - Supporting text and subtle elements
-                                'status-success': '#7FB069',
-                                // Sage Green - Success, progress, positive feedback
-                                'status-warning': '#F4A261',
-                                // Soft Amber - Warnings, attention needed
-                                'status-alert': '#E76F51',
-                                // Muted Coral - Alerts, important notices
-                                'background-subtle': '#E8F5E8',
-                                // Light Sage - Subtle backgrounds, hover states */
-
 :root {
   --radius: 0.625rem;
 
-  --background: hsla(0, 0%, 100%, 0.909);
-  --foreground: hsl(0, 0%, 19%);
+  --background: oklch(0.869 0.005 56.366);
+  --foreground: oklch(0.268 0.007 34.298);
+
 
   --primary: hsl(346, 84%, 61%);
   --primary-foreground: hsl(0, 0%, 100%);

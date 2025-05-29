@@ -175,7 +175,7 @@ export function GoalEvaluationDialog({
 			<DialogTrigger asChild>
 				{trigger || <Button>Add Goal</Button>}
 			</DialogTrigger>
-			<DialogContent className="flex flex-col">
+			<DialogContent className="flex flex-col bg-white">
 				<DialogHeader>
 					<DialogTitle>Create New Goal</DialogTitle>
 				</DialogHeader>
