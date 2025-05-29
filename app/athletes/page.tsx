@@ -37,19 +37,13 @@ function AthletesList() {
 			{data?.athletes?.map((athlete) => (
 				<PageCard
 					key={athlete.id}
-					className="hover:shadow-md transition-shadow"
-				>
-					<Link href={`/athletes/${athlete.id}`} className="block">
-						<h3 className="font-epilogue text-lg font-medium">
-							{athlete.firstName} {athlete.lastName}
-						</h3>
-						<p className="text-sm text-muted-foreground mt-1">
-							{athlete.sport}
-						</p>
-					</Link>
-				</PageCard>
-			))}
-		</PageGrid>
+					href={`/athletes/${athlete.id}`}
+					title={`${athlete.firstName} ${athlete.lastName}`}
+					subtitle={athlete.sport}
+				>&nbsp;</PageCard>
+			))
+			}
+		</PageGrid >
 	);
 }
 

@@ -2,10 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import Breadcrumbs, { type BreadcrumbItemType } from "../breadcrumbs";
 import { Heading } from "./heading";
+import { LoadingSpinner } from "./loading";
 
 interface PageWrapperProps {
 	children: ReactNode;
@@ -13,20 +15,18 @@ interface PageWrapperProps {
 	title?: string;
 	description?: string;
 	actions?: ReactNode;
+	isLoading?: boolean;
 	breadcrumbs?: BreadcrumbItemType[];
-	fullWidth?: boolean;
-	noPadding?: boolean;
 }
 
 export function PageWrapper({
 	children,
 	className,
 	title,
+	isLoading,
 	description,
 	actions,
 	breadcrumbs,
-	fullWidth = false,
-	noPadding = false,
 }: Readonly<PageWrapperProps>) {
 	return (
 		<motion.div
@@ -34,31 +34,20 @@ export function PageWrapper({
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.3, ease: "easeOut" }}
 			className={cn(
-				"min-h-[calc(100vh-4rem)]", // Account for navbar height
-				!noPadding && "py-6 sm:py-8",
+				"min-h-[calc(100vh-4rem)] py-6 px-6",
 				className,
 			)}
 		>
 			{/* Breadcrumbs */}
 			{breadcrumbs && (
-				<div
-					className={cn(
-						"mb-4",
-						!fullWidth && "container mx-auto px-4 sm:px-6 lg:px-8",
-					)}
-				>
+				<div className={cn("mb-4")}>
 					<Breadcrumbs breadcrumbs={breadcrumbs} />
 				</div>
 			)}
-
+			{isLoading && <LoadingSpinner />}
 			{/* Page Header */}
 			{(title || description || actions) && (
-				<div
-					className={cn(
-						"mb-6 sm:mb-8",
-						!fullWidth && "container mx-auto px-4 sm:px-6 lg:px-8",
-					)}
-				>
+				<div className={cn("mb-6 sm:mb-8")} >
 					<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div className="space-y-1">
 							{title && <Heading>{title}</Heading>}
@@ -72,16 +61,9 @@ export function PageWrapper({
 					</div>
 				</div>
 			)}
-
-			{/* Page Content */}
-			<div
-				className={cn(
-					!fullWidth && "container mx-auto px-4 sm:px-6 lg:px-8",
-					!noPadding && "pb-8",
-				)}
-			>
+			<main>
 				{children}
-			</div>
+			</main>
 		</motion.div>
 	);
 }
@@ -120,10 +102,16 @@ export function PageSection({
 
 // Card wrapper for content sections
 export function PageCard({
+	title,
+	subtitle,
+	href,
 	children,
 	className,
 	noPadding = false,
 }: {
+	title?: string;
+	subtitle?: string;
+	href?: string;
 	children: ReactNode;
 	className?: string;
 	noPadding?: boolean;
@@ -158,10 +146,14 @@ export function PageCard({
 		setRotateY(0);
 	};
 
+	const heading = href ? <Link href={href}>
+		<Heading level={3}>{title}</Heading>
+	</Link> : <Heading level={3}>{title}</Heading>
+
 	return (
 		<motion.div
 			ref={cardRef}
-			className={cn(
+			className={cn("hover:shadow-md transition-shadow",
 				"rounded-lg border bg-card transition-all duration-200",
 				!noPadding && "p-6",
 				className,
@@ -181,11 +173,11 @@ export function PageCard({
 			onMouseMove={handleMouseMove}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div
-				style={{
-					transform: "translateZ(20px)",
-				}}
-			>
+			<div style={{ transform: "translateZ(20px)", }} >
+				{heading}
+				<div className="text-sm text-muted-foreground">
+					{subtitle}
+				</div>
 				{children}
 			</div>
 		</motion.div>

@@ -18,8 +18,7 @@ const AssistantsQuery = `
 		}
 	}
 `;
-
-function AssistantsList() {
+const AssistantsPage = () => {
 	const [{ data, fetching, error }] = useQuery<{ assistants: Assistant[] }>({
 		query: AssistantsQuery,
 	});
@@ -31,39 +30,31 @@ function AssistantsList() {
 		);
 
 	return (
-		<PageGrid columns={4}>
-			{data?.assistants?.map((assistant) => (
-				<PageCard
-					key={assistant.id}
-					className="hover:shadow-md transition-shadow"
-				>
-					<div className="font-semibold text-lg">{assistant.name}</div>
-					<div className="text-sm text-muted-foreground">
-						{assistant.role} &mdash; {assistant.sport}
-					</div>
-					<div className="text-xs mt-1">
-						<span className="font-medium">Strengths:</span>{" "}
-						{assistant.strengths.join(", ")}
-					</div>
-					{assistant.bio && (
-						<div className="text-xs mt-2 text-muted-foreground">
-							{assistant.bio}
-						</div>
-					)}
-				</PageCard>
-			))}
-		</PageGrid>
-	);
-}
-
-const AssistantsPage = () => {
-	return (
 		<PageWrapper
 			title="Assistants"
+			isLoading={fetching}
 			description="Manage and view all your assistants"
 			breadcrumbs={[{ label: "Assistants", href: "/assistants" }]}
 		>
-			<AssistantsList />
+			<PageGrid columns={4} >
+				{data?.assistants?.map((assistant) => (
+					<PageCard
+						key={assistant.id}
+						title={assistant.name}
+						subtitle={`${assistant.role} &mdash; ${assistant.sport}`}
+					>
+						<div className="text-xs mt-1">
+							<span className="font-medium">Strengths:</span>{" "}
+							{assistant.strengths.join(", ")}
+						</div>
+						{assistant.bio && (
+							<div className="text-xs mt-2 text-muted-foreground">
+								{assistant.bio}
+							</div>
+						)}
+					</PageCard>
+				))}
+			</PageGrid>
 		</PageWrapper>
 	);
 };
