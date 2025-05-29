@@ -32,7 +32,7 @@ export default ({
 		<html lang="en">
 			<body className={`antialiased ${inter.className} ${sourceSansPro.className}`} >
 				<UrqlProvider>
-					<div className="text-foreground flex-col align-top flex flex-1 gap-2 px-8 mx-20 my-8 rounded-4xl bg-stone-100">
+					<div className="text-foreground flex-col align-top flex gap-2 px-8 mx-20 sm:mx-5 xs:mx-2 my-8 rounded-4xl bg-stone-100">
 						<Navigation />
 						{children}
 					</div>

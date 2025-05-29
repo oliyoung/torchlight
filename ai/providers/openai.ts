@@ -19,19 +19,22 @@ export const callOpenAI = async <T>(
     input: string,
     schema: z.AnyZodObject,
 ): Promise<z.infer<typeof schema>> => {
-    const token = process.env.NEXT_PUBLIC_OPEN_AI_TOKEN;
-    const endpoint = process.env.NEXT_PUBLIC_OPEN_AI_ENDPOINT;
+    const apiKey = process.env.NEXT_PUBLIC_OPEN_AI_TOKEN;
 
-    if (!model || !token || !endpoint) {
+    if (!model || !apiKey) {
         logger.error(
-            { model, token, endpoint },
+            { model, apiKey },
             "OpenAI environment variables not set.",
         );
         return {};
     }
 
     try {
-        const client = new OpenAI({ baseURL: endpoint, apiKey: token });
+        logger.info({
+            model, apiKey, instructions, input, temperature
+        }, "Intialising OpenAI Client")
+
+        const client = new OpenAI({ apiKey });
         const response = await client.responses.create({
             model,
             instructions,

@@ -1,0 +1,22 @@
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+X-REQUEST-TYPE: GraphQL
+
+mutation($input:AIExtractAndEvaluateGoalInput!){
+    extractAndEvaluateGoal(input:$input){
+        goalEvaluation{
+            overallQualityScore
+        }
+        coreGoal{
+            primaryObjective
+        }
+    }
+}
+
+{
+    "input": {
+        "athleteId": "1",
+        "goalText": "sadasdsa"
+    }
+}
