@@ -32,7 +32,7 @@ export type AnalyzeProgressResponse = z.infer<typeof analyzeProgressSchema>;
  * @returns A string containing the AI-generated progress analysis.
  * @throws Error if athlete, goals, session logs, prompt loading, or AI generation fails.
  */
-export const analyzeProgressAI = async (
+export const analyzeProgress = async (
     athleteId: Athlete["id"],
     startDate: string, // Assuming date strings in input
     endDate: string, // Assuming date strings in input

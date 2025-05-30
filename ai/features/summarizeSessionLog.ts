@@ -90,7 +90,7 @@ export type SummarizeSessionLog = z.infer<typeof sessionPlanSchema>;
  * @param pubsub The PubSub instance for publishing updates.
  * @throws Error if the session log is not found or the update fails.
  */
-export const summarizeSessionLogAI = async (
+export const summarizeSessionLog = async (
     sessionLogId: SessionLog["id"],
     userId: string | null,
     pubsub: PubSub,

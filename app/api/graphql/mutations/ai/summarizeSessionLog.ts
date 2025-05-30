@@ -1,4 +1,4 @@
-import { summarizeSessionLogAI } from '@/ai/features/summarizeSessionLog';
+import { summarizeSessionLog } from '@/ai/features/summarizeSessionLog';
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiSummarizeSessionLogInput, SessionLog } from "@/lib/types";
@@ -13,7 +13,7 @@ import type { AiSummarizeSessionLogInput, SessionLog } from "@/lib/types";
  * @returns The updated SessionLog object.
  * @throws Error if the user is not authenticated or the underlying AI summarization fails.
  */
-export const summarizeSessionLog = async (
+export default async (
     _: unknown,
     { input }: { input: AiSummarizeSessionLogInput },
     context: GraphQLContext
@@ -30,7 +30,7 @@ export const summarizeSessionLog = async (
 
     try {
         // Delegate the core summarization logic to the AI feature function
-        const updatedSessionLog = await summarizeSessionLogAI(sessionLogId, userId, context.pubsub);
+        const updatedSessionLog = await summarizeSessionLog(sessionLogId, userId, context.pubsub);
         logger.info({ sessionLogId }, "SummarizeSessionLog mutation completed successfully.");
         return updatedSessionLog;
     } catch (error) {

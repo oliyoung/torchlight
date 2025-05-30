@@ -1,6 +1,6 @@
 import {
     type AnalyzeProgressResponse,
-    analyzeProgressAI,
+    analyzeProgress,
 } from "@/ai/features/analyzeProgress"; // Import the AI feature function
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
@@ -16,7 +16,7 @@ import type { AiAnalyzeProgressInput } from "@/lib/types";
  * @returns A string containing the AI-generated progress analysis.
  * @throws Error if the user is not authenticated or the underlying AI analysis fails.
  */
-export const analyzeProgress = async (
+export default async (
     _: unknown,
     { input }: { input: AiAnalyzeProgressInput },
     context: GraphQLContext,
@@ -35,7 +35,7 @@ export const analyzeProgress = async (
 
     try {
         // Delegate the core progress analysis logic to the AI feature function
-        const analysisResult = await analyzeProgressAI(
+        const analysisResult = await analyzeProgress(
             athleteId,
             startDate,
             endDate,

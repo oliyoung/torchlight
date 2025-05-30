@@ -1,4 +1,4 @@
-import { type GoalEvaluationResponse, extractAndEvaluateGoalAI } from '@/ai/features/extractAndEvaluateGoal';
+import { type GoalEvaluationResponse, extractAndEvaluateGoal } from '@/ai/features/extractAndEvaluateGoal';
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiExtractAndEvaluateGoalInput } from "@/lib/types";
@@ -13,7 +13,7 @@ import type { AiExtractAndEvaluateGoalInput } from "@/lib/types";
  * @returns A GoalEvaluationResponse containing structured goal data and quality assessment.
  * @throws Error if the user is not authenticated or the underlying AI evaluation fails.
  */
-export const extractAndEvaluateGoal = async (
+export default async (
     _: unknown,
     { input }: { input: AiExtractAndEvaluateGoalInput },
     context: GraphQLContext
@@ -36,7 +36,7 @@ export const extractAndEvaluateGoal = async (
 
     try {
         // Delegate the core goal evaluation logic to the AI feature function
-        const evaluationResult = await extractAndEvaluateGoalAI({
+        const evaluationResult = await extractAndEvaluateGoal({
             athleteId,
             goalText,
             userId
