@@ -17,6 +17,6 @@ mutation($input:AIExtractAndEvaluateGoalInput!){
 {
     "input": {
         "athleteId": "1",
-        "goalText": "sadasdsa"
+        "goalText": "Learn a new pose that strengthens her ankles"
     }
 }

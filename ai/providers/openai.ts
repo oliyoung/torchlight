@@ -35,13 +35,13 @@ export const callOpenAI = async <T>(
         }, "Intialising OpenAI Client")
 
         const client = new OpenAI({ apiKey });
-        const response = await client.responses.create({
+        const response = await client.responses.parse({
             model,
             instructions,
             input,
             temperature,
             text: {
-                format: zodTextFormat(schema, "response"),
+                format: zodTextFormat(schema, "goal_evaluation"),
             },
         });
 
@@ -54,10 +54,8 @@ export const callOpenAI = async <T>(
             );
         }
 
-        if (response.status === "completed") {
-            const generatedContent = schema.parse(response.output_text);
-            logger.info({ generatedContent }, "Successfully called OpenAI API.");
-            return generatedContent;
+        if (response.status === "completed" && response.output_parsed) {
+            return response.output_parsed;
         }
         return {};
     } catch (error) {
