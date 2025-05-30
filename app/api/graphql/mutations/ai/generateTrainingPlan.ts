@@ -4,7 +4,7 @@ import { trainingPlanRepository } from "@/lib/repository";
 import type { AiGenerateTrainingPlanInput, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../../route";
 
-export const generateTrainingPlan = async (
+export default async (
   _: unknown,
   { input }: { input: AiGenerateTrainingPlanInput },
   context: GraphQLContext,

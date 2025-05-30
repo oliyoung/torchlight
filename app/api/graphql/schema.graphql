@@ -68,6 +68,7 @@ type Goal {
 	dueDate: DateTime # Target completion date
 	progressNotes: String # Coach notes on progress toward the goal
 	sport: String # Sport-specific classification
+	evaluationResponse: JSON
 	# Relationships
 	sessionLogs: [SessionLog!]! # Sessions that worked toward this goal
 	trainingPlans: [TrainingPlan!] # Training plans that include this goal

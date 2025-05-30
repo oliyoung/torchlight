@@ -264,6 +264,7 @@ export type Goal = {
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   dueDate?: Maybe<Scalars['DateTime']['output']>;
+  evaluationResponse?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
   progressNotes?: Maybe<Scalars['String']['output']>;
   sessionLogs: Array<SessionLog>;
@@ -1076,6 +1077,7 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  evaluationResponse?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   progressNotes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType>;
