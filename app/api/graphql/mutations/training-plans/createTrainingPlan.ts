@@ -1,4 +1,4 @@
-import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlanContent";
+import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlan";
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import { athleteRepository, goalRepository, trainingPlanRepository } from "@/lib/repository";

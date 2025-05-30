@@ -11,12 +11,49 @@ import { callOpenAI } from '../providers/openai';
 // Define the path to the training plan prompt file
 const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/training_plan.prompt.yml';
 
-const trainingPlanResponseSchema = z.object({
-    planJson: z.string(),
-    overview: z.string(),
+export const trainingPlanSchema = z.object({
+    planOverview: z.object({
+        title: z.string(),
+        durationWeeks: z.number(),
+        sessionsPerWeek: z.number(),
+        equipment: z.array(z.string()),
+        primaryGoals: z.array(z.string()),
+        secondaryGoals: z.array(z.string()),
+        intensityGuidelines: z.string(),
+    }),
+    weeklyStructure: z.array(
+        z.object({
+            week: z.number(),
+            focus: z.string(),
+            sessions: z.array(
+                z.object({
+                    type: z.string(),
+                    focusArea: z.string(),
+                    templateRef: z.string(),
+                }),
+            ),
+        }),
+    ),
+    sessionTemplates: z.array(
+        z.object({
+            templateRef: z.string(),
+            structure: z.object({
+                warmup: z.string(),
+                mainBlock: z.string(),
+                supplementary: z.string(),
+                cooldown: z.string(),
+            }),
+        }),
+    ),
+    progressionGuidelines: z.string(),
+    tracking: z.object({
+        keyMetrics: z.array(z.string()),
+        warningSigns: z.array(z.string()),
+        adjustmentCriteria: z.string(),
+    }),
 });
 
-export type TrainingPlanResponse = z.infer<typeof trainingPlanResponseSchema>;
+export type TrainingPlanResponse = z.infer<typeof trainingPlanSchema>;
 
 /**
  * Generates training plan content using AI based on athlete data, goals, and session logs.
@@ -91,12 +128,12 @@ export async function generateTrainingPlanContent(
 
         logger.info({ finalPrompt }, "Generated Prompt");
 
-        const generatedContent = await callOpenAI(
+        const generatedContent = await callOpenAI<TrainingPlanResponse>(
             promptFileContent.model,
             Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
             systemMessage,
             populatedUserMessage,
-            trainingPlanResponseSchema
+            trainingPlanSchema
         );
 
         if (!generatedContent || !generatedContent) {
@@ -108,8 +145,7 @@ export async function generateTrainingPlanContent(
         }
 
         const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
-            planJson: generatedContent.planJson,
-            overview: generatedContent.overview,
+            planJson: generatedContent,
             sourcePrompt: finalPrompt,
             status: TrainingPlanStatus.Generated,
         });

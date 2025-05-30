@@ -18,12 +18,12 @@ export const callOpenAI = async <T>(
     instructions: string,
     input: string,
     schema: z.AnyZodObject,
-): Promise<z.infer<typeof schema>> => {
+): Promise<T | null> => {
     const apiKey = process.env.NEXT_PUBLIC_OPEN_AI_TOKEN;
 
     if (!model || !apiKey) {
         logger.error({ model, apiKey }, "OpenAI environment variables not set.");
-        return {};
+        return null;
     }
 
     try {
@@ -34,7 +34,7 @@ export const callOpenAI = async <T>(
             input,
             temperature,
             text: {
-                format: zodTextFormat(schema, "goal_evaluation"),
+                format: zodTextFormat(schema, "zodFormat"),
             },
         });
 
@@ -48,14 +48,15 @@ export const callOpenAI = async <T>(
         }
 
         if (response.status === "completed" && response.output_parsed) {
-            return response.output_parsed;
+            return response.output_parsed as T;
         }
-        return {};
+        return null;
+
     } catch (error) {
         if (error instanceof OpenAI.APIError) {
             logger.error({ error }, "OpenAI API Error.");
-            return {};
+            return null;
         }
-        return {};
+        return null;
     }
 };

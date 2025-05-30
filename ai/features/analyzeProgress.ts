@@ -13,7 +13,7 @@ import type {
 import { z } from "zod";
 
 // Define the path to the progress analysis prompt file
-const PROGRESS_ANALYSIS_PROMPT_FILE = "ai/prompts/progress_analysis.prompt.yml";
+const PROGRESS_ANALYSIS_PROMPT_FILE = "ai/prompts/analyze_progress.prompt.yml";
 
 const analyzeProgressSchema = z.object({
     planJson: z.string(),
@@ -168,7 +168,7 @@ export const analyzeProgressAI = async (
 
         // Call the generic AI client function - expecting string output for analysis
         const generatedContent =
-            await callOpenAI(
+            await callOpenAI<AnalyzeProgressResponse>(
                 promptFileContent.model,
                 Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
                 systemMessage,

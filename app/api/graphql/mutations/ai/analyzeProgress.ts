@@ -1,7 +1,7 @@
 import {
     type AnalyzeProgressResponse,
     analyzeProgressAI,
-} from "@/ai/features/analyzeProgressAI"; // Import the AI feature function
+} from "@/ai/features/analyzeProgress"; // Import the AI feature function
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiAnalyzeProgressInput } from "@/lib/types";

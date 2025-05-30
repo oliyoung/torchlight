@@ -1,4 +1,4 @@
-import { type GoalEvaluationResponse, extractAndEvaluateGoalAI } from '@/ai/features/extractAndEvaluateGoalAI';
+import { type GoalEvaluationResponse, extractAndEvaluateGoalAI } from '@/ai/features/extractAndEvaluateGoal';
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiExtractAndEvaluateGoalInput } from "@/lib/types";

@@ -1,4 +1,4 @@
-import { summarizeSessionLogAI } from '@/ai/features/summarizeSessionLogAI';
+import { summarizeSessionLogAI } from '@/ai/features/summarizeSessionLog';
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiSummarizeSessionLogInput, SessionLog } from "@/lib/types";

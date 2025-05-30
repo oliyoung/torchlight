@@ -103,7 +103,7 @@ export interface ExtractAndEvaluateGoalInput {
  * @returns A structured goal evaluation response with quality assessment and suggestions
  * @throws Error if athlete not found, prompt loading, or AI generation fails
  */
-export const extractAndEvaluateGoalAI = async (
+export const extractAndEvaluateGoal = async (
     input: ExtractAndEvaluateGoalInput
 ): Promise<GoalEvaluationResponse> => {
     const { athleteId, goalText, userId } = input;
@@ -197,7 +197,7 @@ export const extractAndEvaluateGoalAI = async (
         const temperature = Number(promptFileContent?.modelParameters?.temperature) ?? 0.9;
 
         // Call the AI client with structured output
-        const evaluationResult = await callOpenAI(
+        const evaluationResult = await callOpenAI<GoalEvaluationResponse>(
             promptFileContent.model,
             temperature,
             systemMessage,

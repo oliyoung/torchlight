@@ -1,4 +1,4 @@
-import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlanContent";
+import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlan";
 import { logger } from "@/lib/logger";
 import { trainingPlanRepository } from "@/lib/repository";
 import type { AiGenerateTrainingPlanInput, TrainingPlan } from "@/lib/types";
