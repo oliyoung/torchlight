@@ -22,18 +22,11 @@ export const callOpenAI = async <T>(
     const apiKey = process.env.NEXT_PUBLIC_OPEN_AI_TOKEN;
 
     if (!model || !apiKey) {
-        logger.error(
-            { model, apiKey },
-            "OpenAI environment variables not set.",
-        );
+        logger.error({ model, apiKey }, "OpenAI environment variables not set.");
         return {};
     }
 
     try {
-        logger.info({
-            model, apiKey, instructions, input, temperature
-        }, "Intialising OpenAI Client")
-
         const client = new OpenAI({ apiKey });
         const response = await client.responses.parse({
             model,
