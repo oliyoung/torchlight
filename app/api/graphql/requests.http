@@ -1,3 +1,9 @@
+### GraphQL API Requests for CoachBase
+### Base URL: http://localhost:3000/api/graphql
+### Authorization: Bearer token required for all requests
+
+###
+# 1. AI - Extract and Evaluate Goal (existing example)
 POST http://localhost:3000/api/graphql HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer xxx
@@ -7,9 +13,46 @@ mutation($input:AIExtractAndEvaluateGoalInput!){
     extractAndEvaluateGoal(input:$input){
         goalEvaluation{
             overallQualityScore
+            specificityScore
+            feasibilityScore
+            relevanceScore
+            timeStructureScore
+            motivationScore
+            evaluationSummary{
+                strengths
+                weaknesses
+                riskFactors
+                improvementPriorities
+            }
         }
         coreGoal{
+            type
             primaryObjective
+            sport
+            measurableOutcome
+        }
+        refinedGoalSuggestion{
+            improvedGoalStatement
+            keyChanges
+            rationale
+        }
+        timeline{
+            targetDate
+            duration
+            urgencyLevel
+            milestones
+        }
+        motivation{
+            whyItMatters
+            externalDrivers
+            emotionalContext
+            supportSystem
+        }
+        extractionConfidence{
+            overallConfidence
+            missingInformation
+            assumptions
+            suggestedQuestions
         }
     }
 }
@@ -18,5 +61,714 @@ mutation($input:AIExtractAndEvaluateGoalInput!){
     "input": {
         "athleteId": "1",
         "goalText": "Learn a new pose that strengthens her ankles"
+    }
+}
+
+###
+# 2. AI - Summarize Session Log
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: AISummarizeSessionLogInput!) {
+    summarizeSessionLog(input: $input) {
+        id
+        summary
+        actionItems
+        aiMetadata {
+            summaryGenerated
+            nextStepsGenerated
+        }
+    }
+}
+
+{
+    "input": {
+        "sessionLogId": "session_123"
+    }
+}
+
+###
+# 3. AI - Generate Training Plan
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: AIGenerateTrainingPlanInput!) {
+    generateTrainingPlan(input: $input) {
+        id
+        overview
+        planJson
+        status
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        goals {
+            id
+            title
+        }
+    }
+}
+
+{
+    "input": {
+        "athleteId": "athlete_123",
+        "goalIds": ["goal_1", "goal_2"]
+    }
+}
+
+###
+# 4. AI - Analyze Session Patterns
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: AIAnalyzeSessionPatternsInput!) {
+    analyzeSessionPatterns(input: $input)
+}
+
+{
+    "input": {
+        "athleteId": "athlete_123",
+        "startDate": "2024-01-01T00:00:00Z",
+        "endDate": "2024-03-31T23:59:59Z",
+        "goalIds": ["goal_1", "goal_2"]
+    }
+}
+
+###
+# 5. Query - Get All Athletes
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query {
+    athletes {
+        id
+        firstName
+        lastName
+        email
+        sport
+        tags
+        notes
+        birthday
+        gender
+        fitnessLevel
+        trainingHistory
+        height
+        weight
+        createdAt
+        updatedAt
+    }
+}
+
+###
+# 6. Query - Get Single Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($id: ID!) {
+    athlete(id: $id) {
+        id
+        firstName
+        lastName
+        email
+        sport
+        tags
+        notes
+        birthday
+        gender
+        fitnessLevel
+        trainingHistory
+        height
+        weight
+        createdAt
+        updatedAt
+        goals {
+            id
+            title
+            status
+        }
+        sessionLogs {
+            id
+            date
+            summary
+        }
+        trainingPlans {
+            id
+            overview
+            status
+        }
+    }
+}
+
+{
+    "id": "athlete_123"
+}
+
+###
+# 7. Mutation - Create Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: CreateAthleteInput!) {
+    createAthlete(input: $input) {
+        id
+        firstName
+        lastName
+        email
+        sport
+        tags
+        notes
+        birthday
+        createdAt
+    }
+}
+
+{
+    "input": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "birthday": "2005-06-15T00:00:00Z",
+        "email": "john.doe@example.com",
+        "tags": ["youth", "beginner"],
+        "notes": "New to basketball, very motivated",
+        "sport": "basketball"
+    }
+}
+
+###
+# 8. Mutation - Update Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!, $input: UpdateAthleteInput!) {
+    updateAthlete(id: $id, input: $input) {
+        id
+        firstName
+        lastName
+        email
+        sport
+        tags
+        notes
+        updatedAt
+    }
+}
+
+{
+    "id": "athlete_123",
+    "input": {
+        "firstName": "Jonathan",
+        "email": "jonathan.doe@example.com",
+        "tags": ["youth", "intermediate"],
+        "notes": "Showing great improvement in fundamentals"
+    }
+}
+
+###
+# 9. Mutation - Delete Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!) {
+    deleteAthlete(id: $id)
+}
+
+{
+    "id": "athlete_123"
+}
+
+###
+# 10. Query - Get Goals for Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($athleteId: ID!) {
+    goals(athleteId: $athleteId) {
+        id
+        title
+        description
+        status
+        dueDate
+        progressNotes
+        sport
+        evaluationResponse
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+    }
+}
+
+{
+    "athleteId": "athlete_123"
+}
+
+###
+# 11. Query - Get Single Goal
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($id: ID!, $athleteId: ID!) {
+    goal(id: $id, athleteId: $athleteId) {
+        id
+        title
+        description
+        status
+        dueDate
+        progressNotes
+        sport
+        evaluationResponse
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        sessionLogs {
+            id
+            date
+            summary
+        }
+        trainingPlans {
+            id
+            overview
+        }
+    }
+}
+
+{
+    "id": "goal_123",
+    "athleteId": "athlete_123"
+}
+
+###
+# 12. Mutation - Create Goal
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: CreateGoalInput!) {
+    createGoal(input: $input) {
+        id
+        title
+        description
+        status
+        dueDate
+        sport
+        createdAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+    }
+}
+
+{
+    "input": {
+        "athleteId": "athlete_123",
+        "title": "Improve free throw percentage to 80%",
+        "description": "Work on shooting form and consistency from the free throw line",
+        "dueDate": "2024-06-30T23:59:59Z",
+        "sport": "basketball"
+    }
+}
+
+###
+# 13. Mutation - Update Goal
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!, $input: UpdateGoalInput!) {
+    updateGoal(id: $id, input: $input) {
+        id
+        title
+        description
+        status
+        dueDate
+        progressNotes
+        sport
+        updatedAt
+    }
+}
+
+{
+    "id": "goal_123",
+    "input": {
+        "status": "ACTIVE",
+        "progressNotes": "Made significant improvement in shooting form. Currently at 72% free throw percentage.",
+        "trainingPlanIds": ["plan_1", "plan_2"]
+    }
+}
+
+###
+# 14. Mutation - Delete Goal
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!) {
+    deleteGoal(id: $id)
+}
+
+{
+    "id": "goal_123"
+}
+
+###
+# 15. Query - Get Session Logs for Athlete
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($athleteId: ID!) {
+    sessionLogs(athleteId: $athleteId) {
+        id
+        date
+        notes
+        transcript
+        summary
+        actionItems
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        goals {
+            id
+            title
+        }
+        aiMetadata {
+            summaryGenerated
+            nextStepsGenerated
+        }
+    }
+}
+
+{
+    "athleteId": "athlete_123"
+}
+
+###
+# 16. Query - Get Single Session Log
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($id: ID!) {
+    sessionLog(id: $id) {
+        id
+        date
+        notes
+        transcript
+        summary
+        actionItems
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+            sport
+        }
+        goals {
+            id
+            title
+            status
+        }
+        aiMetadata {
+            summaryGenerated
+            nextStepsGenerated
+        }
+    }
+}
+
+{
+    "id": "session_123"
+}
+
+###
+# 17. Mutation - Create Session Log
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: CreateSessionLogInput!) {
+    createSessionLog(input: $input) {
+        id
+        date
+        notes
+        transcript
+        createdAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        goals {
+            id
+            title
+        }
+    }
+}
+
+{
+    "input": {
+        "athleteId": "athlete_123",
+        "date": "2024-03-15T18:00:00Z",
+        "notes": "Great practice session focusing on dribbling fundamentals",
+        "transcript": "Worked on right-hand and left-hand dribbling drills for 30 minutes. Athlete showed improvement in ball control. Finished with shooting practice.",
+        "goalIds": ["goal_1", "goal_2"]
+    }
+}
+
+###
+# 18. Mutation - Update Session Log
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!, $input: UpdateSessionLogInput!) {
+    updateSessionLog(id: $id, input: $input) {
+        id
+        date
+        notes
+        transcript
+        summary
+        actionItems
+        updatedAt
+        goals {
+            id
+            title
+        }
+    }
+}
+
+{
+    "id": "session_123",
+    "input": {
+        "notes": "Excellent practice session with notable improvement in dribbling",
+        "summary": "Athlete demonstrated significant progress in ball handling skills",
+        "actionItems": ["Continue daily dribbling drills", "Work on weak hand development", "Focus on maintaining head up while dribbling"],
+        "goalIds": ["goal_1", "goal_2", "goal_3"]
+    }
+}
+
+###
+# 19. Mutation - Delete Session Log
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!) {
+    deleteSessionLog(id: $id)
+}
+
+{
+    "id": "session_123"
+}
+
+###
+# 20. Query - Get Training Plans
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($athleteId: ID) {
+    trainingPlans(athleteId: $athleteId) {
+        id
+        overview
+        startDate
+        endDate
+        notes
+        planJson
+        sourcePrompt
+        generatedBy
+        status
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        goals {
+            id
+            title
+            status
+        }
+        assistants {
+            id
+            name
+            sport
+            role
+        }
+    }
+}
+
+{
+    "athleteId": "athlete_123"
+}
+
+###
+# 21. Query - Get Single Training Plan
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($id: ID!) {
+    trainingPlan(id: $id) {
+        id
+        overview
+        startDate
+        endDate
+        notes
+        planJson
+        sourcePrompt
+        generatedBy
+        status
+        createdAt
+        updatedAt
+        athlete {
+            id
+            firstName
+            lastName
+            sport
+            fitnessLevel
+        }
+        goals {
+            id
+            title
+            description
+            status
+            dueDate
+        }
+        assistants {
+            id
+            name
+            sport
+            role
+            strengths
+            bio
+        }
+    }
+}
+
+{
+    "id": "plan_123"
+}
+
+###
+# 22. Mutation - Create Training Plan
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($input: CreateTrainingPlanInput!) {
+    createTrainingPlan(input: $input) {
+        id
+        status
+        createdAt
+        athlete {
+            id
+            firstName
+            lastName
+        }
+        goals {
+            id
+            title
+        }
+        assistants {
+            id
+            name
+            sport
+        }
+    }
+}
+
+{
+    "input": {
+        "athleteId": "athlete_123",
+        "assistantIds": ["assistant_basketball_1", "assistant_strength_1"],
+        "goalIds": ["goal_1", "goal_2"]
+    }
+}
+
+###
+# 23. Mutation - Update Training Plan
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+mutation($id: ID!, $input: UpdateTrainingPlanInput!) {
+    updateTrainingPlan(id: $id, input: $input) {
+        id
+        overview
+        notes
+        updatedAt
+        goals {
+            id
+            title
+        }
+        assistants {
+            id
+            name
+        }
+    }
+}
+
+{
+    "id": "plan_123",
+    "input": {
+        "title": "Updated Basketball Fundamentals Plan",
+        "overview": "Comprehensive 8-week program focusing on dribbling, shooting, and defensive fundamentals",
+        "assistantIds": ["assistant_basketball_1"],
+        "goalIds": ["goal_1", "goal_2", "goal_3"]
+    }
+}
+
+###
+# 24. Query - Get Assistants
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer xxx
+
+query($input: AssistantsInput) {
+    assistants(input: $input) {
+        id
+        name
+        sport
+        role
+        strengths
+        bio
+        promptTemplate
+        createdAt
+        updatedAt
+    }
+}
+
+{
+    "input": {
+        "filter": {
+            "sport": "basketball",
+            "role": "Technical Coach",
+            "strengths": ["shooting", "fundamentals"]
+        }
     }
 }
