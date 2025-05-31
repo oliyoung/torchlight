@@ -9,8 +9,8 @@ import { Loading } from "@/components/ui/loading";
 import { PageWrapper } from "@/components/ui/page-wrapper";
 import type { Athlete, Goal } from "@/lib/types";
 import { gql } from "graphql-request";
-import { Plus } from "lucide-react";
-import { notFound, useParams } from "next/navigation";
+import { Plus, PencilIcon } from "lucide-react";
+import { notFound, useParams, useRouter } from "next/navigation";
 import type React from "react";
 import { useQuery } from "urql";
 
@@ -45,6 +45,7 @@ const GoalsQuery = gql`
 
 export default function Page() {
 	const { id } = useParams();
+	const router = useRouter();
 
 	const [{ data, fetching, error }] = useQuery<{ athlete: Athlete }>({
 		query: AthleteQuery,
@@ -78,6 +79,16 @@ export default function Page() {
 				{ label: "Athletes", href: "/athletes" },
 				{ label: data.athlete.lastName.toLocaleUpperCase(), href: "#" },
 			]}
+			actions={
+				<Button
+					variant="outline"
+					onClick={() => router.push(`/athletes/${id}/edit`)}
+					className="flex items-center gap-2"
+				>
+					<PencilIcon className="h-4 w-4" />
+					Edit Athlete
+				</Button>
+			}
 		>
 			<div className="mb-4">
 				<span className="text-gray-600">Tags: </span>
