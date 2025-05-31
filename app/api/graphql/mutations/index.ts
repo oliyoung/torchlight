@@ -1,4 +1,5 @@
 import analyzeProgress from './ai/analyzeProgress';
+import analyzeSessionPatterns from './ai/analyzeSessionPatterns';
 import extractAndEvaluateGoal from './ai/extractAndEvaluateGoal';
 import generateTrainingPlan from './ai/generateTrainingPlan';
 import summarizeSessionLog from "./ai/summarizeSessionLog";
@@ -9,6 +10,7 @@ import { updateTrainingPlan } from "./training-plans/updateTrainingPlan";
 
 export default {
   analyzeProgress,
+  analyzeSessionPatterns,
   createAthlete,
   createTrainingPlan,
   extractAndEvaluateGoal,

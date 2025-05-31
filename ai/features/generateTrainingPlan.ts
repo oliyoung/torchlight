@@ -1,4 +1,4 @@
-import { loadPrompt } from '@/ai/lib/promptLoader';
+import { loadAndProcessPrompt } from '@/ai/lib/promptLoader';
 import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from '@/lib/logger';
 import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
@@ -84,26 +84,7 @@ export async function generateTrainingPlanContent(
         const assistants = assistantIds.length > 0 ? await assistantRepository.getAssistantsByIds(assistantIds) : [];
         const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athlete.id);
 
-        const promptFileContent = loadPrompt(TRAINING_PLAN_PROMPT_FILE);
-        if (!promptFileContent) {
-            logger.error("Failed to load training plan prompt file.");
-            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
-                status: TrainingPlanStatus.Error
-            })
-            return;
-        }
-
-        const userMessageTemplate = promptFileContent.messages.find(msg => msg.role === 'user')?.content;
-        const systemMessage = promptFileContent.messages.find(msg => msg.role === 'system')?.content;
-
-        if (!userMessageTemplate || !systemMessage) {
-            logger.error("System or User message template not found in prompt file.");
-            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
-                status: TrainingPlanStatus.Error
-            })
-            return;
-        }
-
+        // Prepare session logs context
         const previousSessionLogsContext = sessionLogs.map(log =>
             `Session on ${log.date.toDateString()}: Notes: ${log.notes || 'N/A'}, Action Items: ${(log.actionItems as string[]).join('; ') || 'N/A'}`
         ).join('\n');
@@ -111,28 +92,42 @@ export async function generateTrainingPlanContent(
         const progressNotes = sessionLogs.map(log => log.notes).filter(Boolean).join('\n');
         const actionItems = sessionLogs.flatMap(log => log.actionItems).filter(Boolean).join('; ');
 
-        let populatedUserMessage = userMessageTemplate;
-        populatedUserMessage = populatedUserMessage.replace('{{age}}', (new Date().getFullYear() - new Date(athlete.birthday ?? '1980-01-01').getFullYear()).toString() || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{gender}}', athlete.gender || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{fitnessLevel}}', athlete.fitnessLevel || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{trainingHistory}}', athlete.trainingHistory || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{height}}', athlete.height?.toString() || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{weight}}', athlete.weight?.toString() || 'N/A');
-        populatedUserMessage = populatedUserMessage.replace('{{activeGoals}}', goals.map(g => `${g.title} (ID: ${g.id})`).join(', ') || 'None');
-        populatedUserMessage = populatedUserMessage.replace('{{previousSessionLogs}}', previousSessionLogsContext || 'None');
-        populatedUserMessage = populatedUserMessage.replace('{{progressNotes}}', progressNotes || 'None');
-        populatedUserMessage = populatedUserMessage.replace('{{actionItems}}', actionItems || 'None');
-        populatedUserMessage = populatedUserMessage.replace('{{assitantsBios}}', assistants.map(assistant => assistant.bio).join(" and "))
+        // Prepare all variables for prompt substitution
+        const age = (new Date().getFullYear() - new Date(athlete.birthday ?? '1980-01-01').getFullYear()).toString();
+        const activeGoals = goals.map(g => `${g.title} (ID: ${g.id})`).join(', ');
+        const assistantsBios = assistants.map(assistant => assistant.bio).join(" and ");
 
-        const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`; // Simplified concatenation
+        let prompt;
+        try {
+            // Load and process the prompt with variable substitution
+            prompt = loadAndProcessPrompt(TRAINING_PLAN_PROMPT_FILE, {
+                age: age || 'N/A',
+                gender: athlete.gender || 'N/A',
+                fitnessLevel: athlete.fitnessLevel || 'N/A',
+                trainingHistory: athlete.trainingHistory || 'N/A',
+                height: athlete.height?.toString() || 'N/A',
+                weight: athlete.weight?.toString() || 'N/A',
+                activeGoals: activeGoals || 'None',
+                previousSessionLogs: previousSessionLogsContext || 'None',
+                progressNotes: progressNotes || 'None',
+                actionItems: actionItems || 'None',
+                assitantsBios: assistantsBios || 'None'
+            });
 
-        logger.info({ finalPrompt }, "Generated Prompt");
+            logger.info({ trainingPlanId }, "Generated Training Plan Prompt");
+        } catch (promptError) {
+            logger.error({ promptError, trainingPlanId }, "Failed to load/process training plan prompt file.");
+            await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
+                status: TrainingPlanStatus.Error
+            });
+            return;
+        }
 
         const generatedContent = await callOpenAI<TrainingPlanResponse>(
-            promptFileContent.model,
-            Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
-            systemMessage,
-            populatedUserMessage,
+            prompt.model,
+            prompt.temperature,
+            prompt.systemMessage,
+            prompt.userMessage,
             trainingPlanSchema
         );
 
@@ -146,7 +141,7 @@ export async function generateTrainingPlanContent(
 
         const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(userId, trainingPlanId, {
             planJson: generatedContent,
-            sourcePrompt: finalPrompt,
+            sourcePrompt: prompt.userMessage,
             status: TrainingPlanStatus.Generated,
         });
 

@@ -1,4 +1,4 @@
-import { loadPrompt } from "@/ai/lib/promptLoader";
+import { loadAndProcessPrompt } from "@/ai/lib/promptLoader";
 import { callOpenAI } from "@/ai/providers/openai";
 import { logger } from "@/lib/logger";
 import { athleteRepository } from "@/lib/repository";
@@ -131,30 +131,6 @@ export const extractAndEvaluateGoal = async (
             throw new Error("Athlete not found");
         }
 
-        // Load and parse the prompt file
-        const promptFileContent = loadPrompt(GOAL_EVALUATION_PROMPT_FILE);
-        if (!promptFileContent) {
-            logger.error("Failed to load goal evaluation prompt file.");
-            throw new Error("Failed to load goal evaluation prompt.");
-        }
-
-        // Extract the user message template and system message
-        const userMessageTemplate = promptFileContent.messages.find(
-            (msg) => msg.role === "user"
-        )?.content;
-        const systemMessage = promptFileContent.messages.find(
-            (msg) => msg.role === "system"
-        )?.content;
-
-        if (!userMessageTemplate || !systemMessage) {
-            logger.error(
-                "System or User message template not found in goal evaluation prompt file."
-            );
-            throw new Error(
-                "System or User message template not found in goal evaluation prompt."
-            );
-        }
-
         // Calculate athlete age from birthday
         const currentYear = new Date().getFullYear();
         const birthYear = athlete.birthday
@@ -179,29 +155,20 @@ export const extractAndEvaluateGoal = async (
             goalText: goalText
         };
 
-        // Populate the user message template with athlete context and goal text
-        let populatedUserMessage = userMessageTemplate;
-        for (const [key, value] of Object.entries(athleteContext)) {
-            const placeholder = `{{${key}}}`;
-            populatedUserMessage = populatedUserMessage.replace(
-                new RegExp(placeholder.replace(/[{}]/g, '\\$&'), 'g'),
-                value
-            );
-        }
+        // Load and process the prompt with variable substitution
+        const prompt = loadAndProcessPrompt(GOAL_EVALUATION_PROMPT_FILE, athleteContext);
 
         logger.info(
             { athleteId, userId, goalTextLength: goalText.length },
             "Generated prompt for goal evaluation"
         );
 
-        const temperature = Number(promptFileContent?.modelParameters?.temperature) ?? 0.9;
-
         // Call the AI client with structured output
         const evaluationResult = await callOpenAI<GoalEvaluationResponse>(
-            promptFileContent.model,
-            temperature,
-            systemMessage,
-            populatedUserMessage,
+            prompt.model,
+            prompt.temperature,
+            prompt.systemMessage,
+            prompt.userMessage,
             goalEvaluationResponseSchema
         );
 

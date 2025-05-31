@@ -1,4 +1,4 @@
-import { loadPrompt } from "@/ai/lib/promptLoader";
+import { loadAndProcessPrompt } from "@/ai/lib/promptLoader";
 import { callOpenAI } from "@/ai/providers/openai";
 import { logger } from "@/lib/logger";
 import {
@@ -72,31 +72,7 @@ export const analyzeProgress = async (
                 athleteId
             );
 
-        // Load and parse the prompt file
-        const promptFileContent = loadPrompt(PROGRESS_ANALYSIS_PROMPT_FILE);
-        if (!promptFileContent) {
-            logger.error("Failed to load progress analysis prompt file.");
-            throw new Error("Failed to load progress analysis prompt.");
-        }
-
-        // Extract the user message template and system message
-        const userMessageTemplate = promptFileContent.messages.find(
-            (msg) => msg.role === "user",
-        )?.content;
-        const systemMessage = promptFileContent.messages.find(
-            (msg) => msg.role === "system",
-        )?.content;
-
-        if (!userMessageTemplate || !systemMessage) {
-            logger.error(
-                "System or User message template not found in progress analysis prompt file.",
-            );
-            throw new Error(
-                "System or User message template not found in progress analysis prompt.",
-            );
-        }
-
-        // Prepare the prompt using the template and fetched data
+        // Prepare the session logs context
         const sessionLogsContext = sessionLogs
             .map(
                 (log) =>
@@ -104,75 +80,43 @@ export const analyzeProgress = async (
             )
             .join("\n");
 
-        let populatedUserMessage = userMessageTemplate;
-        // Populate athlete properties
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{age}}",
-            (
-                new Date().getFullYear() -
-                new Date(athlete.birthday ?? "1980-01-01").getFullYear()
-            ).toString() ?? "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{gender}}",
-            athlete.gender ?? "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{fitnessLevel}}",
-            athlete.fitnessLevel ? String(athlete.fitnessLevel) : "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{trainingHistory}}",
-            athlete.trainingHistory ?? "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{height}}",
-            athlete.height?.toString() ?? "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{weight}}",
-            athlete.weight?.toString() ?? "N/A",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{athleteNotes}}",
-            athlete.notes ?? "None",
-        );
-        // Populate goal and session log context
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{activeGoals}}",
-            goals
-                .map((g) => `${g.title} (ID: ${g.id}): ${g.description ?? "N/A"}`)
-                .join("\n") ?? "None",
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{sessionLogs}}",
-            sessionLogsContext ?? "None",
-        );
-        // Populate date range
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{startDate}}",
-            new Date(startDate).toDateString(),
-        );
-        populatedUserMessage = populatedUserMessage.replace(
-            "{{endDate}}",
-            new Date(endDate).toDateString(),
-        );
+        // Prepare all variables for prompt substitution
+        const age = (
+            new Date().getFullYear() -
+            new Date(athlete.birthday ?? "1980-01-01").getFullYear()
+        ).toString();
 
-        // Combine system and user messages for the final prompt
-        const finalPrompt = `${systemMessage}\n\n${populatedUserMessage}`; // Simplified concatenation
+        const activeGoals = goals
+            .map((g) => `${g.title} (ID: ${g.id}): ${g.description ?? "N/A"}`)
+            .join("\n");
+
+        // Load and process the prompt with variable substitution
+        const prompt = loadAndProcessPrompt(PROGRESS_ANALYSIS_PROMPT_FILE, {
+            age: age,
+            gender: athlete.gender ?? "N/A",
+            fitnessLevel: athlete.fitnessLevel ? String(athlete.fitnessLevel) : "N/A",
+            trainingHistory: athlete.trainingHistory ?? "N/A",
+            height: athlete.height?.toString() ?? "N/A",
+            weight: athlete.weight?.toString() ?? "N/A",
+            athleteNotes: athlete.notes ?? "None",
+            activeGoals: activeGoals || "None",
+            sessionLogs: sessionLogsContext || "None",
+            startDate: new Date(startDate).toDateString(),
+            endDate: new Date(endDate).toDateString()
+        });
 
         logger.info(
-            { athleteId, startDate, endDate, finalPrompt },
+            { athleteId, startDate, endDate },
             "Generated Prompt for Progress Analysis",
         );
 
         // Call the generic AI client function - expecting string output for analysis
         const generatedContent =
             await callOpenAI<AnalyzeProgressResponse>(
-                promptFileContent.model,
-                Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
-                systemMessage,
-                populatedUserMessage,
+                prompt.model,
+                prompt.temperature,
+                prompt.systemMessage,
+                prompt.userMessage,
                 analyzeProgressSchema
             );
 

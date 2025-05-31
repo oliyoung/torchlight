@@ -320,6 +320,17 @@ input AIExtractAndEvaluateGoalInput {
 	goalText: String! # Natural language goal description to analyze
 }
 
+"""
+Input for AI longitudinal pattern analysis across session logs.
+Analyzes patterns and trends across multiple session logs to identify insights.
+"""
+input AIAnalyzeSessionPatternsInput {
+	athleteId: ID! # The athlete to analyze
+	startDate: DateTime! # Analysis period start date
+	endDate: DateTime! # Analysis period end date
+	goalIds: [ID!] # Optional filter for specific goals
+}
+
 # AI Goal Evaluation Response Types
 # These types represent the structured output from AI goal analysis
 
@@ -536,6 +547,7 @@ type Mutation {
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog! # Generate AI summary for session
 	generateTrainingPlan(input: AIGenerateTrainingPlanInput!): TrainingPlan! # Generate AI training plan
 	analyzeProgress(input: AIAnalyzeProgressInput!): String! # Analyze athlete progress with AI
+	analyzeSessionPatterns(input: AIAnalyzeSessionPatternsInput!): String! # Analyze patterns across session logs
 	extractAndEvaluateGoal(
 		input: AIExtractAndEvaluateGoalInput!
 	): GoalEvaluationResponse! # AI goal analysis and evaluation

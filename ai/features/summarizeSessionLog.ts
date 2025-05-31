@@ -5,81 +5,26 @@ import type { SessionLog } from "@/lib/types";
 import type { PubSub } from "graphql-subscriptions";
 
 import { z } from "zod";
-import { loadPrompt } from "../lib/promptLoader";
+import { loadAndProcessPrompt } from "../lib/promptLoader";
 import { callOpenAI } from "../providers/openai";
 
 const SUMMARIZE_SESSION_LOG_PROMPT_FILE = "ai/prompts/summarize_session_log.prompt.yml";
 
-export const sessionPlanSchema = z.object({
-    sessionPlan: z.object({
-        title: z.string(),
-        focusArea: z.string(),
-        targetGoalIds: z.array(z.string()), // Assuming ID is string based on GraphQL schema context
-        duration: z.string(),
-        intensityLevel: z.string(),
-        equipment: z.array(z.string()),
-        preparationNotes: z.string(),
-    }),
-    warmup: z.object({
-        duration: z.string(),
-        description: z.string(),
-        exercises: z.array(
-            z.object({
-                name: z.string(),
-                instruction: z.string(),
-                duration: z.string(),
-                sets: z.number(),
-                reps: z.string(),
-            }),
-        ),
-    }),
-    mainBlock: z.object({
-        exercises: z.array(
-            z.object({
-                name: z.string(),
-                focusArea: z.string(),
-                sets: z.number(),
-                reps: z.string(),
-                load: z.string(),
-                rest: z.string(),
-                tempoOrTiming: z.string(),
-                techniqueCues: z.array(z.string()),
-                modifications: z.object({
-                    progression: z.string(),
-                    regression: z.string(),
-                }),
-            }),
-        ),
-    }),
-    supplementaryWork: z.object({
-        exercises: z.array(
-            z.object({
-                name: z.string(),
-                purpose: z.string(),
-                sets: z.number(),
-                reps: z.string(),
-                intensity: z.string(),
-                notes: z.string(),
-            }),
-        ),
-    }),
-    cooldown: z.object({
-        duration: z.string(),
-        components: z.array(z.string()),
-        keyFocus: z.string(),
-    }),
-    sessionNotes: z.object({
-        keyMetricsToTrack: z.array(z.string()),
-        warningSignsToMonitor: z.array(z.string()),
-        adjustmentGuidelines: z.string(),
-        nextSessionConnection: z.string(),
-    }),
+/**
+ * Session summary schema for structured AI response
+ */
+export const sessionSummarySchema = z.object({
+    sessionOverview: z.string(),
+    keyHighlights: z.array(z.string()),
+    areasOfFocus: z.array(z.string()),
+    athleteMindset: z.string(),
+    nextSteps: z.array(z.string()),
 });
 
 /**
- * Goal evaluation response structure matching the prompt template
+ * Session summary response structure
  */
-export type SummarizeSessionLog = z.infer<typeof sessionPlanSchema>;
+export type SessionSummary = z.infer<typeof sessionSummarySchema>;
 
 /**
  * Summarizes a session log using a mocked AI.
@@ -110,46 +55,49 @@ export const summarizeSessionLog = async (
         throw new Error(`Session log with ID ${sessionLogId} not found.`);
     }
 
-    // Load and parse the prompt file
-    const promptFileContent = loadPrompt(SUMMARIZE_SESSION_LOG_PROMPT_FILE);
-    if (!promptFileContent) {
-        logger.error("Failed to load progress analysis prompt file.");
-        throw new Error("Failed to load progress analysis prompt.");
+    // Prepare session data for summarization
+    const goals = sessionLog.goals?.map(g => ({ id: g.id, title: g.title, description: g.description })) || [];
+    
+    // Load and process the prompt with variable substitution
+    const prompt = loadAndProcessPrompt(SUMMARIZE_SESSION_LOG_PROMPT_FILE, {
+        sessionDate: sessionLog.date.toString(),
+        goals: JSON.stringify(goals, null, 2),
+        notes: sessionLog.notes || "No coach notes provided",
+        transcript: sessionLog.transcript || "No athlete feedback provided"
+    });
+
+    // Call the AI client function to get structured summary
+    const generatedContent = await callOpenAI<SessionSummary>(
+        prompt.model,
+        prompt.temperature,
+        prompt.systemMessage,
+        prompt.userMessage,
+        sessionSummarySchema
+    );
+
+    if (!generatedContent) {
+        logger.error({ sessionLogId, userId }, "Failed to generate session summary from AI.");
+        throw new Error("Failed to generate session summary.");
     }
 
-    // Extract the user message template and system message
-    const userMessageTemplate = promptFileContent.messages.find(
-        (msg) => msg.role === "user"
-    )?.content;
-    const systemMessage = promptFileContent.messages.find(
-        (msg) => msg.role === "system"
-    )?.content;
-
-    if (!userMessageTemplate || !systemMessage) {
-        logger.error(
-            "System or User message template not found in goal evaluation prompt file."
-        );
-        throw new Error(
-            "System or User message template not found in goal evaluation prompt."
-        );
-    }
-
-    // Call the generic AI client function - expecting string output for analysis
-    const generatedContent =
-        await callOpenAI<SummarizeSessionLog>(
-            promptFileContent.model,
-            Number(promptFileContent?.modelParameters?.temperature) ?? 0.9,
-            systemMessage,
-            userMessageTemplate,
-            sessionPlanSchema
-        );
-
-    // Mocked AI summary generation
-    const sourceText = sessionLog.notes || sessionLog.transcript || "";
-    const generatedSummary = `${sourceText.substring(0, 100)}... (Mocked Summary)`;
+    // Format the structured summary into a readable text
+    const formattedSummary = [
+        `**Session Overview:** ${generatedContent.sessionOverview}`,
+        "",
+        "**Key Highlights:**",
+        ...generatedContent.keyHighlights.map(highlight => `• ${highlight}`),
+        "",
+        "**Areas of Focus:**",
+        ...generatedContent.areasOfFocus.map(area => `• ${area}`),
+        "",
+        `**Athlete Mindset:** ${generatedContent.athleteMindset}`,
+        "",
+        "**Next Steps:**",
+        ...generatedContent.nextSteps.map(step => `• ${step}`),
+    ].join("\n");
 
     // Update the session log with the generated summary
-    const updateData = { summary: generatedSummary };
+    const updateData = { summary: formattedSummary };
     const updatedSessionLog = await sessionLogRepository.updateSessionLog(userId, sessionLogId, updateData);
 
     if (!updatedSessionLog) {
