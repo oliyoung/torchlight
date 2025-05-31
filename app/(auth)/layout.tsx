@@ -1,4 +1,6 @@
-import { UrqlProvider } from "@/components/ui/urql-provider";
+
+import { AuthProvider } from "@/lib/auth/context";
+import { UrqlProvider } from "@/lib/hooks/urql-provider";
 import { Inter, Source_Sans_3 } from "next/font/google";
 
 const inter = Inter({
@@ -21,8 +23,10 @@ export default ({
         <body
             className={`antialiased ${inter.className} ${sourceSansPro.className}`}
         >
-            <UrqlProvider>
-                {children}
-            </UrqlProvider>
+            <AuthProvider>
+                <UrqlProvider>
+                    {children}
+                </UrqlProvider>
+            </AuthProvider>
         </body>
     </html>

@@ -1,14 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from '../logger';
+import { supabaseConfig } from './config';
 
-// Initialize Supabase client with service role key for server-side operations
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // WARNING: SUPABASE_SERVICE_ROLE_KEY should only be used on the server-side and kept secret.
-const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-    logger.error({ supabaseServiceRoleKey, supabaseUrl }, 'Missing Supabase environment variables for service role client');
-    throw new Error('Missing Supabase environment variables for service role client');
+if (!supabaseConfig.serviceRoleKey) {
+    logger.error('Missing NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY environment variable');
+    throw new Error('Missing NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY environment variable');
 }
 
-export const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
+export const supabaseServiceRole = createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey);

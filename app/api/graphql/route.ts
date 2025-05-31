@@ -14,7 +14,8 @@ import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
 import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
 import { logger } from '@/lib/logger';
 import { pubsub } from '@/lib/pubsub';
-import { createServerClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { supabaseConfig } from '@/lib/supabase/config';
 import type { User } from '@supabase/supabase-js';
 import type DataLoader from 'dataloader'
 import type { PubSub } from 'graphql-subscriptions'
@@ -197,33 +198,51 @@ const { handleRequest } = createYoga<GraphQLContext>({
     }
   }),
   context: async (req) => {
-    // Get authenticated user from Supabase
-    const supabase = await createServerClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    let user: User | null = null
 
-    // If no user is authenticated, use a fallback for development
-    // In production, you might want to throw an error or return null
-    const userId = user?.id || '123'
+    const authHeader = req.request?.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      const accessToken = authHeader.replace('Bearer ', '')
+      try {
+        // Create a direct supabase client with the JWT token
+        const supabase = createClient(supabaseConfig.url, supabaseConfig.anonKey, {
+          global: {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          }
+        })
+        const { data: { user: headerUser }, error } = await supabase.auth.getUser()
+        if (!error && headerUser) {
+          user = headerUser
+          logger.info({ userId: headerUser.id }, 'Authenticated via Authorization header')
+        }
+      } catch (error) {
+        logger.error({ error }, 'Failed to authenticate with Authorization header')
+      }
+    }
 
-    // Create all data loaders
-    const loaders = {
-      // Entity loaders
-      athlete: createAthleteLoader(userId),
-      trainingPlan: createTrainingPlanLoader(userId),
-      assistant: createAssistantLoader(),
-      goal: createGoalLoader(userId),
-      sessionLog: createSessionLogLoader(userId),
+    if (user) {
+      // Create all data loaders
+      const loaders = {
+        // Entity loaders
+        athlete: createAthleteLoader(user?.id),
+        trainingPlan: createTrainingPlanLoader(user?.id),
+        assistant: createAssistantLoader(),
+        goal: createGoalLoader(user?.id),
+        sessionLog: createSessionLogLoader(user?.id),
 
-      // Relationship loaders
-      athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(userId),
-      goalSessionLogIds: createGoalSessionLogIdsLoader(),
-      goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
-      sessionLogGoalIds: createSessionLogGoalIdsLoader(),
-      trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
-      trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),
-    };
-
-    return { user, pubsub, loaders };
+        // Relationship loaders
+        athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(user?.id),
+        goalSessionLogIds: createGoalSessionLogIdsLoader(),
+        goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
+        sessionLogGoalIds: createSessionLogGoalIdsLoader(),
+        trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
+        trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),
+      };
+      return { user, pubsub, loaders };
+    }
+    return {}
   },
   graphqlEndpoint: '/api/graphql',
   fetchAPI: { Response }

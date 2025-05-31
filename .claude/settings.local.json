@@ -12,8 +12,14 @@
       "Bash(rm:*)",
       "Bash(find:*)",
       "Bash(mkdir:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:supabase.com)",
+      "Bash(yarn list)",
+      "Bash(yarn add:*)",
+      "Bash(node:*)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": false
 }
