@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
 import { createTokenClient } from '@/lib/supabase/client-token'
 import { authStorage } from '@/lib/auth/storage'
@@ -68,7 +68,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createTokenClient()
+  
+  const supabase = useMemo(() => createTokenClient(), [])
 
   useEffect(() => {
     // Get initial session
@@ -113,7 +114,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * }
    * ```
    */
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -124,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return { error }
-  }
+  }, [supabase])
 
   /**
    * Registers a new user with email and password.
@@ -143,7 +144,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * }
    * ```
    */
-  const signUp = async (email: string, password: string) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password
@@ -154,7 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return { error }
-  }
+  }, [supabase])
 
   /**
    * Signs out the current user and clears all stored tokens.
@@ -166,10 +167,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * // User is now logged out and tokens are cleared
    * ```
    */
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     authStorage.clearTokens()
-  }
+  }, [supabase])
 
   /**
    * Retrieves the current user's access token for API authorization.
@@ -186,11 +187,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    * }
    * ```
    */
-  const getAccessToken = () => {
+  const getAccessToken = useCallback(() => {
     return authStorage.getAccessToken()
-  }
+  }, [])
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     session,
     loading,
@@ -198,7 +199,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signOut,
     getAccessToken
-  }
+  }), [user, session, loading, signIn, signUp, signOut, getAccessToken])
 
   return (
     <AuthContext.Provider value={value}>

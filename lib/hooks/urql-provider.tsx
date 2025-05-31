@@ -4,6 +4,7 @@ import { Provider, createClient, cacheExchange, fetchExchange } from 'urql'
 import { authExchange } from '@urql/exchange-auth'
 import { authStorage } from '@/lib/auth/storage'
 import { useAuth } from '@/lib/auth/context'
+import { useMemo } from 'react'
 
 interface UrqlProviderProps {
   children: React.ReactNode
@@ -28,7 +29,7 @@ interface UrqlProviderProps {
 export const UrqlProvider = ({ children }: UrqlProviderProps) => {
   const { getAccessToken, signOut } = useAuth()
 
-  const client = createClient({
+  const client = useMemo(() => createClient({
     url: '/api/graphql',
     exchanges: [
       cacheExchange,
@@ -72,7 +73,7 @@ export const UrqlProvider = ({ children }: UrqlProviderProps) => {
       }),
       fetchExchange
     ]
-  })
+  }), [getAccessToken, signOut])
 
   return <Provider value={client}>{children}</Provider>
 }

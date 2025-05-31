@@ -17,7 +17,8 @@
       "WebFetch(domain:supabase.com)",
       "Bash(yarn list)",
       "Bash(yarn add:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(lsof:*)"
     ],
     "deny": []
   },

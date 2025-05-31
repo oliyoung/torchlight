@@ -18,7 +18,10 @@ const LastAthletesQuery = `
 `;
 
 const LastAthletes: React.FC = () => {
-	const [{ data, fetching, error }] = useQuery({ query: LastAthletesQuery });
+	const [{ data, fetching, error }] = useQuery({ 
+		query: LastAthletesQuery,
+		requestPolicy: 'cache-first'
+	});
 
 	const lastAthletes = data?.athletes
 		? [...data.athletes]
