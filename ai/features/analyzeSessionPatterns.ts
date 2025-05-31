@@ -76,7 +76,7 @@ export const analyzeSessionPatterns = async (
     }
 
     // Get all session logs for the athlete in the specified date range
-    const sessionLogs = await sessionLogRepository.getSessionLogsByAthlete(userId, athleteId);
+    const sessionLogs = await sessionLogRepository.getSessionLogsByAthleteId(userId, athleteId);
 
     if (!sessionLogs || sessionLogs.length === 0) {
         logger.error({ athleteId, userId }, "No session logs found for pattern analysis.");
@@ -87,11 +87,11 @@ export const analyzeSessionPatterns = async (
     const filteredLogs = sessionLogs.filter((log: SessionLog) => {
         const logDate = new Date(log.date);
         const inDateRange = logDate >= startDate && logDate <= endDate;
-        
+
         if (!goalIds || goalIds.length === 0) {
             return inDateRange;
         }
-        
+
         // Check if any of the session's goals match the filter
         const hasMatchingGoals = log.goals?.some(goal => goalIds.includes(goal.id));
         return inDateRange && hasMatchingGoals;
