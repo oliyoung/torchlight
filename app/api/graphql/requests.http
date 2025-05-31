@@ -1,12 +1,41 @@
-### GraphQL API Requests for CoachBase
-### Base URL: http://localhost:3000/api/graphql
-### Authorization: Bearer token required for all requests
+### CoachBase API Requests
+### Base URL: http://localhost:3000
+###
+### SETUP INSTRUCTIONS:
+### 1. Start dev server: yarn dev
+### 2. Create test user: node scripts/signup-user.js test@example.com password123
+### 3. Get auth token: node scripts/get-auth-token.js test@example.com password123
+### 4. Replace "YOUR_TOKEN_HERE" below with actual token
+###
+
+### AUTH ENDPOINTS
+
+# Register new user
+POST http://localhost:3000/api/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "oliyoung+1@gmail.com",
+    "password": "password123"
+}
 
 ###
+
+# Login existing user
+POST http://localhost:3000/api/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123"
+}
+
+### GRAPHQL ENDPOINTS (Require Authorization header)
+
 # 1. AI - Extract and Evaluate Goal (existing example)
 POST http://localhost:3000/api/graphql HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer xxx
+Authorization: Bearer .eyJpc3MiOiJodHRwczovL3p0Y3JudXhwcmN4d2J2bnd4ZG9qLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3Njk5MDdhYy03YzQwLTQ2N2MtYWEyMC0xMmMwOWEyMDkzZTUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQ4Njk4MDMwLCJpYXQiOjE3NDg2OTQ0MzAsImVtYWlsIjoib2xpeW91bmdAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6Im9saXlvdW5nQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6Ijc2OTkwN2FjLTdjNDAtNDY3Yy1hYTIwLTEyYzA5YTIwOTNlNSJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzQ4Njk0NDMwfV0sInNlc3Npb25faWQiOiIxYjNkOTVmOC0xZGU0LTQ0OWEtODdmYS1jZjU3M2MzNGQ3MDEiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.dTBdrOjZ72_WhNYxyXxAeF7zise10AxUv0m7K--gIdY
 X-REQUEST-TYPE: GraphQL
 
 mutation($input:AIExtractAndEvaluateGoalInput!){

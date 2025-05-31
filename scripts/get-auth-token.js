@@ -41,7 +41,7 @@ async function getAuthToken(email, password) {
     console.log(`curl -X POST http://localhost:3000/api/graphql \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer ${data.session.access_token}" \\
-  -d '{"query": "query { athletes { id name sport } }"}'`);
+  -d '{"query": "query { assistants { id name bio } }"}'`);
 
   } catch (error) {
     console.error('Error:', error.message);

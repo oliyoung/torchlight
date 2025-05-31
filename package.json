@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "biome lint",
     "biome:fix": "biome fix",
+    "type-check": "tsc --noEmit",
     "seed": "ts-node scripts/seed.ts",
     "test": "jest",
     "storybook": "storybook dev -p 6006",

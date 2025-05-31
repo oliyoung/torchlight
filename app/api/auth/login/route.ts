@@ -30,6 +30,14 @@ import { createClient } from '@/lib/supabase'
  * ```
  */
 export async function POST(request: NextRequest) {
+  // Only allow in development environment
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json(
+      { error: 'This endpoint is only available in development environments' },
+      { status: 403 }
+    )
+  }
+
   try {
     const body = await request.json()
     const { email, password } = body
