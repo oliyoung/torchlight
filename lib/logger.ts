@@ -1,5 +1,4 @@
 import pino from "pino";
-import pinoPretty from "pino-pretty";
 const isProd = process.env.NODE_ENV === "production";
 
 export const logger = isProd
