@@ -3,6 +3,9 @@ import extractAndEvaluateGoal from './ai/extractAndEvaluateGoal';
 import generateTrainingPlan from './ai/generateTrainingPlan';
 import summarizeSessionLog from "./ai/summarizeSessionLog";
 
+import { createCoach } from "./coaches/createCoach";
+import { updateCoach } from "./coaches/updateCoach";
+import { updateCoachBilling } from "./coaches/updateCoachBilling";
 import { createAthlete } from "./athletes/createAthlete";
 import { updateAthlete } from "./athletes/updateAthlete";
 import { deleteAthlete } from "./athletes/deleteAthlete";
@@ -17,6 +20,9 @@ import { deleteSessionLog } from "./session-logs/deleteSessionLog";
 
 export default {
   analyzeSessionPatterns,
+  createCoach,
+  updateCoach,
+  updateCoachBilling,
   createAthlete,
   updateAthlete,
   deleteAthlete,

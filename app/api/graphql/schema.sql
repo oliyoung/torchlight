@@ -9,10 +9,63 @@ DROP TABLE IF EXISTS goals CASCADE;
 DROP TABLE IF EXISTS assistants CASCADE;
 DROP TABLE IF EXISTS athletes CASCADE;
 DROP TABLE IF EXISTS training_plans CASCADE;
+DROP TABLE IF EXISTS coach_billing CASCADE;
+DROP TABLE IF EXISTS coaches CASCADE;
 
 -- =========================
 -- 1. Base Tables
 -- =========================
+
+-- Coaches table
+CREATE TABLE coaches (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) UNIQUE NOT NULL, -- Supabase auth user UUID
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    display_name VARCHAR(255),
+    avatar VARCHAR(255), -- Profile picture URL
+    timezone VARCHAR(100) NOT NULL DEFAULT 'UTC',
+    account_status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE', -- ACTIVE, SUSPENDED, BANNED, PENDING_VERIFICATION, INCOMPLETE
+    onboarding_completed BOOLEAN NOT NULL DEFAULT FALSE,
+    last_login_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
+
+-- Coach billing table (separated for cleaner architecture)
+CREATE TABLE coach_billing (
+    id SERIAL PRIMARY KEY,
+    coach_id INTEGER UNIQUE NOT NULL REFERENCES coaches(id) ON DELETE CASCADE,
+    
+    -- Stripe integration
+    stripe_customer_id VARCHAR(255), -- Stripe customer ID
+    subscription_status VARCHAR(50) NOT NULL DEFAULT 'TRIAL', -- TRIAL, ACTIVE, PAST_DUE, CANCELED, UNPAID, INCOMPLETE, INCOMPLETE_EXPIRED, PAUSED
+    subscription_tier VARCHAR(50) NOT NULL DEFAULT 'FREE', -- FREE, STARTER, PROFESSIONAL, ENTERPRISE
+    subscription_start_date TIMESTAMP,
+    subscription_end_date TIMESTAMP,
+    trial_end_date TIMESTAMP,
+    billing_email VARCHAR(255),
+    
+    -- Usage tracking and limits
+    monthly_athlete_limit INTEGER NOT NULL DEFAULT 5,
+    current_athlete_count INTEGER NOT NULL DEFAULT 0,
+    monthly_session_log_limit INTEGER NOT NULL DEFAULT 50,
+    current_session_log_count INTEGER NOT NULL DEFAULT 0,
+    ai_credits_remaining INTEGER DEFAULT 100,
+    usage_reset_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Billing metadata
+    last_payment_date TIMESTAMP,
+    next_billing_date TIMESTAMP,
+    billing_cycle_day INTEGER DEFAULT 1, -- Day of month for billing (1-28)
+    currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
 
 -- Athletes table
 CREATE TABLE athletes (

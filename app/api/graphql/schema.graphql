@@ -7,6 +7,106 @@ scalar DateTime
 scalar JSON
 
 """
+Coach entity representing the authenticated user/coach who owns athletes and training data.
+Abstracts the traditional user model and stores core profile and account information.
+The user_id field references the Supabase auth user UUID.
+"""
+type Coach {
+	id: ID!
+	userId: ID! # Supabase auth user UUID
+	email: String!
+	firstName: String
+	lastName: String
+	displayName: String # Computed or custom display name
+	avatar: String # Profile picture URL
+	timezone: String # Coach's timezone for scheduling
+
+	# Account management
+	accountStatus: AccountStatus! # Account state (active, suspended, etc.)
+	onboardingCompleted: Boolean! # Whether initial setup is done
+	lastLoginAt: DateTime # Last successful login
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete timestamp
+
+	# Relationships
+	billing: CoachBilling # Billing and subscription information
+	athletes: [Athlete!]! # Athletes owned by this coach
+	trainingPlans: [TrainingPlan!]! # Training plans created by this coach
+}
+
+"""
+CoachBilling entity managing subscription, billing, and usage tracking for coaches.
+Separated from Coach entity to maintain clean separation of concerns.
+Integrated with Stripe for payment processing and subscription management.
+"""
+type CoachBilling {
+	id: ID!
+	coachId: ID! # Foreign key to Coach
+
+	# Stripe integration
+	stripeCustomerId: String # Stripe customer ID for billing
+	subscriptionStatus: SubscriptionStatus! # Current subscription state
+	subscriptionTier: SubscriptionTier! # Current plan level
+	subscriptionStartDate: DateTime # When current subscription started
+	subscriptionEndDate: DateTime # When current subscription ends/renews
+	trialEndDate: DateTime # Free trial end date
+	billingEmail: String # Billing email if different from main email
+
+	# Usage tracking and limits
+	monthlyAthleteLimit: Int! # Max athletes allowed per month
+	currentAthleteCount: Int! # Current number of active athletes
+	monthlySessionLogLimit: Int! # Max session logs allowed per month
+	currentSessionLogCount: Int! # Current session logs this month
+	aiCreditsRemaining: Int # AI feature usage credits
+	usageResetDate: DateTime! # When usage counters were last reset
+
+	# Billing history and metadata
+	lastPaymentDate: DateTime # Last successful payment
+	nextBillingDate: DateTime # Next billing cycle date
+	billingCycleDay: Int # Day of month for billing (1-28)
+	currency: String! # Currency code (USD, EUR, etc.)
+
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete timestamp
+}
+
+"""
+Subscription status indicating the current state of the coach's billing subscription.
+"""
+enum SubscriptionStatus {
+	TRIAL # Free trial period
+	ACTIVE # Paid subscription is active and current
+	PAST_DUE # Payment failed, grace period
+	CANCELED # Subscription cancelled, access until period end
+	UNPAID # Payment failed, access suspended
+	INCOMPLETE # Subscription setup incomplete
+	INCOMPLETE_EXPIRED # Incomplete subscription expired
+	PAUSED # Subscription temporarily paused
+}
+
+"""
+Subscription tier indicating the coach's current plan level and feature access.
+"""
+enum SubscriptionTier {
+	FREE # Free tier with basic features
+	STARTER # Basic paid plan
+	PROFESSIONAL # Professional plan with advanced features
+}
+
+"""
+Account status indicating the overall state of the coach's account.
+"""
+enum AccountStatus {
+	ACTIVE # Account is active and in good standing
+	SUSPENDED # Account temporarily suspended
+	BANNED # Account permanently banned
+	PENDING_VERIFICATION # Account awaiting email/identity verification
+	INCOMPLETE # Account setup not finished
+}
+
+"""
 AI Assistant entity representing coaching specialists for different sports and roles.
 Assistants provide AI-powered insights and generate training content based on their expertise.
 """
@@ -173,6 +273,10 @@ Root query type providing read access to all platform entities.
 All queries are automatically scoped to the authenticated coach's data.
 """
 type Query {
+	# Coach queries
+	me: Coach # Get current authenticated coach profile
+	coach(id: ID!): Coach # Get specific coach by ID (admin only)
+
 	# Assistant queries
 	assistants(input: AssistantsInput): [Assistant]! # Get assistants with optional filtering
 
@@ -194,6 +298,52 @@ type Query {
 }
 
 # Input types for entity creation and updates
+
+"""
+Input for creating a new coach profile during onboarding.
+Called automatically after successful authentication.
+"""
+input CreateCoachInput {
+	firstName: String
+	lastName: String
+	displayName: String
+	timezone: String
+	billingEmail: String
+}
+
+"""
+Input for updating coach profile information.
+All fields are optional - only provided fields will be updated.
+"""
+input UpdateCoachInput {
+	firstName: String
+	lastName: String
+	displayName: String
+	avatar: String
+	timezone: String
+	onboardingCompleted: Boolean
+}
+
+"""
+Input for updating coach billing information.
+Typically called by Stripe webhooks or billing management system.
+"""
+input UpdateCoachBillingInput {
+	stripeCustomerId: String
+	subscriptionStatus: SubscriptionStatus
+	subscriptionTier: SubscriptionTier
+	subscriptionStartDate: DateTime
+	subscriptionEndDate: DateTime
+	trialEndDate: DateTime
+	billingEmail: String
+	monthlyAthleteLimit: Int
+	monthlySessionLogLimit: Int
+	aiCreditsRemaining: Int
+	lastPaymentDate: DateTime
+	nextBillingDate: DateTime
+	billingCycleDay: Int
+	currency: String
+}
 
 """
 Input for creating a new athlete record.
@@ -515,6 +665,11 @@ All mutations are automatically scoped to the authenticated coach's data.
 Includes both standard CRUD operations and AI-powered features.
 """
 type Mutation {
+	# Coach mutations
+	createCoach(input: CreateCoachInput!): Coach! # Create coach profile (onboarding)
+	updateCoach(input: UpdateCoachInput!): Coach! # Update coach profile
+	updateCoachBilling(input: UpdateCoachBillingInput!): CoachBilling! # Update billing information (webhooks)
+
 	# Athlete mutations
 	createAthlete(input: CreateAthleteInput!): Athlete! # Create new athlete
 	updateAthlete(id: ID!, input: UpdateAthleteInput!): Athlete! # Update athlete details

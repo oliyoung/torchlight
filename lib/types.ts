@@ -65,6 +65,15 @@ export type AiSummarizeSessionLogInput = {
   sessionLogId: Scalars['ID']['input'];
 };
 
+/** Account status indicating the overall state of the coach's account. */
+export enum AccountStatus {
+  Active = 'ACTIVE',
+  Banned = 'BANNED',
+  Incomplete = 'INCOMPLETE',
+  PendingVerification = 'PENDING_VERIFICATION',
+  Suspended = 'SUSPENDED'
+}
+
 /**
  * AI Assistant entity representing coaching specialists for different sports and roles.
  * Assistants provide AI-powered insights and generate training content based on their expertise.
@@ -134,6 +143,63 @@ export type Availability = {
   trainingTime?: Maybe<Scalars['String']['output']>;
 };
 
+/**
+ * Coach entity representing the authenticated user/coach who owns athletes and training data.
+ * Abstracts the traditional user model and stores core profile and account information.
+ * The user_id field references the Supabase auth user UUID.
+ */
+export type Coach = {
+  __typename?: 'Coach';
+  accountStatus: AccountStatus;
+  athletes: Array<Athlete>;
+  avatar?: Maybe<Scalars['String']['output']>;
+  billing?: Maybe<CoachBilling>;
+  createdAt: Scalars['DateTime']['output'];
+  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  firstName?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
+  lastName?: Maybe<Scalars['String']['output']>;
+  onboardingCompleted: Scalars['Boolean']['output'];
+  timezone?: Maybe<Scalars['String']['output']>;
+  trainingPlans: Array<TrainingPlan>;
+  updatedAt: Scalars['DateTime']['output'];
+  userId: Scalars['ID']['output'];
+};
+
+/**
+ * CoachBilling entity managing subscription, billing, and usage tracking for coaches.
+ * Separated from Coach entity to maintain clean separation of concerns.
+ * Integrated with Stripe for payment processing and subscription management.
+ */
+export type CoachBilling = {
+  __typename?: 'CoachBilling';
+  aiCreditsRemaining?: Maybe<Scalars['Int']['output']>;
+  billingCycleDay?: Maybe<Scalars['Int']['output']>;
+  billingEmail?: Maybe<Scalars['String']['output']>;
+  coachId: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  currentAthleteCount: Scalars['Int']['output'];
+  currentSessionLogCount: Scalars['Int']['output'];
+  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastPaymentDate?: Maybe<Scalars['DateTime']['output']>;
+  monthlyAthleteLimit: Scalars['Int']['output'];
+  monthlySessionLogLimit: Scalars['Int']['output'];
+  nextBillingDate?: Maybe<Scalars['DateTime']['output']>;
+  stripeCustomerId?: Maybe<Scalars['String']['output']>;
+  subscriptionEndDate?: Maybe<Scalars['DateTime']['output']>;
+  subscriptionStartDate?: Maybe<Scalars['DateTime']['output']>;
+  subscriptionStatus: SubscriptionStatus;
+  subscriptionTier: SubscriptionTier;
+  trialEndDate?: Maybe<Scalars['DateTime']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  usageResetDate: Scalars['DateTime']['output'];
+};
+
 /** Coach-specific feedback and development insights. */
 export type CoachingFeedback = {
   __typename?: 'CoachingFeedback';
@@ -184,6 +250,18 @@ export type CreateAthleteInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   sport: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/**
+ * Input for creating a new coach profile during onboarding.
+ * Called automatically after successful authentication.
+ */
+export type CreateCoachInput = {
+  billingEmail?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -334,6 +412,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   analyzeSessionPatterns: Scalars['String']['output'];
   createAthlete: Athlete;
+  createCoach: Coach;
   createGoal: Goal;
   createSessionLog: SessionLog;
   createTrainingPlan: TrainingPlan;
@@ -344,6 +423,8 @@ export type Mutation = {
   generateTrainingPlan: TrainingPlan;
   summarizeSessionLog: SessionLog;
   updateAthlete: Athlete;
+  updateCoach: Coach;
+  updateCoachBilling: CoachBilling;
   updateGoal: Goal;
   updateSessionLog: SessionLog;
   updateTrainingPlan: TrainingPlan;
@@ -367,6 +448,16 @@ export type MutationAnalyzeSessionPatternsArgs = {
  */
 export type MutationCreateAthleteArgs = {
   input: CreateAthleteInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationCreateCoachArgs = {
+  input: CreateCoachInput;
 };
 
 
@@ -476,6 +567,26 @@ export type MutationUpdateAthleteArgs = {
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
  */
+export type MutationUpdateCoachArgs = {
+  input: UpdateCoachInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdateCoachBillingArgs = {
+  input: UpdateCoachBillingInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateGoalArgs = {
   id: Scalars['ID']['input'];
   input: UpdateGoalInput;
@@ -512,8 +623,10 @@ export type Query = {
   assistants: Array<Maybe<Assistant>>;
   athlete?: Maybe<Athlete>;
   athletes: Array<Athlete>;
+  coach?: Maybe<Coach>;
   goal?: Maybe<Goal>;
   goals: Array<Goal>;
+  me?: Maybe<Coach>;
   sessionLog?: Maybe<SessionLog>;
   sessionLogs: Array<SessionLog>;
   trainingPlan?: Maybe<TrainingPlan>;
@@ -535,6 +648,15 @@ export type QueryAssistantsArgs = {
  * All queries are automatically scoped to the authenticated coach's data.
  */
 export type QueryAthleteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
+export type QueryCoachArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -697,6 +819,25 @@ export type SubscriptionTrainingPlanGeneratedArgs = {
   athleteId: Scalars['ID']['input'];
 };
 
+/** Subscription status indicating the current state of the coach's billing subscription. */
+export enum SubscriptionStatus {
+  Active = 'ACTIVE',
+  Canceled = 'CANCELED',
+  Incomplete = 'INCOMPLETE',
+  IncompleteExpired = 'INCOMPLETE_EXPIRED',
+  PastDue = 'PAST_DUE',
+  Paused = 'PAUSED',
+  Trial = 'TRIAL',
+  Unpaid = 'UNPAID'
+}
+
+/** Subscription tier indicating the coach's current plan level and feature access. */
+export enum SubscriptionTier {
+  Free = 'FREE',
+  Professional = 'PROFESSIONAL',
+  Starter = 'STARTER'
+}
+
 /** Success measurement criteria and expected outcomes. */
 export type SuccessIndicators = {
   __typename?: 'SuccessIndicators';
@@ -760,6 +901,40 @@ export type UpdateAthleteInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   sport?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/**
+ * Input for updating coach billing information.
+ * Typically called by Stripe webhooks or billing management system.
+ */
+export type UpdateCoachBillingInput = {
+  aiCreditsRemaining?: InputMaybe<Scalars['Int']['input']>;
+  billingCycleDay?: InputMaybe<Scalars['Int']['input']>;
+  billingEmail?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  lastPaymentDate?: InputMaybe<Scalars['DateTime']['input']>;
+  monthlyAthleteLimit?: InputMaybe<Scalars['Int']['input']>;
+  monthlySessionLogLimit?: InputMaybe<Scalars['Int']['input']>;
+  nextBillingDate?: InputMaybe<Scalars['DateTime']['input']>;
+  stripeCustomerId?: InputMaybe<Scalars['String']['input']>;
+  subscriptionEndDate?: InputMaybe<Scalars['DateTime']['input']>;
+  subscriptionStartDate?: InputMaybe<Scalars['DateTime']['input']>;
+  subscriptionStatus?: InputMaybe<SubscriptionStatus>;
+  subscriptionTier?: InputMaybe<SubscriptionTier>;
+  trialEndDate?: InputMaybe<Scalars['DateTime']['input']>;
+};
+
+/**
+ * Input for updating coach profile information.
+ * All fields are optional - only provided fields will be updated.
+ */
+export type UpdateCoachInput = {
+  avatar?: InputMaybe<Scalars['String']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
+  firstName?: InputMaybe<Scalars['String']['input']>;
+  lastName?: InputMaybe<Scalars['String']['input']>;
+  onboardingCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -883,17 +1058,21 @@ export type ResolversTypes = {
   AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
   AIMetadata: ResolverTypeWrapper<AiMetadata>;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
+  AccountStatus: AccountStatus;
   Assistant: ResolverTypeWrapper<Assistant>;
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
   Athlete: ResolverTypeWrapper<Athlete>;
   Availability: ResolverTypeWrapper<Availability>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Coach: ResolverTypeWrapper<Coach>;
+  CoachBilling: ResolverTypeWrapper<CoachBilling>;
   CoachingFeedback: ResolverTypeWrapper<CoachingFeedback>;
   ConfidenceLevel: ConfidenceLevel;
   Constraints: ResolverTypeWrapper<Constraints>;
   CoreGoal: ResolverTypeWrapper<CoreGoal>;
   CreateAthleteInput: CreateAthleteInput;
+  CreateCoachInput: CreateCoachInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
@@ -917,11 +1096,15 @@ export type ResolversTypes = {
   SessionLog: ResolverTypeWrapper<SessionLog>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
+  SubscriptionStatus: SubscriptionStatus;
+  SubscriptionTier: SubscriptionTier;
   SuccessIndicators: ResolverTypeWrapper<SuccessIndicators>;
   Timeline: ResolverTypeWrapper<Timeline>;
   TrainingPlan: ResolverTypeWrapper<TrainingPlan>;
   TrainingPlanStatus: TrainingPlanStatus;
   UpdateAthleteInput: UpdateAthleteInput;
+  UpdateCoachBillingInput: UpdateCoachBillingInput;
+  UpdateCoachInput: UpdateCoachInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
@@ -941,10 +1124,13 @@ export type ResolversParentTypes = {
   Athlete: Athlete;
   Availability: Availability;
   Boolean: Scalars['Boolean']['output'];
+  Coach: Coach;
+  CoachBilling: CoachBilling;
   CoachingFeedback: CoachingFeedback;
   Constraints: Constraints;
   CoreGoal: CoreGoal;
   CreateAthleteInput: CreateAthleteInput;
+  CreateCoachInput: CreateCoachInput;
   CreateGoalInput: CreateGoalInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
@@ -969,6 +1155,8 @@ export type ResolversParentTypes = {
   Timeline: Timeline;
   TrainingPlan: TrainingPlan;
   UpdateAthleteInput: UpdateAthleteInput;
+  UpdateCoachBillingInput: UpdateCoachBillingInput;
+  UpdateCoachInput: UpdateCoachInput;
   UpdateGoalInput: UpdateGoalInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
@@ -1024,6 +1212,53 @@ export type AvailabilityResolvers<ContextType = GraphQLContext, ParentType exten
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scheduleConstraints?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   trainingTime?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CoachResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Coach'] = ResolversParentTypes['Coach']> = {
+  accountStatus?: Resolver<ResolversTypes['AccountStatus'], ParentType, ContextType>;
+  athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
+  avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  billing?: Resolver<Maybe<ResolversTypes['CoachBilling']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  displayName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  firstName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastLoginAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  onboardingCompleted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CoachBillingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CoachBilling'] = ResolversParentTypes['CoachBilling']> = {
+  aiCreditsRemaining?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  billingCycleDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  billingEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  coachId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currentAthleteCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  currentSessionLogCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastPaymentDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  monthlyAthleteLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  monthlySessionLogLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  nextBillingDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  stripeCustomerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  subscriptionEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  subscriptionStartDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  subscriptionStatus?: Resolver<ResolversTypes['SubscriptionStatus'], ParentType, ContextType>;
+  subscriptionTier?: Resolver<ResolversTypes['SubscriptionTier'], ParentType, ContextType>;
+  trialEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  usageResetDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1130,6 +1365,7 @@ export type MotivationResolvers<ContextType = GraphQLContext, ParentType extends
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   analyzeSessionPatterns?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeSessionPatternsArgs, 'input'>>;
   createAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationCreateAthleteArgs, 'input'>>;
+  createCoach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType, RequireFields<MutationCreateCoachArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
   createSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationCreateSessionLogArgs, 'input'>>;
   createTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationCreateTrainingPlanArgs, 'input'>>;
@@ -1140,6 +1376,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   generateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationGenerateTrainingPlanArgs, 'input'>>;
   summarizeSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationSummarizeSessionLogArgs, 'input'>>;
   updateAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationUpdateAthleteArgs, 'id' | 'input'>>;
+  updateCoach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType, RequireFields<MutationUpdateCoachArgs, 'input'>>;
+  updateCoachBilling?: Resolver<ResolversTypes['CoachBilling'], ParentType, ContextType, RequireFields<MutationUpdateCoachBillingArgs, 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
   updateSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationUpdateSessionLogArgs, 'id' | 'input'>>;
   updateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationUpdateTrainingPlanArgs, 'id' | 'input'>>;
@@ -1149,8 +1387,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   assistants?: Resolver<Array<Maybe<ResolversTypes['Assistant']>>, ParentType, ContextType, Partial<QueryAssistantsArgs>>;
   athlete?: Resolver<Maybe<ResolversTypes['Athlete']>, ParentType, ContextType, RequireFields<QueryAthleteArgs, 'id'>>;
   athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
+  coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType, RequireFields<QueryCoachArgs, 'id'>>;
   goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'athleteId' | 'id'>>;
   goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalsArgs, 'athleteId'>>;
+  me?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
   sessionLog?: Resolver<Maybe<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogArgs, 'id'>>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogsArgs, 'athleteId'>>;
   trainingPlan?: Resolver<Maybe<ResolversTypes['TrainingPlan']>, ParentType, ContextType, RequireFields<QueryTrainingPlanArgs, 'id'>>;
@@ -1227,6 +1467,8 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Assistant?: AssistantResolvers<ContextType>;
   Athlete?: AthleteResolvers<ContextType>;
   Availability?: AvailabilityResolvers<ContextType>;
+  Coach?: CoachResolvers<ContextType>;
+  CoachBilling?: CoachBillingResolvers<ContextType>;
   CoachingFeedback?: CoachingFeedbackResolvers<ContextType>;
   Constraints?: ConstraintsResolvers<ContextType>;
   CoreGoal?: CoreGoalResolvers<ContextType>;

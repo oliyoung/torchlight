@@ -18,7 +18,8 @@
       "Bash(yarn list)",
       "Bash(yarn add:*)",
       "Bash(node:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(npx graphql-codegen:*)"
     ],
     "deny": []
   },

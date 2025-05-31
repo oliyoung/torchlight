@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import Navigation from "@/components/ui/navigation";
 import { AuthProvider } from "@/lib/auth/context";
 import { UrqlProvider } from "@/lib/hooks/urql-provider";
+import { OnboardingProvider } from "@/components/onboarding-provider";
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -32,10 +33,12 @@ export default ({
 			<body className={`antialiased ${inter.className} ${sourceSansPro.className}`} >
 				<AuthProvider>
 					<UrqlProvider>
-						<div className="text-foreground flex-col align-top flex gap-2 px-8 mx-20 sm:mx-5 xs:mx-2 my-8 rounded-4xl bg-stone-100">
-							<Navigation />
-							{children}
-						</div>
+						<OnboardingProvider>
+							<div className="text-foreground flex-col align-top flex gap-2 px-8 mx-20 sm:mx-5 xs:mx-2 my-8 rounded-4xl bg-stone-100">
+								<Navigation />
+								{children}
+							</div>
+						</OnboardingProvider>
 					</UrqlProvider>
 				</AuthProvider>
 			</body>

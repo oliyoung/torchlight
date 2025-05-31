@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { createAssistantLoader } from '@/lib/data-loaders/assistant';
 import { createAthleteLoader } from '@/lib/data-loaders/athlete';
+import { createCoachLoaders } from '@/lib/data-loaders/coach';
+import { createCoachBillingLoaders } from '@/lib/data-loaders/coachBilling';
 import { createGoalLoader } from '@/lib/data-loaders/goal';
 import {
   createAthleteTrainingPlanIdsLoader,
@@ -26,7 +28,12 @@ import subscriptions from './subscriptions';
 
 export interface GraphQLContext extends YogaInitialContext {
   user: User | null;
+  userId: string | null;
   pubsub: PubSub;
+  dataloaders?: {
+    coachLoaders: ReturnType<typeof createCoachLoaders>;
+    coachBillingLoaders: ReturnType<typeof createCoachBillingLoaders>;
+  };
   loaders: {
     // Entity loaders
     athlete: ReturnType<typeof createAthleteLoader>;
@@ -84,6 +91,39 @@ const { handleRequest } = createYoga<GraphQLContext>({
       },
       Subscription: {
         ...subscriptions,
+      },
+      Coach: {
+        billing: async (parent, _args, context) => {
+          try {
+            if (context.dataloaders?.coachBillingLoaders) {
+              return await context.dataloaders.coachBillingLoaders.coachBillingByCoachId.load(parent.id);
+            }
+            return null;
+          } catch (error) {
+            logger.error({ error, coachId: parent.id }, 'Error resolving coach billing');
+            return null;
+          }
+        },
+        athletes: async (parent, _args, context) => {
+          try {
+            // Get all athletes for this coach - this will need to be implemented
+            // For now, return empty array as the data loader structure needs to be updated
+            return [];
+          } catch (error) {
+            logger.error({ error, coachId: parent.id }, 'Error resolving coach athletes');
+            return [];
+          }
+        },
+        trainingPlans: async (parent, _args, context) => {
+          try {
+            // Get all training plans for this coach - this will need to be implemented
+            // For now, return empty array as the data loader structure needs to be updated
+            return [];
+          } catch (error) {
+            logger.error({ error, coachId: parent.id }, 'Error resolving coach training plans');
+            return [];
+          }
+        }
       },
       TrainingPlan: {
         athlete: async (parent, _args, context) => {
@@ -240,9 +280,28 @@ const { handleRequest } = createYoga<GraphQLContext>({
         trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
         trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),
       };
-      return { user, pubsub, loaders };
+
+      // Create coach-specific data loaders
+      const dataloaders = {
+        coachLoaders: createCoachLoaders(),
+        coachBillingLoaders: createCoachBillingLoaders(),
+      };
+
+      return { 
+        user, 
+        userId: user.id,
+        pubsub, 
+        loaders,
+        dataloaders
+      };
     }
-    return {}
+    return { 
+      user: null, 
+      userId: null,
+      pubsub, 
+      loaders: {} as any,
+      dataloaders: undefined
+    }
   },
   graphqlEndpoint: '/api/graphql',
   fetchAPI: { Response }
