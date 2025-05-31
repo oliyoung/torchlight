@@ -1,5 +1,5 @@
-import LastAthletes from "@/components/LastAthletes";
-import LastSessionLogs from "@/components/LastSessionLogs";
+import LastAthletes from "@/components/last-athletes";
+import LastSessionLogs from "@/components/last-session-logs";
 import { PageSection, PageWrapper } from "@/components/ui/page-wrapper";
 
 export default () =>
