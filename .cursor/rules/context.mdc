@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
 # congenial-carnival Project Context - UPDATED
@@ -8,18 +8,18 @@ alwaysApply: true
 ## 1. Current State of the Codebase
 - This is a greenfield project with sophisticated architectural patterns already established. All features currently implemented in the codebase can be inferred from their UI completeness. New features should follow the established patterns and conventions.
 - **File Organization**: Project uses root-level `/app` and `/components` directories (NOT under `/src`)
-- **GraphQL**: Fully implemented server with comprehensive resolver structure and DataLoader pattern
-- **AI Integration**: Live implementation using Anthropic Claude (not mocked)
-- **Repository Pattern**: Sophisticated generic repository classes with user-scoped operations
+- **GraphQL**: Fully implemented server with comprehensive resolver structure and DataLoader pattern.
+- **AI Integration**: AI features are being implemented, utilizing installed SDKs for Anthropic and OpenAI.
+- **Repository Pattern**: Sophisticated generic repository classes with user-scoped operations.
 - The next most important features or screens to build are currently being determined. Establishing and prioritizing the product backlog is the immediate priority.
 
 ## 2. Core Data Models & GraphQL Implementation
 - The core data models are defined in the GraphQL schema (`app/api/graphql/schema.graphql`), which is always the single source of truth.
 - **Fully implemented GraphQL Yoga server** with sophisticated architecture:
   - Complete resolver implementations in `app/api/graphql/mutations/`, `queries/`, `subscriptions/`
-  - DataLoader pattern for performance optimization and N+1 prevention
+  - DataLoader pattern implemented in `lib/data-loaders` for performance optimization and N+1 prevention.
   - Entity relationship resolvers for complex nested queries
-  - User-scoped operations with automatic filtering
+  - User-scoped operations with automatic filtering (handled in repository layer)
   - GraphQL Playground available at http://localhost:3000/api/graphql
 - Main entities include:
   - **Athlete**: Represents a person being coached, with personal details, goals, session logs, and training plans.
@@ -37,7 +37,7 @@ alwaysApply: true
   - Views and manages goals for each athlete, including creating, editing, and tracking goal progress.
   - Reviews or adds session logs, uploads transcripts, and links sessions to goals for context-rich progress tracking.
   - Creates and manages structured training plans, linking them to athletes, goals, and session logs.
-  - Uses built-in AI tools for session summarization, next-step generation, and progress analysis (live implementation using Anthropic Claude).
+  - Uses built-in AI tools for session summarization, next-step generation, and progress analysis (AI features are implemented in `ai/features/`).
   - Accesses team management features: creating teams, assigning athletes and coaches, and viewing team dashboards (planned).
   - Experiences a modern, responsive, and accessible UI with dark mode support and mobile-friendly layouts.
   - All flows are designed for clarity, quick navigation, and actionable insights, with future extensibility for notifications, chat, and integrations.
@@ -45,16 +45,13 @@ alwaysApply: true
 - Refer to [visual_style_prompt.mdc](mdc:.cursor/rules/visual_style_prompt.mdc) for more context
 
 ## 4. AI Integration - LIVE IMPLEMENTATION
-- **Real AI integration** is implemented and operational using Anthropic Claude:
-  - Uses `@anthropic-ai/sdk` for live API calls to Claude models
-  - Environment variable required: `ANTHROPIC_API_KEY`
-  - AI functions located in `ai/` directory (generateSession, generateTrainingPlan, etc.)
-  - Sophisticated prompt templates in `ai/prompts/`
-  - GraphQL mutations for AI features (`summarizeSessionLog`, `generateSession`, `analyzeProgress`) call real AI services
-- The core AI client function, `generateContentWithAI` (`ai/lib/aiClient.ts`), provides a generic interface for AI provider responses with optional parser function support
-- When implementing AI features, ensure they correctly invoke the generic `generateContentWithAI` function and handle its output according to the expected schema shape
-- The AI integration layer supports experimentation and can be extended with additional providers
-
+- **AI integration is in progress**, with installed and working SDKs for Anthropic Claude (`@anthropic-ai/sdk`) and OpenAI (`openai`).
+- Environment variables required: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` (if used).
+- AI feature logic is located in `ai/features/` (e.g., `summarizeSessionLog.ts`, `generateTrainingPlan.ts`), triggered by GraphQL mutations in `app/api/graphql/mutations/ai/`.
+- Prompt templates are in `ai/prompts/` and managed by `ai/lib/promptLoader.ts`.
+- Provider-specific AI interaction logic is located in `ai/providers/` (e.g., `openai.ts`), and AI features in `ai/features/` interact with these provider functions.
+- The AI features currently interact with the AI providers through these provider-specific functions rather than a centralized generic `aiClient.ts` file as previously envisioned.
+- The AI integration layer is open for experimentation and can be extended with additional providers.
 
 ## 5. Authentication & Authorization
 - Supabase Auth is used for authentication ([Supabase Auth docs](mdc:https:/supabase.com/auth)).
@@ -67,30 +64,25 @@ alwaysApply: true
 - **Required environment variables** for local development:
   - `DATABASE_URL` - Supabase connection string
   - `ANTHROPIC_API_KEY` - For AI features and Claude API access
+  - `OPENAI_API_KEY` - For OpenAI AI features (if used)
   - Additional Supabase auth variables for authentication
 - Environment variables and secrets are stored in a `.env` file at the project root for local development. For production, use secure environment variable management (e.g., AWS Secrets Manager, SSM Parameter Store).
 - Supabase is always running remotely; use the provided remote Supabase connection string in `.env` as `DATABASE_URL`. No local database setup or automation script is required at this time.
 - Only two environments exist: local (development) and production. No staging environment.
 
 ## 7. Design System & UI Patterns
-- Only use Shadcn UI components and Tailwind CSS for all UI and styling. Do not create custom component libraries or introduce other design systems.
+- Shadcn UI components and Tailwind CSS are used for all UI and styling. Do not create custom component libraries or introduce other design systems.
 - Branding should be clean, professional, but also soft and fun to reflect the supportive nature of coaching.
-- Responsive, accessible, and modern design is required.
+- Responsive, accessible, and modern design is required, following the principles outlined in `visual_style_prompt.mdc`.
 - There are currently no Figma files, brand guidelines, or color palettes available. Design system and branding assets are a TODO for the future.
 
 ## 8. Performance & Code Conventions
 - Follow the conventions in `general.mdc` for code style, structure, and optimization.
 - Use React Server Components where possible, minimize client-side state, and optimize for web vitals.
-- **File organization**: Root-level `/app` and `/components` directories (not under `/src`)
-- **Repository Pattern**: Sophisticated architecture in `/lib/repository/`:
-  - Generic `EntityRepository<T>` base class with full CRUD operations
-  - User-scoped data access with automatic filtering
-  - Column mapping between camelCase (TypeScript) and snake_case (PostgreSQL)
-  - Soft delete support with fallback to hard delete
-  - DataLoader integration for N+1 query prevention
-  - Comprehensive error handling and structured logging
-- **DataLoader Pattern**: Implemented for all entity relationships to prevent N+1 queries
-- Import paths use `@/*` which maps to the root directory
+- **File organization**: Root-level `/app` and `/components` directories (not under `/src`).
+- **Repository Pattern**: Sophisticated architecture in `/lib/repository/` with user-scoped data access, column mapping between camelCase (TypeScript) and snake_case (PostgreSQL), soft delete support with fallback to hard delete, DataLoader integration, comprehensive error handling, and structured logging.
+- **DataLoader Pattern**: Implemented in `lib/data-loaders` for all entity relationships to prevent N+1 queries.
+- Import paths use `@/*` which maps to the root directory.
 
 ## 9. Collaboration & Workflow
 - Currently, there are no strict conventions for branching or pull requests.
@@ -108,10 +100,10 @@ alwaysApply: true
 
 ## 12. Testing & Quality
 - Prefer end-to-end (E2E) and integration testing for most features.
-- **Current setup**: Jest configured for unit/component tests
-- **TODO**: Playwright setup for E2E tests (dependencies not yet installed)
-- **TODO**: Create initial test file examples
-- Use Storybook for component-driven development and visual regression testing.
+- **Current setup**: Jest configured for unit/component tests (`jest.config.js`).
+- **TODO**: Playwright setup for E2E tests (dependencies installed, setup pending).
+- **TODO**: Create initial test file examples.
+- Storybook is configured for component-driven development and visual regression testing (`.storybook/`).
 - Use Jest and [Testing Library](mdc:https:/testing-library.com) for unit tests and component tests, following best practices for user-centric, maintainable tests.
 - Prioritize tests that reflect real user interactions and flows.
 
