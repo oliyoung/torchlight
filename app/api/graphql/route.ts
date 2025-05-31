@@ -14,6 +14,7 @@ import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
 import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
 import { logger } from '@/lib/logger';
 import { pubsub } from '@/lib/pubsub';
+import { createServerClient } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import type DataLoader from 'dataloader'
 import type { PubSub } from 'graphql-subscriptions'
@@ -195,21 +196,26 @@ const { handleRequest } = createYoga<GraphQLContext>({
       },
     }
   }),
-  context: async () => {
-    // Keep the hard-coded user as requested
-    const user = { id: '123' }
+  context: async (req) => {
+    // Get authenticated user from Supabase
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // If no user is authenticated, use a fallback for development
+    // In production, you might want to throw an error or return null
+    const userId = user?.id || '123'
 
     // Create all data loaders
     const loaders = {
       // Entity loaders
-      athlete: createAthleteLoader(user.id),
-      trainingPlan: createTrainingPlanLoader(user.id),
+      athlete: createAthleteLoader(userId),
+      trainingPlan: createTrainingPlanLoader(userId),
       assistant: createAssistantLoader(),
-      goal: createGoalLoader(user.id),
-      sessionLog: createSessionLogLoader(user.id),
+      goal: createGoalLoader(userId),
+      sessionLog: createSessionLogLoader(userId),
 
       // Relationship loaders
-      athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(user.id),
+      athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(userId),
       goalSessionLogIds: createGoalSessionLogIdsLoader(),
       goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
       sessionLogGoalIds: createSessionLogGoalIdsLoader(),
