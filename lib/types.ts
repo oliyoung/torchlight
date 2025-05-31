@@ -19,16 +19,6 @@ export type Scalars = {
 };
 
 /**
- * Input for AI progress analysis across a date range.
- * Analyzes athlete progress and provides insights and recommendations.
- */
-export type AiAnalyzeProgressInput = {
-  athleteId: Scalars['ID']['input'];
-  endDate: Scalars['DateTime']['input'];
-  startDate: Scalars['DateTime']['input'];
-};
-
-/**
  * Input for AI longitudinal pattern analysis across session logs.
  * Analyzes patterns and trends across multiple session logs to identify insights.
  */
@@ -342,7 +332,6 @@ export type Motivation = {
  */
 export type Mutation = {
   __typename?: 'Mutation';
-  analyzeProgress: Scalars['String']['output'];
   analyzeSessionPatterns: Scalars['String']['output'];
   createAthlete: Athlete;
   createGoal: Goal;
@@ -358,16 +347,6 @@ export type Mutation = {
   updateGoal: Goal;
   updateSessionLog: SessionLog;
   updateTrainingPlan: TrainingPlan;
-};
-
-
-/**
- * Root mutation type providing write access to all platform entities.
- * All mutations are automatically scoped to the authenticated coach's data.
- * Includes both standard CRUD operations and AI-powered features.
- */
-export type MutationAnalyzeProgressArgs = {
-  input: AiAnalyzeProgressInput;
 };
 
 
@@ -899,7 +878,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  AIAnalyzeProgressInput: AiAnalyzeProgressInput;
   AIAnalyzeSessionPatternsInput: AiAnalyzeSessionPatternsInput;
   AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
   AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
@@ -952,7 +930,6 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  AIAnalyzeProgressInput: AiAnalyzeProgressInput;
   AIAnalyzeSessionPatternsInput: AiAnalyzeSessionPatternsInput;
   AIExtractAndEvaluateGoalInput: AiExtractAndEvaluateGoalInput;
   AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
@@ -1151,7 +1128,6 @@ export type MotivationResolvers<ContextType = GraphQLContext, ParentType extends
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  analyzeProgress?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeProgressArgs, 'input'>>;
   analyzeSessionPatterns?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeSessionPatternsArgs, 'input'>>;
   createAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationCreateAthleteArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;

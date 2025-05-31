@@ -1,5 +1,5 @@
-import { loadAndProcessPrompt } from "@/ai/lib/promptLoader";
-import { callOpenAI } from "@/ai/providers/openai";
+import { loadAndProcessPrompt } from "../lib/promptLoader";
+import { callOpenAI } from "../providers/openai";
 import { logger } from "@/lib/logger";
 import { athleteRepository } from "@/lib/repository";
 import { z } from "zod";

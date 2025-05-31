@@ -114,10 +114,20 @@ messages:
       Analyze the following session logs for patterns and trends:
 
       **Athlete ID:** {{athleteId}}
+      **Athlete Age:** {{athleteAge}} years
       **Analysis Period:** {{startDate}} to {{endDate}}
       **Session Count:** {{sessionCount}}
 
-      **Session Logs:**
-      {{sessionLogs}}
+      **Session Data:**
+      {{sessionData}}
+
+      Each session includes the date, coach notes, athlete transcript/feedback, AI-generated summary (if available), and associated goals. 
+
+      Focus on identifying patterns across the sessions, noting how the athlete's responses, engagement, and progress evolve over time. Pay special attention to:
+      - Recurring themes in athlete feedback
+      - Changes in motivation and engagement levels
+      - Technical skill development patterns
+      - Goal achievement progress
+      - Youth-specific development indicators (for athletes under 18)
 
       Provide a comprehensive longitudinal analysis following the framework above.

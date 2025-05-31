@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { sessionLogRepository } from "@/lib/repository";
+import { sessionLogRepository, athleteRepository } from "@/lib/repository";
 import type { SessionLog } from "@/lib/types";
 
 import { z } from "zod";
@@ -102,22 +102,36 @@ export const analyzeSessionPatterns = async (
         throw new Error("No session logs found matching the specified criteria.");
     }
 
-    // Prepare session data for analysis
-    const sessionData = filteredLogs.map((log: SessionLog) => ({
-        date: log.date,
+    // Get athlete data for context
+    const athlete = await athleteRepository.getAthleteById(userId, athleteId);
+    if (!athlete) {
+        logger.error({ athleteId, userId }, "Athlete not found for pattern analysis.");
+        throw new Error(`Athlete ${athleteId} not found.`);
+    }
+
+    const athleteAge = athlete.birthday 
+        ? new Date().getFullYear() - new Date(athlete.birthday).getFullYear()
+        : 16; // Default age
+
+    // Prepare session data for pattern analysis - using existing summaries and transcripts
+    const sessionAnalysisData = filteredLogs.map((log: SessionLog) => ({
+        date: log.date.toISOString(),
         notes: log.notes || "",
         transcript: log.transcript || "",
-        summary: log.summary || "",
+        summary: log.summary || "No summary available",
         goals: log.goals?.map((g: any) => ({ id: g.id, title: g.title, description: g.description })) || [],
+        hasDetailedFeedback: !!(log.transcript && log.transcript.length > 50),
+        hasSummary: !!log.summary
     }));
 
-    // Load and process the prompt with variable substitution
+    // Load and process the prompt with session data
     const prompt = loadAndProcessPrompt(ANALYZE_SESSION_PATTERNS_PROMPT_FILE, {
-        sessionLogs: JSON.stringify(sessionData, null, 2),
         athleteId: athleteId,
+        athleteAge: athleteAge.toString(),
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        sessionCount: filteredLogs.length.toString()
+        sessionCount: filteredLogs.length.toString(),
+        sessionData: JSON.stringify(sessionAnalysisData, null, 2)
     });
 
     // Call the AI client function

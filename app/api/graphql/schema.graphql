@@ -301,15 +301,6 @@ input AIGenerateTrainingPlanInput {
 	goalIds: [ID!]! # Goals to focus on in the session
 }
 
-"""
-Input for AI progress analysis across a date range.
-Analyzes athlete progress and provides insights and recommendations.
-"""
-input AIAnalyzeProgressInput {
-	athleteId: ID! # The athlete to analyze
-	startDate: DateTime! # Analysis period start date
-	endDate: DateTime! # Analysis period end date
-}
 
 """
 Input for AI goal extraction and evaluation from natural language.
@@ -546,7 +537,6 @@ type Mutation {
 	# AI-powered mutations
 	summarizeSessionLog(input: AISummarizeSessionLogInput!): SessionLog! # Generate AI summary for session
 	generateTrainingPlan(input: AIGenerateTrainingPlanInput!): TrainingPlan! # Generate AI training plan
-	analyzeProgress(input: AIAnalyzeProgressInput!): String! # Analyze athlete progress with AI
 	analyzeSessionPatterns(input: AIAnalyzeSessionPatternsInput!): String! # Analyze patterns across session logs
 	extractAndEvaluateGoal(
 		input: AIExtractAndEvaluateGoalInput!

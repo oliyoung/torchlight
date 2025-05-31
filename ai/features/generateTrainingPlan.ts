@@ -1,4 +1,4 @@
-import { loadAndProcessPrompt } from '@/ai/lib/promptLoader';
+import { loadAndProcessPrompt } from "../lib/promptLoader";
 import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from '@/lib/logger';
 import { assistantRepository, sessionLogRepository, trainingPlanRepository } from "@/lib/repository";
@@ -6,10 +6,10 @@ import type { Assistant, Athlete, Goal, TrainingPlan } from '@/lib/types';
 import { TrainingPlanStatus } from '@/lib/types';
 import type { PubSub } from 'graphql-subscriptions';
 import { z } from 'zod';
-import { callOpenAI } from '../providers/openai';
+import { callOpenAI } from "../providers/openai";
 
 // Define the path to the training plan prompt file
-const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/training_plan.prompt.yml';
+const TRAINING_PLAN_PROMPT_FILE = 'ai/prompts/generate_training_plan.prompt.yml';
 
 export const trainingPlanSchema = z.object({
     planOverview: z.object({
