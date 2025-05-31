@@ -16,7 +16,7 @@ export default {
   athlete: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Athlete | null> =>
     context.loaders.athlete.load(args.id),
 
-  goal: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Goal | null> =>
+  goal: async (_parent: unknown, args: { id: string; athleteId: string }, context: GraphQLContext): Promise<Goal | null> =>
     context.loaders.goal.load(args.id),
 
   sessionLog: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<SessionLog | null> =>

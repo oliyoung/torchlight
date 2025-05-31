@@ -4,6 +4,8 @@ import generateTrainingPlan from './ai/generateTrainingPlan';
 import summarizeSessionLog from "./ai/summarizeSessionLog";
 
 import { createAthlete } from "./athletes/createAthlete";
+import { updateAthlete } from "./athletes/updateAthlete";
+import { deleteAthlete } from "./athletes/deleteAthlete";
 import { createGoal } from "./goals/createGoal";
 import { updateGoal } from "./goals/updateGoal";
 import { deleteGoal } from "./goals/deleteGoal";
@@ -16,6 +18,8 @@ import { deleteSessionLog } from "./session-logs/deleteSessionLog";
 export default {
   analyzeSessionPatterns,
   createAthlete,
+  updateAthlete,
+  deleteAthlete,
   createGoal,
   updateGoal,
   deleteGoal,
