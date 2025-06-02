@@ -287,18 +287,18 @@ const { handleRequest } = createYoga<GraphQLContext>({
         coachBillingLoaders: createCoachBillingLoaders(),
       };
 
-      return { 
-        user, 
+      return {
+        user,
         userId: user.id,
-        pubsub, 
+        pubsub,
         loaders,
         dataloaders
       };
     }
-    return { 
-      user: null, 
+    return {
+      user: null,
       userId: null,
-      pubsub, 
+      pubsub,
       loaders: {} as any,
       dataloaders: undefined
     }

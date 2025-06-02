@@ -26,7 +26,7 @@ export class CoachRepository extends EntityRepository<Coach> {
    * Creates a new coach profile during onboarding.
    * Sets default account status and profile information.
    * Billing information is handled separately by CoachBillingRepository.
-   * 
+   *
    * @param userId - Supabase auth user UUID
    * @param email - User's email from auth
    * @param input - Optional coach profile data
@@ -43,15 +43,16 @@ export class CoachRepository extends EntityRepository<Coach> {
       display_name: input.displayName || null,
       avatar: null,
       timezone: input.timezone || 'UTC',
-      
+
       // Account management
       account_status: 'ACTIVE' as AccountStatus,
       onboarding_completed: false,
       last_login_at: now,
       created_at: now,
-      updated_at: now,
-      deleted_at: null
+      updated_at: now
     }
+
+
 
     const { data, error } = await this.supabase
       .from(this.tableName)
@@ -66,7 +67,7 @@ export class CoachRepository extends EntityRepository<Coach> {
 
   /**
    * Gets a coach by their Supabase user ID.
-   * 
+   *
    * @param userId - Supabase auth user UUID
    * @returns Promise resolving to coach or null if not found
    */
@@ -88,7 +89,7 @@ export class CoachRepository extends EntityRepository<Coach> {
 
   /**
    * Updates coach profile information.
-   * 
+   *
    * @param userId - Supabase auth user UUID
    * @param input - Fields to update
    * @returns Promise resolving to updated coach
@@ -119,7 +120,7 @@ export class CoachRepository extends EntityRepository<Coach> {
 
   /**
    * Records last login timestamp.
-   * 
+   *
    * @param userId - Supabase auth user UUID
    * @returns Promise resolving to updated coach
    */
@@ -155,7 +156,7 @@ export class CoachRepository extends EntityRepository<Coach> {
       displayName: row.display_name,
       avatar: row.avatar,
       timezone: row.timezone,
-      
+
       // Account management
       accountStatus: row.account_status,
       onboardingCompleted: row.onboarding_completed,
@@ -163,7 +164,7 @@ export class CoachRepository extends EntityRepository<Coach> {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at,
-      
+
       // These will be populated by data loaders
       billing: null, // Will be populated by data loader
       athletes: [],

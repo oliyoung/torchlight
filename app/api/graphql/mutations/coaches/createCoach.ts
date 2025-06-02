@@ -11,6 +11,7 @@ export async function createCoach(
   args: { input: { firstName?: string; lastName?: string; displayName?: string; timezone?: string; billingEmail?: string } },
   context: GraphQLContext
 ) {
+
   const { userId, user } = context
 
   if (!userId || !user?.email) {
@@ -19,6 +20,7 @@ export async function createCoach(
 
   // Check if coach already exists
   const existingCoach = await coachRepository.getByUserId(userId)
+  console.log('Existing coach', { existingCoach })
   if (existingCoach) {
     throw new Error('Coach profile already exists')
   }

@@ -23,6 +23,31 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Voice transcription for in-session recording
 - [ ] Risk detection for potential athlete challenges/roadblocks
 
+## Session Log Analysis Improvements
+
+### High-Impact Features
+- [ ] **Visual Progress Dashboard** - Charts showing goal progress and performance trends over time
+- [ ] **Enhanced Session Comparison** - Side-by-side analysis of sessions with diff highlighting
+- [ ] **Alert System** - Automated flagging of concerning patterns (injury risk, motivation decline, plateau indicators)
+- [ ] **Coach Analytics Dashboard** - Aggregate insights across all athletes with coaching effectiveness metrics
+
+### Quick Wins
+- [ ] **Improve Last Session Logs Component** - Replace placeholder with actual session data and quick insights
+- [ ] **Export/Print Features** - PDF reports for sessions, analyses, and progress summaries
+- [ ] **Enhanced Pattern Analysis UI** - Better visualization of existing longitudinal pattern analysis
+
+### Advanced Analytics
+- [ ] **Real-time Session Insights** - Analysis during session rather than post-session only
+- [ ] **Comparative Analytics** - Benchmark athlete progress against sport-specific norms
+- [ ] **Predictive Analytics** - Goal achievement probability and timeline forecasting
+- [ ] **Multi-athlete Analysis** - Cross-athlete pattern identification for coaching insights
+
+### Visualization Enhancements
+- [ ] **Performance Trend Charts** - Line graphs showing metric progression over time
+- [ ] **Goal Progress Indicators** - Visual progress bars and milestone tracking
+- [ ] **Heat Maps** - Activity intensity and engagement patterns visualization
+- [ ] **Pattern Recognition Graphics** - Visual representation of recurring themes and behaviors
+
 ## Advanced AI/LLM Features
 
 - [ ] Automated Progress Narratives (generate athlete progress stories)
