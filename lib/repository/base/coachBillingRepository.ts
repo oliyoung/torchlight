@@ -24,7 +24,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Creates billing record for a new coach with default trial settings.
-   * 
+   *
    * @param coachId - Coach ID to create billing for
    * @param email - Coach's email for billing
    * @returns Promise resolving to created billing record
@@ -36,32 +36,32 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
     const billingData = {
       coach_id: parseInt(coachId),
-      
+
       // Stripe integration - initially null until subscription setup
       stripe_customer_id: null,
       subscription_status: 'TRIAL' as SubscriptionStatus,
       subscription_tier: 'FREE' as SubscriptionTier,
-      subscription_start_date: now,
-      subscription_end_date: trialEndDate,
-      trial_end_date: trialEndDate,
+      subscription_start_date: now.toISOString(),
+      subscription_end_date: trialEndDate.toISOString(),
+      trial_end_date: trialEndDate.toISOString(),
       billing_email: email,
-      
+
       // Default limits for FREE tier
       monthly_athlete_limit: 5,
       current_athlete_count: 0,
       monthly_session_log_limit: 50,
       current_session_log_count: 0,
       ai_credits_remaining: 100,
-      usage_reset_date: usageResetDate,
-      
+      usage_reset_date: usageResetDate.toISOString(),
+
       // Billing metadata
       last_payment_date: null,
-      next_billing_date: trialEndDate,
+      next_billing_date: trialEndDate.toISOString(),
       billing_cycle_day: 1,
       currency: 'USD',
-      
-      created_at: now,
-      updated_at: now,
+
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
       deleted_at: null
     }
 
@@ -78,7 +78,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Gets billing record by coach ID.
-   * 
+   *
    * @param coachId - Coach ID to get billing for
    * @returns Promise resolving to billing record or null
    */
@@ -100,7 +100,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Updates billing information from Stripe webhooks.
-   * 
+   *
    * @param coachId - Coach ID to update billing for
    * @param input - Billing data to update
    * @returns Promise resolving to updated billing record
@@ -121,7 +121,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       ...input.nextBillingDate !== undefined && { next_billing_date: input.nextBillingDate },
       ...input.billingCycleDay !== undefined && { billing_cycle_day: input.billingCycleDay },
       ...input.currency !== undefined && { currency: input.currency },
-      updated_at: new Date()
+      updated_at: new Date().toISOString()
     }
 
     const { data, error } = await this.supabase
@@ -139,7 +139,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Updates usage counters and handles monthly resets.
-   * 
+   *
    * @param coachId - Coach ID to update usage for
    * @param updates - Usage counter updates
    * @returns Promise resolving to updated billing record
@@ -153,7 +153,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       ...updates.currentAthleteCount !== undefined && { current_athlete_count: updates.currentAthleteCount },
       ...updates.currentSessionLogCount !== undefined && { current_session_log_count: updates.currentSessionLogCount },
       ...updates.aiCreditsRemaining !== undefined && { ai_credits_remaining: updates.aiCreditsRemaining },
-      updated_at: new Date()
+      updated_at: new Date().toISOString()
     }
 
     const { data, error } = await this.supabase
@@ -172,7 +172,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
   /**
    * Resets monthly usage counters for all coaches.
    * Called by a scheduled job at the beginning of each month.
-   * 
+   *
    * @returns Promise resolving to number of records updated
    */
   async resetMonthlyUsage(): Promise<number> {
@@ -184,8 +184,8 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       .update({
         current_athlete_count: 0,
         current_session_log_count: 0,
-        usage_reset_date: usageResetDate,
-        updated_at: now
+        usage_reset_date: usageResetDate.toISOString(),
+        updated_at: now.toISOString()
       })
       .eq('deleted_at', null)
       .select('id')
@@ -197,7 +197,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Checks if coach has reached their subscription limits.
-   * 
+   *
    * @param coachId - Coach ID to check limits for
    * @returns Promise resolving to limit check results
    */
@@ -230,7 +230,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
   /**
    * Gets billing records that need usage reset (monthly job).
-   * 
+   *
    * @returns Promise resolving to billing records needing reset
    */
   async getBillingNeedingUsageReset(): Promise<CoachBilling[]> {
@@ -255,7 +255,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
     return {
       id: row.id.toString(),
       coachId: row.coach_id.toString(),
-      
+
       // Stripe integration
       stripeCustomerId: row.stripe_customer_id,
       subscriptionStatus: row.subscription_status,
@@ -264,7 +264,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       subscriptionEndDate: row.subscription_end_date,
       trialEndDate: row.trial_end_date,
       billingEmail: row.billing_email,
-      
+
       // Usage tracking
       monthlyAthleteLimit: row.monthly_athlete_limit,
       currentAthleteCount: row.current_athlete_count,
@@ -272,13 +272,13 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       currentSessionLogCount: row.current_session_log_count,
       aiCreditsRemaining: row.ai_credits_remaining,
       usageResetDate: row.usage_reset_date,
-      
+
       // Billing metadata
       lastPaymentDate: row.last_payment_date,
       nextBillingDate: row.next_billing_date,
       billingCycleDay: row.billing_cycle_day,
       currency: row.currency,
-      
+
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at

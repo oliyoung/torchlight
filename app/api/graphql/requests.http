@@ -32,6 +32,35 @@ Content-Type: application/json
 
 ### GRAPHQL ENDPOINTS (Require Authorization header)
 
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsImtpZCI6Ik5FVkp1aHU5VkREb2pLZmYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3p0Y3JudXhwcmN4d2J2bnd4ZG9qLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI3Njk5MDdhYy03YzQwLTQ2N2MtYWEyMC0xMmMwOWEyMDkzZTUiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQ4ODY5NDI3LCJpYXQiOjE3NDg4NjU4MjcsImVtYWlsIjoib2xpeW91bmdAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbCI6Im9saXlvdW5nQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6Ijc2OTkwN2FjLTdjNDAtNDY3Yy1hYTIwLTEyYzA5YTIwOTNlNSJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6Im90cCIsInRpbWVzdGFtcCI6MTc0ODY5NDQxNn1dLCJzZXNzaW9uX2lkIjoiZmNiNTMwNzQtNThlMC00NWNkLTlkZWQtOTBhZDUyMzhkMGVhIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.Hibexp8JvSSIW9Y6xXF9I0R1Ed9P0QTOvITOFAdRrdo
+X-REQUEST-TYPE: GraphQL
+
+mutation CreateCoach($input: CreateCoachInput!) {
+  createCoach(input: $input) {
+    id
+    email
+    firstName
+    lastName
+    displayName
+    timezone
+    onboardingCompleted
+    __typename
+  }
+}
+
+{
+    "input": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "displayName": "John Doe",
+        "timezone": "America/New_York"
+    }
+}
+
+###
+
 # 1. AI - Extract and Evaluate Goal (existing example)
 POST http://localhost:3000/api/graphql HTTP/1.1
 Content-Type: application/json
