@@ -26,7 +26,7 @@ const TrainingPlanQuery = gql`
     trainingPlan(id: $id) {
       id
       title
-      client {
+      athlete {
         id
         firstName
         lastName
@@ -90,7 +90,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 	const handleAddAssistant = async (assistant: Assistant) => {
 		// Get current assistants and add the new one
 		const currentAssistants = data?.trainingPlan?.assistants || [];
-		const assistantIds = [...currentAssistants.map((a) => a.id), assistant.id];
+		const assistantIds = [...currentAssistants.map((a: Assistant) => a.id), assistant.id];
 
 		// Remove duplicates
 		const uniqueAssistantIds = [...new Set(assistantIds)];
@@ -113,8 +113,8 @@ const TrainingPlanDetailPage: React.FC = () => {
 		// Get current assistants and remove the specified one
 		const currentAssistants = data?.trainingPlan?.assistants || [];
 		const assistantIds = currentAssistants
-			.map((a) => a.id)
-			.filter((id) => id !== assistantId);
+			.map((a: Assistant) => a.id)
+			.filter((id: string) => id !== assistantId);
 
 		try {
 			await updateTrainingPlan({
@@ -133,7 +133,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 	const handleAddGoal = async (goal: Goal) => {
 		// Get current goals and add the new one
 		const currentGoals = data?.trainingPlan?.goals || [];
-		const goalIds = [...currentGoals.map((g) => g.id), goal.id];
+		const goalIds = [...currentGoals.map((g: Goal) => g.id), goal.id];
 
 		// Remove duplicates
 		const uniqueGoalIds = [...new Set(goalIds)];
@@ -155,7 +155,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 	const handleRemoveGoal = async (goalId: string) => {
 		// Get current goals and remove the specified one
 		const currentGoals = data?.trainingPlan?.goals || [];
-		const goalIds = currentGoals.map((g) => g.id).filter((id) => id !== goalId);
+		const goalIds = currentGoals.map((g: Goal) => g.id).filter((id: string) => id !== goalId);
 
 		try {
 			await updateTrainingPlan({
@@ -197,15 +197,15 @@ const TrainingPlanDetailPage: React.FC = () => {
 			<div className="space-y-6">
 				<div className="space-y-2">
 					<Heading>{plan.title}</Heading>
-					{plan.client && (
+					{plan.athlete && (
 						<div className="flex items-center text-muted-foreground">
 							<UserIcon className="w-4 h-4 mr-1" />
 							<Link
-								href={`/clients/${plan.client.id}`}
+								href={`/athletes/${plan.athlete.id}`}
 								className="text-primary hover:underline flex items-center ml-1"
-								aria-label={`View client profile: ${plan.client.firstName} ${plan.client.lastName}`}
+								aria-label={`View athlete profile: ${plan.athlete.firstName} ${plan.athlete.lastName}`}
 							>
-								{plan.client.firstName} {plan.client.lastName}
+								{plan.athlete.firstName} {plan.athlete.lastName}
 							</Link>
 						</div>
 					)}
@@ -383,7 +383,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 							<CardContent>
 								<TrainingPlanGoalsList
 									goals={plan.goals}
-									clientId={plan.client?.id}
+									athleteId={plan.athlete?.id}
 									onAddGoal={handleAddGoal}
 									onRemoveGoal={handleRemoveGoal}
 								/>

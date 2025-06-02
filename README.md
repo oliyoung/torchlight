@@ -8,7 +8,7 @@ This README summarizes the core engineering conventions, context, and rules for 
 - **Backlog:** The next most important features/screens are being determined. Backlog and prioritization are the immediate priority.
 - **Core data models:** Defined in `app/api/graphql/schema.graphql` (always the single source of truth). Use the GraphQL Playground at http://localhost:3000/api/graphql.
 - **No wireframes or user stories.** Develop directly in code and browser.
-- **AI features:** All AI-related GraphQL mutations (e.g., `summarizeSessionLog`, `generateSession`, `analyzeProgress`) must be stubbed/mocked for now. Actual integration will use [Model Context Protocol (MCP)](https://github.com/modelcontextprotocol) with the TypeScript SDK. AI integration is open for experimentation.
+- **AI features:** AI integration is LIVE and operational using Anthropic Claude SDK (`@anthropic-ai/sdk`) and OpenAI SDK (`openai`). AI features are located in `ai/features/` with prompt templates in `ai/prompts/`. All AI-related GraphQL mutations (e.g., `summarizeSessionLog`, `generateTrainingPlan`, `analyzeSessionPatterns`) call real AI services. The AI integration layer is open for experimentation and can be extended with additional providers.
 - **Authentication:** Supabase Auth. Only "Coach" role is implemented; "Athlete" and "Admin" roles will come after core features and AI integration.
 - **Environments:** Only local (development) and production. Supabase is always remote; use the provided connection string in `.env` as `DATABASE_URL`.
 - **UI:** Only use Shadcn UI and Tailwind CSS. No custom component libraries or other design systems. No Figma or brand guidelines yet.
