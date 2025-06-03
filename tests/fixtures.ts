@@ -1,6 +1,6 @@
 import { test as base, type Page, type BrowserContext } from '@playwright/test';
 import { createClient } from '@supabase/supabase-js';
-import path from 'path';
+import * as path from 'path';
 
 // Environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
