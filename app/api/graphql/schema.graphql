@@ -294,6 +294,12 @@ type Query {
 	# Training plan queries
 	trainingPlan(id: ID!): TrainingPlan # Get specific training plan by ID
 	trainingPlans(athleteId: ID): [TrainingPlan!]! # Get training plans, optionally filtered by athlete
+
+	# Whiteboard queries
+	whiteboards(sport: String, difficulty: DifficultyLevel, isPublic: Boolean): [Whiteboard!]! # Get whiteboards with optional filters
+	whiteboard(id: ID!): Whiteboard # Get specific whiteboard by ID
+	play(id: ID!): Play # Get specific play by ID
+	phase(id: ID!): Phase # Get specific phase by ID
 }
 
 # Input types for entity creation and updates
@@ -695,6 +701,32 @@ type Mutation {
 	extractAndEvaluateGoal(
 		input: AIExtractAndEvaluateGoalInput!
 	): GoalEvaluationResponse! # AI goal analysis and evaluation
+
+	# Whiteboard mutations
+	createWhiteboard(input: CreateWhiteboardInput!): Whiteboard!
+	updateWhiteboard(id: ID!, input: UpdateWhiteboardInput!): Whiteboard!
+	deleteWhiteboard(id: ID!): Boolean!
+
+	# Play mutations
+	createPlay(input: CreatePlayInput!): Play!
+	updatePlay(id: ID!, input: UpdatePlayInput!): Play!
+	deletePlay(id: ID!): Boolean!
+
+	# Phase mutations
+	createPhase(input: CreatePhaseInput!): Phase!
+	updatePhase(id: ID!, input: UpdatePhaseInput!): Phase!
+	deletePhase(id: ID!): Boolean!
+
+	# Position and movement mutations
+	updatePlayerPositions(playId: ID!, positions: [PlayerPositionInput!]!): Play!
+	createMovement(input: CreateMovementInput!): Movement!
+	updateMovement(id: ID!, input: CreateMovementInput!): Movement!
+	deleteMovement(id: ID!): Boolean!
+
+	# Annotation mutations
+	createAnnotation(input: CreateAnnotationInput!): Annotation!
+	updateAnnotation(id: ID!, input: CreateAnnotationInput!): Annotation!
+	deleteAnnotation(id: ID!): Boolean!
 }
 
 # Real-time subscription operations
@@ -718,4 +750,345 @@ type Subscription {
 
 	# Athlete subscriptions
 	athleteUpdated(id: ID!): Athlete! # Athlete information updated
+
+	# Whiteboard subscriptions
+	whiteboardUpdated(id: ID!): Whiteboard! # Whiteboard updated with new plays or modifications
+	playUpdated(whiteboardId: ID!): Play! # Play updated within a whiteboard
+}
+
+# =========================
+# Whiteboard & Play Drawing System
+# =========================
+
+"""
+Whiteboard entity for creating and managing tactical plays and training drills.
+Supports 3D positioning, multi-phase animations, and sport-specific court/field backgrounds.
+"""
+type Whiteboard {
+	id: ID!
+	title: String! # Name of the whiteboard (e.g., "Fast Break Drill", "Pick and Roll Play")
+	description: String # Detailed description of the play or drill
+	sport: String! # Sport this whiteboard is designed for (basketball, soccer, etc.)
+	courtType: CourtType! # Type of court/field background
+
+	# Ownership and relationships
+	coach: Coach! # Coach who created this whiteboard
+	athletes: [Athlete!] # Athletes this whiteboard is shared with or designed for
+	trainingPlans: [TrainingPlan!] # Training plans that include this whiteboard
+
+	# Content
+	plays: [Play!]! # Individual plays/drills on this whiteboard
+	tags: [String!] # Categorization tags (offense, defense, conditioning, etc.)
+	difficulty: DifficultyLevel! # Difficulty level for filtering and progression
+
+	# Metadata
+	isPublic: Boolean! # Whether this whiteboard can be viewed by other coaches
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete
+}
+
+"""
+Individual play or drill within a whiteboard.
+Contains multiple phases for step-by-step animation and instruction.
+"""
+type Play {
+	id: ID!
+	whiteboard: Whiteboard! # Parent whiteboard
+	title: String! # Name of this specific play
+	description: String # Play description and coaching notes
+
+	# Play structure
+	phases: [Phase!]! # Ordered phases of the play animation
+	duration: Float # Total estimated duration in seconds
+	playerCount: Int! # Number of players involved in this play
+
+	# Positioning and layout
+	startingPositions: [PlayerPosition!]! # Initial player positions
+	annotations: [Annotation!] # Text annotations, arrows, and drawings
+
+	# Metadata
+	order: Int! # Order of this play within the whiteboard
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+"""
+Individual phase of a play animation.
+Represents a specific moment or step in the play progression.
+"""
+type Phase {
+	id: ID!
+	play: Play! # Parent play
+	title: String # Name of this phase (e.g., "Screen Set", "Roll to Basket")
+	description: String # Instructions for this phase
+
+	# Timing and animation
+	order: Int! # Order of this phase within the play
+	duration: Float! # Duration of this phase in seconds
+	delay: Float # Delay before this phase starts (in seconds)
+
+	# Player positions and movements
+	playerPositions: [PlayerPosition!]! # Player positions at this phase
+	movements: [Movement!] # Player movements during this phase
+
+	# Annotations for this phase
+	annotations: [Annotation!] # Phase-specific annotations
+
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+"""
+Player position with x,y coordinates and metadata.
+Supports both static positions and animated movements.
+"""
+type PlayerPosition {
+	id: ID!
+	playerId: String! # Identifier for the player (e.g., "player1", "PG", "C")
+	playerName: String # Display name for the player
+	playerRole: String # Position/role (Point Guard, Center, Forward, etc.)
+
+	# Coordinate system (normalized 0-1 for court dimensions)
+	x: Float! # X coordinate (0.0 = left edge, 1.0 = right edge)
+	y: Float! # Y coordinate (0.0 = top edge, 1.0 = bottom edge)
+	z: Float # Z coordinate for future 3D support (default 0.0)
+
+	# Visual properties
+	color: String # Player color (hex color code)
+	jersey: String # Jersey number or identifier
+
+	# Relationships
+	phase: Phase # Associated phase (null for starting positions)
+	play: Play! # Parent play
+
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+"""
+Movement animation for players between phases.
+Defines how a player moves from one position to another.
+"""
+type Movement {
+	id: ID!
+	playerId: String! # Player this movement applies to
+	phase: Phase! # Phase this movement occurs in
+
+	# Movement path
+	fromX: Float! # Starting X coordinate
+	fromY: Float! # Starting Y coordinate
+	toX: Float! # Ending X coordinate
+	toY: Float! # Ending Y coordinate
+
+	# Animation properties
+	movementType: MovementType! # Type of movement (run, walk, cut, etc.)
+	speed: Float! # Movement speed (0.1 = slow, 1.0 = normal, 2.0 = fast)
+	curve: String # Bezier curve data for curved movements (JSON)
+
+	# Visual effects
+	showTrail: Boolean! # Whether to show movement trail/path
+	trailColor: String # Color of the movement trail
+
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+"""
+Annotations for drawings, arrows, text, and other visual elements.
+Supports both play-level and phase-level annotations.
+"""
+type Annotation {
+	id: ID!
+	type: AnnotationType! # Type of annotation
+
+	# Content
+	text: String # Text content for text annotations
+	coordinates: [Float!]! # Array of coordinates defining the annotation path/position
+
+	# Visual styling
+	color: String! # Color of the annotation
+	strokeWidth: Float # Line width for drawings
+	fontSize: Float # Font size for text annotations
+
+	# Relationships
+	play: Play # Play this annotation belongs to (null for phase-specific)
+	phase: Phase # Phase this annotation belongs to (null for play-level)
+
+	createdAt: DateTime!
+	updatedAt: DateTime!
+}
+
+# Enums for whiteboard system
+
+"""
+Types of courts/fields for background rendering.
+"""
+enum CourtType {
+	BASKETBALL_FULL # Full basketball court
+	BASKETBALL_HALF # Half basketball court
+	SOCCER_FULL # Full soccer field
+	SOCCER_HALF # Half soccer field
+	FOOTBALL_FULL # Full American football field
+	VOLLEYBALL # Volleyball court
+	TENNIS # Tennis court
+	CUSTOM # Custom court layout
+}
+
+"""
+Difficulty levels for plays and drills.
+"""
+enum DifficultyLevel {
+	BEGINNER # Basic plays suitable for new players
+	INTERMEDIATE # Standard plays requiring some experience
+	ADVANCED # Complex plays for experienced players
+	EXPERT # Elite-level plays requiring high skill
+}
+
+"""
+Types of player movements for animation.
+"""
+enum MovementType {
+	WALK # Normal walking pace
+	RUN # Running/jogging
+	SPRINT # Fast sprint
+	CUT # Sharp directional cut
+	SHUFFLE # Defensive shuffle
+	BACKPEDAL # Moving backward
+	JUMP # Jumping movement
+	SCREEN # Setting a screen/pick
+	CUSTOM # Custom movement type
+}
+
+"""
+Types of annotations that can be drawn on the whiteboard.
+"""
+enum AnnotationType {
+	TEXT # Text label or instruction
+	ARROW # Directional arrow
+	LINE # Straight line
+	CURVE # Curved line or path
+	CIRCLE # Circle or oval
+	RECTANGLE # Rectangle or square
+	HIGHLIGHT # Highlight area
+	CONE # Training cone marker
+	BALL # Ball position marker
+}
+
+# Input types for whiteboard operations
+
+"""
+Input for creating a new whiteboard.
+"""
+input CreateWhiteboardInput {
+	title: String!
+	description: String
+	sport: String!
+	courtType: CourtType!
+	tags: [String!]
+	difficulty: DifficultyLevel!
+	isPublic: Boolean
+}
+
+"""
+Input for updating a whiteboard.
+"""
+input UpdateWhiteboardInput {
+	title: String
+	description: String
+	sport: String
+	courtType: CourtType
+	tags: [String!]
+	difficulty: DifficultyLevel
+	isPublic: Boolean
+}
+
+"""
+Input for creating a new play within a whiteboard.
+"""
+input CreatePlayInput {
+	whiteboardId: ID!
+	title: String!
+	description: String
+	playerCount: Int!
+	duration: Float
+}
+
+"""
+Input for updating a play.
+"""
+input UpdatePlayInput {
+	title: String
+	description: String
+	playerCount: Int
+	duration: Float
+	order: Int
+}
+
+"""
+Input for creating a phase within a play.
+"""
+input CreatePhaseInput {
+	playId: ID!
+	title: String
+	description: String
+	order: Int!
+	duration: Float!
+	delay: Float
+}
+
+"""
+Input for updating a phase.
+"""
+input UpdatePhaseInput {
+	title: String
+	description: String
+	order: Int
+	duration: Float
+	delay: Float
+}
+
+"""
+Input for creating or updating player positions.
+"""
+input PlayerPositionInput {
+	playerId: String!
+	playerName: String
+	playerRole: String
+	x: Float!
+	y: Float!
+	z: Float
+	color: String
+	jersey: String
+}
+
+"""
+Input for creating player movements.
+"""
+input CreateMovementInput {
+	phaseId: ID!
+	playerId: String!
+	fromX: Float!
+	fromY: Float!
+	toX: Float!
+	toY: Float!
+	movementType: MovementType!
+	speed: Float!
+	curve: String
+	showTrail: Boolean
+	trailColor: String
+}
+
+"""
+Input for creating annotations.
+"""
+input CreateAnnotationInput {
+	playId: ID # Required if phase-level annotation
+	phaseId: ID # Required if play-level annotation
+	type: AnnotationType!
+	text: String
+	coordinates: [Float!]!
+	color: String!
+	strokeWidth: Float
+	fontSize: Float
 }

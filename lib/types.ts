@@ -75,6 +75,38 @@ export enum AccountStatus {
 }
 
 /**
+ * Annotations for drawings, arrows, text, and other visual elements.
+ * Supports both play-level and phase-level annotations.
+ */
+export type Annotation = {
+  __typename?: 'Annotation';
+  color: Scalars['String']['output'];
+  coordinates: Array<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  fontSize?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  phase?: Maybe<Phase>;
+  play?: Maybe<Play>;
+  strokeWidth?: Maybe<Scalars['Float']['output']>;
+  text?: Maybe<Scalars['String']['output']>;
+  type: AnnotationType;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Types of annotations that can be drawn on the whiteboard. */
+export enum AnnotationType {
+  Arrow = 'ARROW',
+  Ball = 'BALL',
+  Circle = 'CIRCLE',
+  Cone = 'CONE',
+  Curve = 'CURVE',
+  Highlight = 'HIGHLIGHT',
+  Line = 'LINE',
+  Rectangle = 'RECTANGLE',
+  Text = 'TEXT'
+}
+
+/**
  * AI Assistant entity representing coaching specialists for different sports and roles.
  * Assistants provide AI-powered insights and generate training content based on their expertise.
  */
@@ -237,6 +269,30 @@ export type CoreGoal = {
   type: Scalars['String']['output'];
 };
 
+/** Types of courts/fields for background rendering. */
+export enum CourtType {
+  BasketballFull = 'BASKETBALL_FULL',
+  BasketballHalf = 'BASKETBALL_HALF',
+  Custom = 'CUSTOM',
+  FootballFull = 'FOOTBALL_FULL',
+  SoccerFull = 'SOCCER_FULL',
+  SoccerHalf = 'SOCCER_HALF',
+  Tennis = 'TENNIS',
+  Volleyball = 'VOLLEYBALL'
+}
+
+/** Input for creating annotations. */
+export type CreateAnnotationInput = {
+  color: Scalars['String']['input'];
+  coordinates: Array<Scalars['Float']['input']>;
+  fontSize?: InputMaybe<Scalars['Float']['input']>;
+  phaseId?: InputMaybe<Scalars['ID']['input']>;
+  playId?: InputMaybe<Scalars['ID']['input']>;
+  strokeWidth?: InputMaybe<Scalars['Float']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  type: AnnotationType;
+};
+
 /**
  * Input for creating a new athlete record.
  * All fields are validated and the athlete is automatically associated with the authenticated coach.
@@ -275,6 +331,40 @@ export type CreateGoalInput = {
   title: Scalars['String']['input'];
 };
 
+/** Input for creating player movements. */
+export type CreateMovementInput = {
+  curve?: InputMaybe<Scalars['String']['input']>;
+  fromX: Scalars['Float']['input'];
+  fromY: Scalars['Float']['input'];
+  movementType: MovementType;
+  phaseId: Scalars['ID']['input'];
+  playerId: Scalars['String']['input'];
+  showTrail?: InputMaybe<Scalars['Boolean']['input']>;
+  speed: Scalars['Float']['input'];
+  toX: Scalars['Float']['input'];
+  toY: Scalars['Float']['input'];
+  trailColor?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Input for creating a phase within a play. */
+export type CreatePhaseInput = {
+  delay?: InputMaybe<Scalars['Float']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration: Scalars['Float']['input'];
+  order: Scalars['Int']['input'];
+  playId: Scalars['ID']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Input for creating a new play within a whiteboard. */
+export type CreatePlayInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Float']['input']>;
+  playerCount: Scalars['Int']['input'];
+  title: Scalars['String']['input'];
+  whiteboardId: Scalars['ID']['input'];
+};
+
 /**
  * Input for creating a new session log entry.
  * Session logs capture training session details and progress toward goals.
@@ -297,12 +387,31 @@ export type CreateTrainingPlanInput = {
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/** Input for creating a new whiteboard. */
+export type CreateWhiteboardInput = {
+  courtType: CourtType;
+  description?: InputMaybe<Scalars['String']['input']>;
+  difficulty: DifficultyLevel;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  sport: Scalars['String']['input'];
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title: Scalars['String']['input'];
+};
+
 /** Assessment of data quality for coaching analysis. */
 export enum DataQuality {
   Excellent = 'EXCELLENT',
   Good = 'GOOD',
   Insufficient = 'INSUFFICIENT',
   Limited = 'LIMITED'
+}
+
+/** Difficulty levels for plays and drills. */
+export enum DifficultyLevel {
+  Advanced = 'ADVANCED',
+  Beginner = 'BEGINNER',
+  Expert = 'EXPERT',
+  Intermediate = 'INTERMEDIATE'
 }
 
 /** Detailed breakdown of goal evaluation highlighting key areas. */
@@ -403,6 +512,41 @@ export type Motivation = {
 };
 
 /**
+ * Movement animation for players between phases.
+ * Defines how a player moves from one position to another.
+ */
+export type Movement = {
+  __typename?: 'Movement';
+  createdAt: Scalars['DateTime']['output'];
+  curve?: Maybe<Scalars['String']['output']>;
+  fromX: Scalars['Float']['output'];
+  fromY: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  movementType: MovementType;
+  phase: Phase;
+  playerId: Scalars['String']['output'];
+  showTrail: Scalars['Boolean']['output'];
+  speed: Scalars['Float']['output'];
+  toX: Scalars['Float']['output'];
+  toY: Scalars['Float']['output'];
+  trailColor?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Types of player movements for animation. */
+export enum MovementType {
+  Backpedal = 'BACKPEDAL',
+  Custom = 'CUSTOM',
+  Cut = 'CUT',
+  Jump = 'JUMP',
+  Run = 'RUN',
+  Screen = 'SCREEN',
+  Shuffle = 'SHUFFLE',
+  Sprint = 'SPRINT',
+  Walk = 'WALK'
+}
+
+/**
  * Root mutation type providing write access to all platform entities.
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
@@ -410,23 +554,39 @@ export type Motivation = {
 export type Mutation = {
   __typename?: 'Mutation';
   analyzeSessionPatterns: Scalars['String']['output'];
+  createAnnotation: Annotation;
   createAthlete: Athlete;
   createCoach: Coach;
   createGoal: Goal;
+  createMovement: Movement;
+  createPhase: Phase;
+  createPlay: Play;
   createSessionLog: SessionLog;
   createTrainingPlan: TrainingPlan;
+  createWhiteboard: Whiteboard;
+  deleteAnnotation: Scalars['Boolean']['output'];
   deleteAthlete: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
+  deleteMovement: Scalars['Boolean']['output'];
+  deletePhase: Scalars['Boolean']['output'];
+  deletePlay: Scalars['Boolean']['output'];
   deleteSessionLog: Scalars['Boolean']['output'];
+  deleteWhiteboard: Scalars['Boolean']['output'];
   extractAndEvaluateGoal: GoalEvaluationResponse;
   generateTrainingPlan: TrainingPlan;
   summarizeSessionLog: SessionLog;
+  updateAnnotation: Annotation;
   updateAthlete: Athlete;
   updateCoach: Coach;
   updateCoachBilling: CoachBilling;
   updateGoal: Goal;
+  updateMovement: Movement;
+  updatePhase: Phase;
+  updatePlay: Play;
+  updatePlayerPositions: Play;
   updateSessionLog: SessionLog;
   updateTrainingPlan: TrainingPlan;
+  updateWhiteboard: Whiteboard;
 };
 
 
@@ -437,6 +597,16 @@ export type Mutation = {
  */
 export type MutationAnalyzeSessionPatternsArgs = {
   input: AiAnalyzeSessionPatternsInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationCreateAnnotationArgs = {
+  input: CreateAnnotationInput;
 };
 
 
@@ -475,6 +645,36 @@ export type MutationCreateGoalArgs = {
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
  */
+export type MutationCreateMovementArgs = {
+  input: CreateMovementInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationCreatePhaseArgs = {
+  input: CreatePhaseInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationCreatePlayArgs = {
+  input: CreatePlayInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationCreateSessionLogArgs = {
   input: CreateSessionLogInput;
 };
@@ -487,6 +687,26 @@ export type MutationCreateSessionLogArgs = {
  */
 export type MutationCreateTrainingPlanArgs = {
   input: CreateTrainingPlanInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationCreateWhiteboardArgs = {
+  input: CreateWhiteboardInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationDeleteAnnotationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -515,7 +735,47 @@ export type MutationDeleteGoalArgs = {
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
  */
+export type MutationDeleteMovementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationDeletePhaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationDeletePlayArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationDeleteSessionLogArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationDeleteWhiteboardArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -547,6 +807,17 @@ export type MutationGenerateTrainingPlanArgs = {
  */
 export type MutationSummarizeSessionLogArgs = {
   input: AiSummarizeSessionLogInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdateAnnotationArgs = {
+  id: Scalars['ID']['input'];
+  input: CreateAnnotationInput;
 };
 
 
@@ -597,6 +868,50 @@ export type MutationUpdateGoalArgs = {
  * All mutations are automatically scoped to the authenticated coach's data.
  * Includes both standard CRUD operations and AI-powered features.
  */
+export type MutationUpdateMovementArgs = {
+  id: Scalars['ID']['input'];
+  input: CreateMovementInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdatePhaseArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePhaseInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdatePlayArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePlayInput;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdatePlayerPositionsArgs = {
+  playId: Scalars['ID']['input'];
+  positions: Array<PlayerPositionInput>;
+};
+
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
 export type MutationUpdateSessionLogArgs = {
   id: Scalars['ID']['input'];
   input: UpdateSessionLogInput;
@@ -613,6 +928,90 @@ export type MutationUpdateTrainingPlanArgs = {
   input: UpdateTrainingPlanInput;
 };
 
+
+/**
+ * Root mutation type providing write access to all platform entities.
+ * All mutations are automatically scoped to the authenticated coach's data.
+ * Includes both standard CRUD operations and AI-powered features.
+ */
+export type MutationUpdateWhiteboardArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateWhiteboardInput;
+};
+
+/**
+ * Individual phase of a play animation.
+ * Represents a specific moment or step in the play progression.
+ */
+export type Phase = {
+  __typename?: 'Phase';
+  annotations?: Maybe<Array<Annotation>>;
+  createdAt: Scalars['DateTime']['output'];
+  delay?: Maybe<Scalars['Float']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  duration: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  movements?: Maybe<Array<Movement>>;
+  order: Scalars['Int']['output'];
+  play: Play;
+  playerPositions: Array<PlayerPosition>;
+  title?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/**
+ * Individual play or drill within a whiteboard.
+ * Contains multiple phases for step-by-step animation and instruction.
+ */
+export type Play = {
+  __typename?: 'Play';
+  annotations?: Maybe<Array<Annotation>>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  duration?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  order: Scalars['Int']['output'];
+  phases: Array<Phase>;
+  playerCount: Scalars['Int']['output'];
+  startingPositions: Array<PlayerPosition>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  whiteboard: Whiteboard;
+};
+
+/**
+ * Player position with x,y coordinates and metadata.
+ * Supports both static positions and animated movements.
+ */
+export type PlayerPosition = {
+  __typename?: 'PlayerPosition';
+  color?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  jersey?: Maybe<Scalars['String']['output']>;
+  phase?: Maybe<Phase>;
+  play: Play;
+  playerId: Scalars['String']['output'];
+  playerName?: Maybe<Scalars['String']['output']>;
+  playerRole?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  x: Scalars['Float']['output'];
+  y: Scalars['Float']['output'];
+  z?: Maybe<Scalars['Float']['output']>;
+};
+
+/** Input for creating or updating player positions. */
+export type PlayerPositionInput = {
+  color?: InputMaybe<Scalars['String']['input']>;
+  jersey?: InputMaybe<Scalars['String']['input']>;
+  playerId: Scalars['String']['input'];
+  playerName?: InputMaybe<Scalars['String']['input']>;
+  playerRole?: InputMaybe<Scalars['String']['input']>;
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+  z?: InputMaybe<Scalars['Float']['input']>;
+};
+
 /**
  * Root query type providing read access to all platform entities.
  * All queries are automatically scoped to the authenticated coach's data.
@@ -626,10 +1025,14 @@ export type Query = {
   goal?: Maybe<Goal>;
   goals: Array<Goal>;
   me?: Maybe<Coach>;
+  phase?: Maybe<Phase>;
+  play?: Maybe<Play>;
   sessionLog?: Maybe<SessionLog>;
   sessionLogs: Array<SessionLog>;
   trainingPlan?: Maybe<TrainingPlan>;
   trainingPlans: Array<TrainingPlan>;
+  whiteboard?: Maybe<Whiteboard>;
+  whiteboards: Array<Whiteboard>;
 };
 
 
@@ -683,6 +1086,24 @@ export type QueryGoalsArgs = {
  * Root query type providing read access to all platform entities.
  * All queries are automatically scoped to the authenticated coach's data.
  */
+export type QueryPhaseArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
+export type QueryPlayArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
 export type QuerySessionLogArgs = {
   id: Scalars['ID']['input'];
 };
@@ -712,6 +1133,26 @@ export type QueryTrainingPlanArgs = {
  */
 export type QueryTrainingPlansArgs = {
   athleteId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
+export type QueryWhiteboardArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root query type providing read access to all platform entities.
+ * All queries are automatically scoped to the authenticated coach's data.
+ */
+export type QueryWhiteboardsArgs = {
+  difficulty?: InputMaybe<DifficultyLevel>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** AI-generated suggestions for improving the goal statement. */
@@ -753,9 +1194,11 @@ export type Subscription = {
   athleteUpdated: Athlete;
   goalAdded: Goal;
   goalUpdated: Goal;
+  playUpdated: Play;
   sessionLogAdded: SessionLog;
   sessionLogUpdated: SessionLog;
   trainingPlanGenerated: TrainingPlan;
+  whiteboardUpdated: Whiteboard;
 };
 
 
@@ -794,6 +1237,16 @@ export type SubscriptionGoalUpdatedArgs = {
  * Subscriptions enable live updates in the UI during AI processing and data changes.
  * All subscriptions are automatically scoped to the authenticated coach's data.
  */
+export type SubscriptionPlayUpdatedArgs = {
+  whiteboardId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
 export type SubscriptionSessionLogAddedArgs = {
   athleteId: Scalars['ID']['input'];
 };
@@ -816,6 +1269,16 @@ export type SubscriptionSessionLogUpdatedArgs = {
  */
 export type SubscriptionTrainingPlanGeneratedArgs = {
   athleteId: Scalars['ID']['input'];
+};
+
+
+/**
+ * Root subscription type providing real-time updates for platform entities.
+ * Subscriptions enable live updates in the UI during AI processing and data changes.
+ * All subscriptions are automatically scoped to the authenticated coach's data.
+ */
+export type SubscriptionWhiteboardUpdatedArgs = {
+  id: Scalars['ID']['input'];
 };
 
 /** Subscription status indicating the current state of the coach's billing subscription. */
@@ -950,6 +1413,24 @@ export type UpdateGoalInput = {
   trainingPlanIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
+/** Input for updating a phase. */
+export type UpdatePhaseInput = {
+  delay?: InputMaybe<Scalars['Float']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Float']['input']>;
+  order?: InputMaybe<Scalars['Int']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Input for updating a play. */
+export type UpdatePlayInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  duration?: InputMaybe<Scalars['Float']['input']>;
+  order?: InputMaybe<Scalars['Int']['input']>;
+  playerCount?: InputMaybe<Scalars['Int']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 /**
  * Input for updating an existing session log.
  * Supports both manual updates and AI-generated content addition.
@@ -973,6 +1454,17 @@ export type UpdateTrainingPlanInput = {
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Input for updating a whiteboard. */
+export type UpdateWhiteboardInput = {
+  courtType?: InputMaybe<CourtType>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  difficulty?: InputMaybe<DifficultyLevel>;
+  isPublic?: InputMaybe<Scalars['Boolean']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
+  tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** Urgency classification for goal timeline planning. */
 export enum UrgencyLevel {
   Immediate = 'IMMEDIATE',
@@ -980,6 +1472,29 @@ export enum UrgencyLevel {
   MediumTerm = 'MEDIUM_TERM',
   ShortTerm = 'SHORT_TERM'
 }
+
+/**
+ * Whiteboard entity for creating and managing tactical plays and training drills.
+ * Supports 3D positioning, multi-phase animations, and sport-specific court/field backgrounds.
+ */
+export type Whiteboard = {
+  __typename?: 'Whiteboard';
+  athletes?: Maybe<Array<Athlete>>;
+  coach: Coach;
+  courtType: CourtType;
+  createdAt: Scalars['DateTime']['output'];
+  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  difficulty: DifficultyLevel;
+  id: Scalars['ID']['output'];
+  isPublic: Scalars['Boolean']['output'];
+  plays: Array<Play>;
+  sport: Scalars['String']['output'];
+  tags?: Maybe<Array<Scalars['String']['output']>>;
+  title: Scalars['String']['output'];
+  trainingPlans?: Maybe<Array<TrainingPlan>>;
+  updatedAt: Scalars['DateTime']['output'];
+};
 
 
 
@@ -1058,6 +1573,8 @@ export type ResolversTypes = {
   AIMetadata: ResolverTypeWrapper<AiMetadata>;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
   AccountStatus: AccountStatus;
+  Annotation: ResolverTypeWrapper<Annotation>;
+  AnnotationType: AnnotationType;
   Assistant: ResolverTypeWrapper<Assistant>;
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
@@ -1070,13 +1587,20 @@ export type ResolversTypes = {
   ConfidenceLevel: ConfidenceLevel;
   Constraints: ResolverTypeWrapper<Constraints>;
   CoreGoal: ResolverTypeWrapper<CoreGoal>;
+  CourtType: CourtType;
+  CreateAnnotationInput: CreateAnnotationInput;
   CreateAthleteInput: CreateAthleteInput;
   CreateCoachInput: CreateCoachInput;
   CreateGoalInput: CreateGoalInput;
+  CreateMovementInput: CreateMovementInput;
+  CreatePhaseInput: CreatePhaseInput;
+  CreatePlayInput: CreatePlayInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
+  CreateWhiteboardInput: CreateWhiteboardInput;
   DataQuality: DataQuality;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
+  DifficultyLevel: DifficultyLevel;
   EvaluationSummary: ResolverTypeWrapper<EvaluationSummary>;
   ExperienceLevel: ExperienceLevel;
   ExtractionConfidence: ResolverTypeWrapper<ExtractionConfidence>;
@@ -1089,7 +1613,13 @@ export type ResolversTypes = {
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   Motivation: ResolverTypeWrapper<Motivation>;
+  Movement: ResolverTypeWrapper<Movement>;
+  MovementType: MovementType;
   Mutation: ResolverTypeWrapper<{}>;
+  Phase: ResolverTypeWrapper<Phase>;
+  Play: ResolverTypeWrapper<Play>;
+  PlayerPosition: ResolverTypeWrapper<PlayerPosition>;
+  PlayerPositionInput: PlayerPositionInput;
   Query: ResolverTypeWrapper<{}>;
   RefinedGoalSuggestion: ResolverTypeWrapper<RefinedGoalSuggestion>;
   SessionLog: ResolverTypeWrapper<SessionLog>;
@@ -1105,9 +1635,13 @@ export type ResolversTypes = {
   UpdateCoachBillingInput: UpdateCoachBillingInput;
   UpdateCoachInput: UpdateCoachInput;
   UpdateGoalInput: UpdateGoalInput;
+  UpdatePhaseInput: UpdatePhaseInput;
+  UpdatePlayInput: UpdatePlayInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
+  UpdateWhiteboardInput: UpdateWhiteboardInput;
   UrgencyLevel: UrgencyLevel;
+  Whiteboard: ResolverTypeWrapper<Whiteboard>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -1117,6 +1651,7 @@ export type ResolversParentTypes = {
   AIGenerateTrainingPlanInput: AiGenerateTrainingPlanInput;
   AIMetadata: AiMetadata;
   AISummarizeSessionLogInput: AiSummarizeSessionLogInput;
+  Annotation: Annotation;
   Assistant: Assistant;
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
@@ -1128,11 +1663,16 @@ export type ResolversParentTypes = {
   CoachingFeedback: CoachingFeedback;
   Constraints: Constraints;
   CoreGoal: CoreGoal;
+  CreateAnnotationInput: CreateAnnotationInput;
   CreateAthleteInput: CreateAthleteInput;
   CreateCoachInput: CreateCoachInput;
   CreateGoalInput: CreateGoalInput;
+  CreateMovementInput: CreateMovementInput;
+  CreatePhaseInput: CreatePhaseInput;
+  CreatePlayInput: CreatePlayInput;
   CreateSessionLogInput: CreateSessionLogInput;
   CreateTrainingPlanInput: CreateTrainingPlanInput;
+  CreateWhiteboardInput: CreateWhiteboardInput;
   DateTime: Scalars['DateTime']['output'];
   EvaluationSummary: EvaluationSummary;
   ExtractionConfidence: ExtractionConfidence;
@@ -1144,7 +1684,12 @@ export type ResolversParentTypes = {
   Int: Scalars['Int']['output'];
   JSON: Scalars['JSON']['output'];
   Motivation: Motivation;
+  Movement: Movement;
   Mutation: {};
+  Phase: Phase;
+  Play: Play;
+  PlayerPosition: PlayerPosition;
+  PlayerPositionInput: PlayerPositionInput;
   Query: {};
   RefinedGoalSuggestion: RefinedGoalSuggestion;
   SessionLog: SessionLog;
@@ -1157,13 +1702,32 @@ export type ResolversParentTypes = {
   UpdateCoachBillingInput: UpdateCoachBillingInput;
   UpdateCoachInput: UpdateCoachInput;
   UpdateGoalInput: UpdateGoalInput;
+  UpdatePhaseInput: UpdatePhaseInput;
+  UpdatePlayInput: UpdatePlayInput;
   UpdateSessionLogInput: UpdateSessionLogInput;
   UpdateTrainingPlanInput: UpdateTrainingPlanInput;
+  UpdateWhiteboardInput: UpdateWhiteboardInput;
+  Whiteboard: Whiteboard;
 };
 
 export type AiMetadataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AIMetadata'] = ResolversParentTypes['AIMetadata']> = {
   nextStepsGenerated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   summaryGenerated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AnnotationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Annotation'] = ResolversParentTypes['Annotation']> = {
+  color?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  coordinates?: Resolver<Array<ResolversTypes['Float']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  fontSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  phase?: Resolver<Maybe<ResolversTypes['Phase']>, ParentType, ContextType>;
+  play?: Resolver<Maybe<ResolversTypes['Play']>, ParentType, ContextType>;
+  strokeWidth?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  text?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['AnnotationType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1360,25 +1924,108 @@ export type MotivationResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type MovementResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Movement'] = ResolversParentTypes['Movement']> = {
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  curve?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fromX?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  fromY?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  movementType?: Resolver<ResolversTypes['MovementType'], ParentType, ContextType>;
+  phase?: Resolver<ResolversTypes['Phase'], ParentType, ContextType>;
+  playerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  showTrail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  speed?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  toX?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  toY?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  trailColor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   analyzeSessionPatterns?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAnalyzeSessionPatternsArgs, 'input'>>;
+  createAnnotation?: Resolver<ResolversTypes['Annotation'], ParentType, ContextType, RequireFields<MutationCreateAnnotationArgs, 'input'>>;
   createAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationCreateAthleteArgs, 'input'>>;
   createCoach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType, RequireFields<MutationCreateCoachArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
+  createMovement?: Resolver<ResolversTypes['Movement'], ParentType, ContextType, RequireFields<MutationCreateMovementArgs, 'input'>>;
+  createPhase?: Resolver<ResolversTypes['Phase'], ParentType, ContextType, RequireFields<MutationCreatePhaseArgs, 'input'>>;
+  createPlay?: Resolver<ResolversTypes['Play'], ParentType, ContextType, RequireFields<MutationCreatePlayArgs, 'input'>>;
   createSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationCreateSessionLogArgs, 'input'>>;
   createTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationCreateTrainingPlanArgs, 'input'>>;
+  createWhiteboard?: Resolver<ResolversTypes['Whiteboard'], ParentType, ContextType, RequireFields<MutationCreateWhiteboardArgs, 'input'>>;
+  deleteAnnotation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAnnotationArgs, 'id'>>;
   deleteAthlete?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAthleteArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
+  deleteMovement?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMovementArgs, 'id'>>;
+  deletePhase?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePhaseArgs, 'id'>>;
+  deletePlay?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePlayArgs, 'id'>>;
   deleteSessionLog?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSessionLogArgs, 'id'>>;
+  deleteWhiteboard?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhiteboardArgs, 'id'>>;
   extractAndEvaluateGoal?: Resolver<ResolversTypes['GoalEvaluationResponse'], ParentType, ContextType, RequireFields<MutationExtractAndEvaluateGoalArgs, 'input'>>;
   generateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationGenerateTrainingPlanArgs, 'input'>>;
   summarizeSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationSummarizeSessionLogArgs, 'input'>>;
+  updateAnnotation?: Resolver<ResolversTypes['Annotation'], ParentType, ContextType, RequireFields<MutationUpdateAnnotationArgs, 'id' | 'input'>>;
   updateAthlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType, RequireFields<MutationUpdateAthleteArgs, 'id' | 'input'>>;
   updateCoach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType, RequireFields<MutationUpdateCoachArgs, 'input'>>;
   updateCoachBilling?: Resolver<ResolversTypes['CoachBilling'], ParentType, ContextType, RequireFields<MutationUpdateCoachBillingArgs, 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
+  updateMovement?: Resolver<ResolversTypes['Movement'], ParentType, ContextType, RequireFields<MutationUpdateMovementArgs, 'id' | 'input'>>;
+  updatePhase?: Resolver<ResolversTypes['Phase'], ParentType, ContextType, RequireFields<MutationUpdatePhaseArgs, 'id' | 'input'>>;
+  updatePlay?: Resolver<ResolversTypes['Play'], ParentType, ContextType, RequireFields<MutationUpdatePlayArgs, 'id' | 'input'>>;
+  updatePlayerPositions?: Resolver<ResolversTypes['Play'], ParentType, ContextType, RequireFields<MutationUpdatePlayerPositionsArgs, 'playId' | 'positions'>>;
   updateSessionLog?: Resolver<ResolversTypes['SessionLog'], ParentType, ContextType, RequireFields<MutationUpdateSessionLogArgs, 'id' | 'input'>>;
   updateTrainingPlan?: Resolver<ResolversTypes['TrainingPlan'], ParentType, ContextType, RequireFields<MutationUpdateTrainingPlanArgs, 'id' | 'input'>>;
+  updateWhiteboard?: Resolver<ResolversTypes['Whiteboard'], ParentType, ContextType, RequireFields<MutationUpdateWhiteboardArgs, 'id' | 'input'>>;
+};
+
+export type PhaseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Phase'] = ResolversParentTypes['Phase']> = {
+  annotations?: Resolver<Maybe<Array<ResolversTypes['Annotation']>>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  delay?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  duration?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  movements?: Resolver<Maybe<Array<ResolversTypes['Movement']>>, ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  play?: Resolver<ResolversTypes['Play'], ParentType, ContextType>;
+  playerPositions?: Resolver<Array<ResolversTypes['PlayerPosition']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PlayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Play'] = ResolversParentTypes['Play']> = {
+  annotations?: Resolver<Maybe<Array<ResolversTypes['Annotation']>>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  duration?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  phases?: Resolver<Array<ResolversTypes['Phase']>, ParentType, ContextType>;
+  playerCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  startingPositions?: Resolver<Array<ResolversTypes['PlayerPosition']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  whiteboard?: Resolver<ResolversTypes['Whiteboard'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PlayerPositionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PlayerPosition'] = ResolversParentTypes['PlayerPosition']> = {
+  color?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  jersey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phase?: Resolver<Maybe<ResolversTypes['Phase']>, ParentType, ContextType>;
+  play?: Resolver<ResolversTypes['Play'], ParentType, ContextType>;
+  playerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  playerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  playerRole?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  x?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  y?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  z?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
@@ -1389,10 +2036,14 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'athleteId' | 'id'>>;
   goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, Partial<QueryGoalsArgs>>;
   me?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
+  phase?: Resolver<Maybe<ResolversTypes['Phase']>, ParentType, ContextType, RequireFields<QueryPhaseArgs, 'id'>>;
+  play?: Resolver<Maybe<ResolversTypes['Play']>, ParentType, ContextType, RequireFields<QueryPlayArgs, 'id'>>;
   sessionLog?: Resolver<Maybe<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogArgs, 'id'>>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, Partial<QuerySessionLogsArgs>>;
   trainingPlan?: Resolver<Maybe<ResolversTypes['TrainingPlan']>, ParentType, ContextType, RequireFields<QueryTrainingPlanArgs, 'id'>>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType, Partial<QueryTrainingPlansArgs>>;
+  whiteboard?: Resolver<Maybe<ResolversTypes['Whiteboard']>, ParentType, ContextType, RequireFields<QueryWhiteboardArgs, 'id'>>;
+  whiteboards?: Resolver<Array<ResolversTypes['Whiteboard']>, ParentType, ContextType, Partial<QueryWhiteboardsArgs>>;
 };
 
 export type RefinedGoalSuggestionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RefinedGoalSuggestion'] = ResolversParentTypes['RefinedGoalSuggestion']> = {
@@ -1422,9 +2073,11 @@ export type SubscriptionResolvers<ContextType = GraphQLContext, ParentType exten
   athleteUpdated?: SubscriptionResolver<ResolversTypes['Athlete'], "athleteUpdated", ParentType, ContextType, RequireFields<SubscriptionAthleteUpdatedArgs, 'id'>>;
   goalAdded?: SubscriptionResolver<ResolversTypes['Goal'], "goalAdded", ParentType, ContextType, RequireFields<SubscriptionGoalAddedArgs, 'athleteId'>>;
   goalUpdated?: SubscriptionResolver<ResolversTypes['Goal'], "goalUpdated", ParentType, ContextType, RequireFields<SubscriptionGoalUpdatedArgs, 'id'>>;
+  playUpdated?: SubscriptionResolver<ResolversTypes['Play'], "playUpdated", ParentType, ContextType, RequireFields<SubscriptionPlayUpdatedArgs, 'whiteboardId'>>;
   sessionLogAdded?: SubscriptionResolver<ResolversTypes['SessionLog'], "sessionLogAdded", ParentType, ContextType, RequireFields<SubscriptionSessionLogAddedArgs, 'athleteId'>>;
   sessionLogUpdated?: SubscriptionResolver<ResolversTypes['SessionLog'], "sessionLogUpdated", ParentType, ContextType, RequireFields<SubscriptionSessionLogUpdatedArgs, 'id'>>;
   trainingPlanGenerated?: SubscriptionResolver<ResolversTypes['TrainingPlan'], "trainingPlanGenerated", ParentType, ContextType, RequireFields<SubscriptionTrainingPlanGeneratedArgs, 'athleteId'>>;
+  whiteboardUpdated?: SubscriptionResolver<ResolversTypes['Whiteboard'], "whiteboardUpdated", ParentType, ContextType, RequireFields<SubscriptionWhiteboardUpdatedArgs, 'id'>>;
 };
 
 export type SuccessIndicatorsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SuccessIndicators'] = ResolversParentTypes['SuccessIndicators']> = {
@@ -1460,8 +2113,28 @@ export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WhiteboardResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Whiteboard'] = ResolversParentTypes['Whiteboard']> = {
+  athletes?: Resolver<Maybe<Array<ResolversTypes['Athlete']>>, ParentType, ContextType>;
+  coach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType>;
+  courtType?: Resolver<ResolversTypes['CourtType'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  difficulty?: Resolver<ResolversTypes['DifficultyLevel'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPublic?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  plays?: Resolver<Array<ResolversTypes['Play']>, ParentType, ContextType>;
+  sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  trainingPlans?: Resolver<Maybe<Array<ResolversTypes['TrainingPlan']>>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = GraphQLContext> = {
   AIMetadata?: AiMetadataResolvers<ContextType>;
+  Annotation?: AnnotationResolvers<ContextType>;
   Assistant?: AssistantResolvers<ContextType>;
   Athlete?: AthleteResolvers<ContextType>;
   Availability?: AvailabilityResolvers<ContextType>;
@@ -1478,7 +2151,11 @@ export type Resolvers<ContextType = GraphQLContext> = {
   GoalEvaluationResponse?: GoalEvaluationResponseResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Motivation?: MotivationResolvers<ContextType>;
+  Movement?: MovementResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Phase?: PhaseResolvers<ContextType>;
+  Play?: PlayResolvers<ContextType>;
+  PlayerPosition?: PlayerPositionResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   RefinedGoalSuggestion?: RefinedGoalSuggestionResolvers<ContextType>;
   SessionLog?: SessionLogResolvers<ContextType>;
@@ -1486,5 +2163,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   SuccessIndicators?: SuccessIndicatorsResolvers<ContextType>;
   Timeline?: TimelineResolvers<ContextType>;
   TrainingPlan?: TrainingPlanResolvers<ContextType>;
+  Whiteboard?: WhiteboardResolvers<ContextType>;
 };
 
