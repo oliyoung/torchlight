@@ -45,25 +45,29 @@ export default function LoginPageToken() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="max-w-md p-5 bg-white  ">
+      <div className="max-w-md p-5 bg-white">
         <h1 className="mb-5 text-xl font-bold">Sign in</h1>
         {error && <ErrorMessage message={error} />}
 
         <input
           type="email"
+          name="email"
+          aria-label="Email address"
           placeholder="user@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-3 border "
+          className="w-full p-2 mb-3 border"
           disabled={loading}
         />
 
         <input
           type="password"
+          name="password"
+          aria-label="Password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-3 border "
+          className="w-full p-2 mb-3 border"
           disabled={loading}
         />
 
@@ -71,7 +75,7 @@ export default function LoginPageToken() {
           type="button"
           onClick={handleSignIn}
           disabled={loading}
-          className="w-full p-2 mb-3 text-white bg-blue-600  hover:bg-blue-700 disabled:opacity-50"
+          className="w-full p-2 mb-3 text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
@@ -80,7 +84,7 @@ export default function LoginPageToken() {
           type="button"
           onClick={handleSignUp}
           disabled={loading}
-          className="w-full p-2 mb-3 text-white bg-green-600  hover:bg-green-700 disabled:opacity-50"
+          className="w-full p-2 mb-3 text-white bg-green-600 hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? 'Signing up...' : 'Sign Up'}
         </button>
