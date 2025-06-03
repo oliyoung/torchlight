@@ -12,6 +12,47 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Template library for common training plans and goals
 - [ ] Equipment management system for tracking athlete gear
 - [ ] Tracking Expected Outcomes with measurement tools
+- [ ] Whiteboard integration with training plans and session logs
+
+## Whiteboard & Tactical Features
+
+### ✅ **Completed**
+- [x] 3D tactical whiteboard with multi-sport court support
+- [x] SVG-based court system (basketball, soccer, tennis, volleyball)
+- [x] Interactive drag-and-drop player positioning
+- [x] Multi-phase play animation with timing controls
+- [x] Production-ready GraphQL API and database schema
+
+### **Court System Enhancements**
+- [ ] **Court Editor UI** - In-browser court editing tool with visual interface
+- [ ] **Template Library** - Pre-built courts for various sports levels (youth, professional, modified rules)
+- [ ] **Dynamic Markings** - Adjustable court dimensions for different leagues and age groups
+- [ ] **User Uploads** - Allow coaches to upload custom court designs and logos
+- [ ] **Court Variants** - Add American football, lacrosse, hockey, and field hockey courts
+- [ ] **3D Court Rendering** - True 3D courts with elevation and depth for advanced visualization
+
+### **Play Design & Animation**
+- [ ] **Animation Support** - Animated court elements (moving goals, changing formations)
+- [ ] **Movement Editor** - Visual movement path creation with bezier curves and timing
+- [ ] **Annotation System** - Drawing tools for tactical notes, arrows, and highlights
+- [ ] **Play Templates** - Library of common plays organized by sport and level
+- [ ] **Formation Builder** - Quick formation setup with player role assignments
+- [ ] **Transition Animation** - Smooth transitions between different play phases
+
+### **Collaboration & Sharing**
+- [ ] **Public Whiteboards** - Share tactical boards with other coaches
+- [ ] **Team Whiteboard Access** - Allow athletes to view and interact with plays
+- [ ] **Export Capabilities** - PDF/video export of animated plays
+- [ ] **Presentation Mode** - Full-screen play presentation for team meetings
+- [ ] **Version History** - Track changes to plays over time
+- [ ] **Collaborative Editing** - Multiple coaches editing the same whiteboard
+
+### **Integration Features**
+- [ ] **Session Log Integration** - Link whiteboard plays to specific training sessions
+- [ ] **Training Plan Embedding** - Include tactical boards within training plans
+- [ ] **Goal Alignment** - Connect plays to specific athlete development goals
+- [ ] **Performance Tracking** - Track execution of tactical plays in real sessions
+- [ ] **Video Analysis Integration** - Overlay tactical boards on game/training footage
 
 ## AI Enhancements
 
@@ -22,6 +63,8 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Coach conversation analysis with insight extraction
 - [ ] Voice transcription for in-session recording
 - [ ] Risk detection for potential athlete challenges/roadblocks
+- [ ] **AI Play Generation** - Generate tactical plays based on team strengths and opponent analysis
+- [ ] **Tactical Pattern Recognition** - Identify successful play patterns from session data
 
 ## Session Log Analysis Improvements
 
@@ -75,6 +118,9 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Custom theming for coaches (branded experience)
 - [ ] Accessibility improvements (WCAG 2.1 AA compliance)
 - [ ] Onboarding wizard for new coaches
+- [ ] **Whiteboard shortcuts and hotkeys** - Keyboard shortcuts for faster tactical board interaction
+- [ ] **Touch gesture support** - Mobile/tablet gestures for whiteboard manipulation
+- [ ] **Whiteboard themes** - Customizable court colors and styling options
 
 ## Integration & Extensibility
 
@@ -116,6 +162,9 @@ This document tracks planned features and future ideas for the congenial-carniva
 - [ ] Comprehensive user guides
 - [ ] Video tutorials for core features
 - [ ] Developer documentation for API
+- [x] **SVG Court System Guide** - Complete documentation for creating and customizing court backgrounds
+- [ ] Tactical whiteboard user manual for coaches
+- [ ] Integration guides for connecting whiteboards to training workflows
 
 ---
 
