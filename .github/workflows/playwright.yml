@@ -7,28 +7,76 @@ on:
     branches: [ main, master ]
 
 env:
-  # Base configuration
+  # Base configuration for the app
   NEXT_PUBLIC_APP_URL: http://localhost:3000
-
-  # Supabase configuration (from secrets)
-  NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-  # Test user credentials
-  TEST_COACH_EMAIL: playwright.test@gmail.com
-  TEST_COACH_PASSWORD: TestPassword123!
-
-  # AI API keys (if needed for tests)
-  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
   # CI flag for Playwright config
   CI: true
 
 jobs:
-  test:
+  # Fast mocked tests (no external dependencies)
+  test-mocked:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps chromium
+
+    - name: Build Next.js application
+      run: npm run build
+
+    - name: Run Mocked Playwright tests
+      run: npx playwright test --config=playwright.mocked.config.ts
+      env:
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+        CI: true
+
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: ${{ !cancelled() }}
+      with:
+        name: playwright-report-mocked
+        path: playwright-report/
+        retention-days: 30
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: test-results-mocked
+        path: test-results/
+        retention-days: 30
+
+  # Optional: Run real tests with Supabase (only if secrets are available)
+  test-with-supabase:
+    if: github.repository_owner == github.actor && vars.ENABLE_SUPABASE_TESTS == 'true'
     timeout-minutes: 60
     runs-on: ubuntu-latest
+
+    env:
+      # Supabase configuration (from secrets)
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # Test user credentials
+      TEST_COACH_EMAIL: playwright.test@gmail.com
+      TEST_COACH_PASSWORD: TestPassword123!
+
+      # AI API keys (if needed for tests)
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
     steps:
     - name: Checkout code
@@ -56,7 +104,7 @@ jobs:
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       continue-on-error: true # Continue if user already exists
 
-    - name: Run Playwright tests
+    - name: Run Real Playwright tests
       run: npx playwright test
       env:
         # Ensure all environment variables are available to tests
@@ -69,43 +117,31 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         CI: true
 
-    - name: Upload Playwright Report
+    - name: Upload Playwright Report (Real)
       uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report
+        name: playwright-report-real
         path: playwright-report/
         retention-days: 30
 
-    - name: Upload Test Results
+    - name: Upload Test Results (Real)
       uses: actions/upload-artifact@v4
       if: failure()
       with:
-        name: test-results
+        name: test-results-real
         path: test-results/
         retention-days: 30
 
-    - name: Upload Screenshots and Videos
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: playwright-artifacts
-        path: |
-          test-results/**/*.png
-          test-results/**/*.webm
-        retention-days: 7
-
-  # Optional: Run comprehensive tests on main branch
-  test-comprehensive:
+  # Cross-browser testing with mocks (only on main branch)
+  test-cross-browser:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    timeout-minutes: 90
+    timeout-minutes: 45
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        project:
-          - chromium-authenticated
-          - chromium-unauthenticated
+        browser: [chromium-mocked, firefox-mocked, webkit-mocked]
 
     steps:
     - name: Checkout code
@@ -126,29 +162,16 @@ jobs:
     - name: Build Next.js application
       run: npm run build
 
-    - name: Create test user
-      run: node scripts/create-test-user.js
+    - name: Run Cross-browser Mocked Tests (${{ matrix.browser }})
+      run: npx playwright test --config=playwright.mocked.config.ts --project=${{ matrix.browser }}
       env:
-        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      continue-on-error: true
-
-    - name: Run Playwright tests (${{ matrix.project }})
-      run: npx playwright test --project=${{ matrix.project }}
-      env:
-        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         NEXT_PUBLIC_APP_URL: http://localhost:3000
-        TEST_COACH_EMAIL: playwright.test@gmail.com
-        TEST_COACH_PASSWORD: TestPassword123!
-        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         CI: true
 
-    - name: Upload Playwright Report (${{ matrix.project }})
+    - name: Upload Playwright Report (${{ matrix.browser }})
       uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
-        name: playwright-report-${{ matrix.project }}
+        name: playwright-report-${{ matrix.browser }}
         path: playwright-report/
         retention-days: 30

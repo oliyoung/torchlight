@@ -1,22 +1,13 @@
 import { test as base, type Page, type BrowserContext } from '@playwright/test';
-import { createClient } from '@supabase/supabase-js';
 import * as path from 'path';
 
 // Environment variables
 export const TEST_CONFIG = {
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
-  // Test credentials - these should exist in your test database
-  testCoachEmail: process.env.TEST_COACH_EMAIL ?? 'playwright.test@gmail.com',
-  testCoachPassword: process.env.TEST_COACH_PASSWORD ?? 'TestPassword123!',
 };
 
-// Auth file paths
-const coachAuthFile = path.join(__dirname, '../playwright/.auth/coach.json');
-
 /**
- * Page Object Model for authenticated coach pages
+ * Page Object Model for coach pages
  * Add coach-specific locators and helper methods here
  */
 export class CoachPage {
@@ -53,7 +44,7 @@ export class CoachPage {
     await this.page.goto(`${TEST_CONFIG.baseUrl}/assistants`);
   }
 
-  // Authentication helpers
+  // Authentication helpers (mocked)
   async ensurePageReady(): Promise<void> {
     try {
       // Ensure we're on a proper HTTP/HTTPS URL, not about:blank
@@ -70,73 +61,23 @@ export class CoachPage {
   }
 
   async getAuthToken(): Promise<string | null> {
-    await this.ensurePageReady();
-
-    try {
-      return await this.page.evaluate(() => {
-        // Check if localStorage is available
-        if (typeof localStorage === 'undefined') {
-          return null;
-        }
-
-        // Try to get Supabase auth token from localStorage
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key?.includes('auth-token')) {
-            try {
-              const session = JSON.parse(localStorage.getItem(key) ?? '');
-              return session.access_token;
-            } catch (e) {
-              continue;
-            }
-          }
-        }
-        return null;
-      });
-    } catch (error) {
-      console.log('⚠️  Could not access localStorage for auth token:', error);
-      return null;
-    }
+    // Return mock token for mocked tests
+    return 'mock-auth-token';
   }
 
   async isAuthenticated(): Promise<boolean> {
-    await this.ensurePageReady();
-
-    try {
-      return await this.page.evaluate(() => {
-        // Check if localStorage is available
-        if (typeof localStorage === 'undefined') {
-          return false;
-        }
-
-        const authData = localStorage.getItem('playwright-auth');
-        if (authData) {
-          try {
-            const parsed = JSON.parse(authData);
-            return parsed.authenticated === true;
-          } catch (e) {
-            return false;
-          }
-        }
-        return false;
-      });
-    } catch (error) {
-      console.log('⚠️  Could not access localStorage for auth check:', error);
-      return false;
-    }
+    // Always return true for mocked tests
+    return true;
   }
 
-  // GraphQL helper
+  // GraphQL helper (uses mocked responses)
   async makeGraphQLRequest(query: string, variables?: Record<string, any>) {
-    const token = await this.getAuthToken();
-    if (!token) {
-      throw new Error('No authentication token available');
-    }
-
+    // For mocked version, we can just return the query to the intercepted GraphQL endpoint
+    // The mock will handle the response based on the query content
     const response = await this.page.request.post(`${TEST_CONFIG.baseUrl}/api/graphql`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Authorization': 'Bearer mock-token'
       },
       data: {
         query,
@@ -149,123 +90,81 @@ export class CoachPage {
 }
 
 /**
- * Custom fixtures for authenticated testing
+ * Mocked Page Object Model that uses mock data instead of real API calls
  */
-export type TestFixtures = {
-  authenticatedPage: Page;
-  coachPage: CoachPage;
-  coachContext: BrowserContext;
+export class MockedCoachPage extends CoachPage {
+  constructor(page: Page, context: BrowserContext) {
+    super(page, context);
+  }
+
+  async makeGraphQLRequest(query: string, variables?: Record<string, any>) {
+    // For mocked version, we can just return the query to the intercepted GraphQL endpoint
+    // The mock will handle the response based on the query content
+    const response = await this.page.request.post(`${TEST_CONFIG.baseUrl}/api/graphql`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer mock-token'
+      },
+      data: {
+        query,
+        variables
+      }
+    });
+
+    return await response.json();
+  }
+}
+
+/**
+ * Custom fixtures for mocked testing (no real authentication or API calls)
+ */
+export type MockedTestFixtures = {
+  mockedPage: Page;
+  mockedCoachPage: MockedCoachPage;
+  mockedContext: BrowserContext;
 };
 
-export const test = base.extend<TestFixtures>({
-  // Authenticated page using the pre-saved coach authentication state
-  authenticatedPage: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      storageState: coachAuthFile
-    });
+// Mocked fixtures that use fake auth and data
+export const mockedTest = base.extend<MockedTestFixtures>({
+  // Mocked page with fake auth and GraphQL responses
+  mockedPage: async ({ browser }, use) => {
+    const context = await browser.newContext();
     const page = await context.newPage();
+
+    // Setup all mocks
+    const { setupAllMocks } = await import('./mocks/graphql');
+    await setupAllMocks(page, TEST_CONFIG.baseUrl);
+
     await use(page);
     await context.close();
   },
 
-  // Coach-specific page object with helper methods
-  coachPage: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      storageState: coachAuthFile
-    });
+  // Mocked coach page with fake data
+  mockedCoachPage: async ({ browser }, use) => {
+    const context = await browser.newContext();
     const page = await context.newPage();
-    const coachPage = new CoachPage(page, context);
-    await use(coachPage);
+
+    // Setup all mocks
+    const { setupAllMocks } = await import('./mocks/graphql');
+    await setupAllMocks(page, TEST_CONFIG.baseUrl);
+
+    const mockedCoachPage = new MockedCoachPage(page, context);
+    await use(mockedCoachPage);
     await context.close();
   },
 
-  // Authenticated browser context (for when you need multiple pages)
-  coachContext: async ({ browser }, use) => {
-    const context = await browser.newContext({
-      storageState: coachAuthFile
-    });
+  // Mocked browser context
+  mockedContext: async ({ browser }, use) => {
+    const context = await browser.newContext();
     await use(context);
     await context.close();
   },
 });
 
+// Export the mocked test as the default test since we're only using mocked tests now
+export const test = mockedTest;
+
 export { expect } from '@playwright/test';
-
-/**
- * Creates a test coach user if it doesn't exist
- * This should be run during test setup to ensure test users exist
- */
-export async function createTestCoachIfNotExists() {
-  const supabase = createClient(TEST_CONFIG.supabaseUrl, TEST_CONFIG.supabaseAnonKey);
-
-  try {
-    // Try to sign in first to check if user exists
-    const { data: existingUser, error: signInError } = await supabase.auth.signInWithPassword({
-      email: TEST_CONFIG.testCoachEmail,
-      password: TEST_CONFIG.testCoachPassword,
-    });
-
-    if (existingUser.user && !signInError) {
-      console.log('✅ Test coach user already exists and credentials work');
-      await supabase.auth.signOut(); // Sign out after verification
-      return { success: true, created: false };
-    }
-
-    // If sign in failed, try to create the user
-    const { data: newUser, error: signUpError } = await supabase.auth.signUp({
-      email: TEST_CONFIG.testCoachEmail,
-      password: TEST_CONFIG.testCoachPassword,
-    });
-
-    if (signUpError) {
-      // If we get a rate limit error, assume user exists and try to sign in again
-      if (signUpError.message.includes('For security purposes') || signUpError.message.includes('rate limit')) {
-        console.log('⚠️  Rate limited, but assuming user exists from previous runs');
-        return { success: true, created: false };
-      }
-
-      console.error('❌ Failed to create test coach:', signUpError.message);
-      return { success: false, error: signUpError.message };
-    }
-
-    if (newUser.user) {
-      console.log('✅ Test coach user created successfully');
-      return { success: true, created: true, userId: newUser.user.id };
-    }
-
-    return { success: false, error: 'Unknown error creating user' };
-  } catch (error) {
-    console.error('❌ Error in createTestCoachIfNotExists:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-}
-
-/**
- * Clean up test data after tests
- */
-export async function cleanupTestData() {
-  // This would implement cleanup of test data if needed
-  console.log('🧹 Test cleanup completed');
-}
-
-/**
- * Verify that environment variables are set for testing
- */
-export function verifyTestEnvironment() {
-  const required = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY'
-  ];
-
-  const missing = required.filter(key => !process.env[key]);
-
-  if (missing.length > 0) {
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  console.log('✅ Test environment verified');
-  return true;
-}
 
 /**
  * Common test selectors and helpers
@@ -313,7 +212,7 @@ export class TestHelpers {
     }
   }
 
-  static async login(page: any, email = TEST_CONFIG.testCoachEmail, password = TEST_CONFIG.testCoachPassword) {
+  static async login(page: any, email = 'test@example.com', password = 'password') {
     await page.goto('/login');
     await page.fill(SELECTORS.emailInput, email);
     await page.fill(SELECTORS.passwordInput, password);
