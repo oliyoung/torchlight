@@ -14,6 +14,23 @@ import {
 } from '@/lib/data-loaders/relation';
 import { createSessionLogLoader } from '@/lib/data-loaders/sessionLog';
 import { createTrainingPlanLoader } from '@/lib/data-loaders/training-plan';
+import {
+  createWhiteboardLoader,
+  createPlayLoader,
+  createPhaseLoader,
+  createPlayerPositionLoader,
+  createMovementLoader,
+  createAnnotationLoader
+} from '@/lib/data-loaders/whiteboard-entities';
+import {
+  whiteboardByIdLoader,
+  playsByWhiteboardIdLoader,
+  phasesByPlayIdLoader,
+  playerPositionsByPlayIdLoader,
+  movementsByPhaseIdLoader,
+  annotationsByPlayIdLoader,
+  annotationsByPhaseIdLoader
+} from '@/lib/data-loaders/whiteboard';
 import { logger } from '@/lib/logger';
 import { pubsub } from '@/lib/pubsub';
 import { createClient } from '@supabase/supabase-js';
@@ -42,6 +59,14 @@ export interface GraphQLContext extends YogaInitialContext {
     goal: ReturnType<typeof createGoalLoader>;
     sessionLog: ReturnType<typeof createSessionLogLoader>;
 
+    // Whiteboard entity loaders
+    whiteboardLoader: ReturnType<typeof createWhiteboardLoader>;
+    playLoader: ReturnType<typeof createPlayLoader>;
+    phaseLoader: ReturnType<typeof createPhaseLoader>;
+    playerPositionLoader: ReturnType<typeof createPlayerPositionLoader>;
+    movementLoader: ReturnType<typeof createMovementLoader>;
+    annotationLoader: ReturnType<typeof createAnnotationLoader>;
+
     // Relationship loaders
     athleteTrainingPlanIds: ReturnType<typeof createAthleteTrainingPlanIdsLoader>;
     goalSessionLogIds: ReturnType<typeof createGoalSessionLogIdsLoader>;
@@ -49,6 +74,14 @@ export interface GraphQLContext extends YogaInitialContext {
     sessionLogGoalIds: ReturnType<typeof createSessionLogGoalIdsLoader>;
     trainingPlanAssistantIds: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
     trainingPlanGoalIds: ReturnType<typeof createTrainingPlanGoalIdsLoader>;
+
+    // Whiteboard relationship loaders
+    playsByWhiteboardId: typeof playsByWhiteboardIdLoader;
+    phasesByPlayId: typeof phasesByPlayIdLoader;
+    playerPositionsByPlayId: typeof playerPositionsByPlayIdLoader;
+    movementsByPhaseId: typeof movementsByPhaseIdLoader;
+    annotationsByPlayId: typeof annotationsByPlayIdLoader;
+    annotationsByPhaseId: typeof annotationsByPhaseIdLoader;
   };
 }
 
@@ -235,6 +268,177 @@ const { handleRequest } = createYoga<GraphQLContext>({
           }
         }
       },
+      Whiteboard: {
+        coach: async (parent, _args, context) => {
+          try {
+            // Coach ID is stored as user_id in the whiteboard
+            if (!parent.user_id && !context.dataloaders?.coachLoaders) return null;
+            const coachId = parent.user_id || context.userId;
+            return await context.dataloaders?.coachLoaders.coachByUserId.load(coachId);
+          } catch (error) {
+            logger.error({ error, whiteboardId: parent.id }, 'Error resolving whiteboard coach');
+            return null;
+          }
+        },
+        plays: async (parent, _args, context) => {
+          try {
+            return await context.loaders.playsByWhiteboardId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, whiteboardId: parent.id }, 'Error resolving whiteboard plays');
+            return [];
+          }
+        },
+        athletes: async (parent, _args, context) => {
+          try {
+            // This would need a specific loader for whiteboard-athlete relationships
+            // For now, return empty array - this can be implemented when needed
+            return [];
+          } catch (error) {
+            logger.error({ error, whiteboardId: parent.id }, 'Error resolving whiteboard athletes');
+            return [];
+          }
+        },
+        trainingPlans: async (parent, _args, context) => {
+          try {
+            // This would need a specific loader for whiteboard-training plan relationships
+            // For now, return empty array - this can be implemented when needed
+            return [];
+          } catch (error) {
+            logger.error({ error, whiteboardId: parent.id }, 'Error resolving whiteboard training plans');
+            return [];
+          }
+        }
+      },
+      Play: {
+        whiteboard: async (parent, _args, context) => {
+          try {
+            const whiteboardId = parent.whiteboard_id || parent.whiteboardId;
+            if (!whiteboardId) return null;
+            return await context.loaders.whiteboardLoader.load(whiteboardId);
+          } catch (error) {
+            logger.error({ error, playId: parent.id }, 'Error resolving play whiteboard');
+            return null;
+          }
+        },
+        phases: async (parent, _args, context) => {
+          try {
+            return await context.loaders.phasesByPlayId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, playId: parent.id }, 'Error resolving play phases');
+            return [];
+          }
+        },
+        startingPositions: async (parent, _args, context) => {
+          try {
+            return await context.loaders.playerPositionsByPlayId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, playId: parent.id }, 'Error resolving play starting positions');
+            return [];
+          }
+        },
+        annotations: async (parent, _args, context) => {
+          try {
+            return await context.loaders.annotationsByPlayId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, playId: parent.id }, 'Error resolving play annotations');
+            return [];
+          }
+        }
+      },
+      Phase: {
+        play: async (parent, _args, context) => {
+          try {
+            const playId = parent.play_id || parent.playId;
+            if (!playId) return null;
+            return await context.loaders.playLoader.load(playId);
+          } catch (error) {
+            logger.error({ error, phaseId: parent.id }, 'Error resolving phase play');
+            return null;
+          }
+        },
+        playerPositions: async (parent, _args, context) => {
+          try {
+            // Player positions that belong to this specific phase
+            const allPositions = await context.loaders.playerPositionsByPlayId.load(parent.play_id || parent.playId);
+            return allPositions.filter((position: any) => position.phaseId === parent.id);
+          } catch (error) {
+            logger.error({ error, phaseId: parent.id }, 'Error resolving phase player positions');
+            return [];
+          }
+        },
+        movements: async (parent, _args, context) => {
+          try {
+            return await context.loaders.movementsByPhaseId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, phaseId: parent.id }, 'Error resolving phase movements');
+            return [];
+          }
+        },
+        annotations: async (parent, _args, context) => {
+          try {
+            return await context.loaders.annotationsByPhaseId.load(parent.id);
+          } catch (error) {
+            logger.error({ error, phaseId: parent.id }, 'Error resolving phase annotations');
+            return [];
+          }
+        }
+      },
+      PlayerPosition: {
+        play: async (parent, _args, context) => {
+          try {
+            const playId = parent.play_id || parent.playId;
+            if (!playId) return null;
+            return await context.loaders.playLoader.load(playId);
+          } catch (error) {
+            logger.error({ error, positionId: parent.id }, 'Error resolving player position play');
+            return null;
+          }
+        },
+        phase: async (parent, _args, context) => {
+          try {
+            const phaseId = parent.phase_id || parent.phaseId;
+            if (!phaseId) return null;
+            return await context.loaders.phaseLoader.load(phaseId);
+          } catch (error) {
+            logger.error({ error, positionId: parent.id }, 'Error resolving player position phase');
+            return null;
+          }
+        }
+      },
+      Movement: {
+        phase: async (parent, _args, context) => {
+          try {
+            const phaseId = parent.phase_id || parent.phaseId;
+            if (!phaseId) return null;
+            return await context.loaders.phaseLoader.load(phaseId);
+          } catch (error) {
+            logger.error({ error, movementId: parent.id }, 'Error resolving movement phase');
+            return null;
+          }
+        }
+      },
+      Annotation: {
+        play: async (parent, _args, context) => {
+          try {
+            const playId = parent.play_id || parent.playId;
+            if (!playId) return null;
+            return await context.loaders.playLoader.load(playId);
+          } catch (error) {
+            logger.error({ error, annotationId: parent.id }, 'Error resolving annotation play');
+            return null;
+          }
+        },
+        phase: async (parent, _args, context) => {
+          try {
+            const phaseId = parent.phase_id || parent.phaseId;
+            if (!phaseId) return null;
+            return await context.loaders.phaseLoader.load(phaseId);
+          } catch (error) {
+            logger.error({ error, annotationId: parent.id }, 'Error resolving annotation phase');
+            return null;
+          }
+        }
+      },
     }
   }),
   context: async (req) => {
@@ -272,6 +476,14 @@ const { handleRequest } = createYoga<GraphQLContext>({
         goal: createGoalLoader(user?.id),
         sessionLog: createSessionLogLoader(user?.id),
 
+        // Whiteboard entity loaders
+        whiteboardLoader: createWhiteboardLoader(user?.id),
+        playLoader: createPlayLoader(),
+        phaseLoader: createPhaseLoader(),
+        playerPositionLoader: createPlayerPositionLoader(),
+        movementLoader: createMovementLoader(),
+        annotationLoader: createAnnotationLoader(),
+
         // Relationship loaders
         athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(user?.id),
         goalSessionLogIds: createGoalSessionLogIdsLoader(),
@@ -279,6 +491,14 @@ const { handleRequest } = createYoga<GraphQLContext>({
         sessionLogGoalIds: createSessionLogGoalIdsLoader(),
         trainingPlanAssistantIds: createTrainingPlanAssistantIdsLoader(),
         trainingPlanGoalIds: createTrainingPlanGoalIdsLoader(),
+
+        // Whiteboard relationship loaders
+        playsByWhiteboardId: playsByWhiteboardIdLoader,
+        phasesByPlayId: phasesByPlayIdLoader,
+        playerPositionsByPlayId: playerPositionsByPlayIdLoader,
+        movementsByPhaseId: movementsByPhaseIdLoader,
+        annotationsByPlayId: annotationsByPlayIdLoader,
+        annotationsByPhaseId: annotationsByPhaseIdLoader,
       };
 
       // Create coach-specific data loaders

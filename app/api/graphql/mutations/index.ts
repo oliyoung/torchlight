@@ -18,6 +18,13 @@ import { createSessionLog } from "./session-logs/createSessionLog";
 import { updateSessionLog } from "./session-logs/updateSessionLog";
 import { deleteSessionLog } from "./session-logs/deleteSessionLog";
 
+// Whiteboard mutations
+import { createWhiteboard } from "./whiteboards/createWhiteboard";
+import { updateWhiteboard } from "./whiteboards/updateWhiteboard";
+import { deleteWhiteboard } from "./whiteboards/deleteWhiteboard";
+import { createPlay } from "./whiteboards/createPlay";
+import { updatePlayerPositions } from "./whiteboards/updatePlayerPositions";
+
 export default {
   analyzeSessionPatterns,
   createCoach,
@@ -36,5 +43,12 @@ export default {
   extractAndEvaluateGoal,
   summarizeSessionLog,
   generateTrainingPlan,
-  updateTrainingPlan
+  updateTrainingPlan,
+
+  // Whiteboard mutations
+  createWhiteboard,
+  updateWhiteboard,
+  deleteWhiteboard,
+  createPlay,
+  updatePlayerPositions,
 };

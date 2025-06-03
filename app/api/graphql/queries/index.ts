@@ -8,11 +8,18 @@ import {
 import type { Assistant, AssistantsInput, Athlete, Goal, SessionLog, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../route";
 import { me, coach } from "./coaches";
+import { whiteboards, whiteboard, play, phase } from "./whiteboards";
 
 export default {
   // Coach queries
   me,
   coach,
+
+  // Whiteboard queries
+  whiteboards,
+  whiteboard,
+  play,
+  phase,
 
   // Single entity queries - use DataLoader pattern
   trainingPlan: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<TrainingPlan | null> =>

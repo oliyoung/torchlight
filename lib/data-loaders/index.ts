@@ -12,6 +12,23 @@ import {
 } from './relation';
 import { createSessionLogLoader } from './sessionLog';
 import { createTrainingPlanLoader } from './training-plan';
+import {
+  whiteboardByIdLoader,
+  playsByWhiteboardIdLoader,
+  phasesByPlayIdLoader,
+  playerPositionsByPlayIdLoader,
+  movementsByPhaseIdLoader,
+  annotationsByPlayIdLoader,
+  annotationsByPhaseIdLoader
+} from './whiteboard';
+import {
+  createWhiteboardLoader,
+  createPlayLoader,
+  createPhaseLoader,
+  createPlayerPositionLoader,
+  createMovementLoader,
+  createAnnotationLoader
+} from './whiteboard-entities';
 
 export interface DataLoaders {
   // Entity loaders
@@ -23,12 +40,28 @@ export interface DataLoaders {
   trainingPlanLoader: ReturnType<typeof createTrainingPlanLoader>;
   assistantLoader: ReturnType<typeof createAssistantLoader>;
 
+  // Whiteboard entity loaders
+  whiteboardLoader: ReturnType<typeof createWhiteboardLoader>;
+  playLoader: ReturnType<typeof createPlayLoader>;
+  phaseLoader: ReturnType<typeof createPhaseLoader>;
+  playerPositionLoader: ReturnType<typeof createPlayerPositionLoader>;
+  movementLoader: ReturnType<typeof createMovementLoader>;
+  annotationLoader: ReturnType<typeof createAnnotationLoader>;
+
   // Relation loaders
   athleteTrainingPlanIdsLoader: ReturnType<typeof createAthleteTrainingPlanIdsLoader>;
   goalSessionLogIdsLoader: ReturnType<typeof createGoalSessionLogIdsLoader>;
   sessionLogGoalIdsLoader: ReturnType<typeof createSessionLogGoalIdsLoader>;
   trainingPlanAssistantIdsLoader: ReturnType<typeof createTrainingPlanAssistantIdsLoader>;
   trainingPlanGoalIdsLoader: ReturnType<typeof createTrainingPlanGoalIdsLoader>;
+
+  // Whiteboard relation loaders (batch loaders for nested data)
+  playsByWhiteboardId: typeof playsByWhiteboardIdLoader;
+  phasesByPlayId: typeof phasesByPlayIdLoader;
+  playerPositionsByPlayId: typeof playerPositionsByPlayIdLoader;
+  movementsByPhaseId: typeof movementsByPhaseIdLoader;
+  annotationsByPlayId: typeof annotationsByPlayIdLoader;
+  annotationsByPhaseId: typeof annotationsByPhaseIdLoader;
 }
 
 /**
@@ -46,11 +79,27 @@ export function createDataLoaders(userId: string | null): DataLoaders {
     trainingPlanLoader: createTrainingPlanLoader(userId),
     assistantLoader: createAssistantLoader(),
 
+    // Whiteboard entity loaders
+    whiteboardLoader: createWhiteboardLoader(userId),
+    playLoader: createPlayLoader(),
+    phaseLoader: createPhaseLoader(),
+    playerPositionLoader: createPlayerPositionLoader(),
+    movementLoader: createMovementLoader(),
+    annotationLoader: createAnnotationLoader(),
+
     // Relation loaders
     athleteTrainingPlanIdsLoader: createAthleteTrainingPlanIdsLoader(userId),
     goalSessionLogIdsLoader: createGoalSessionLogIdsLoader(),
     sessionLogGoalIdsLoader: createSessionLogGoalIdsLoader(),
     trainingPlanAssistantIdsLoader: createTrainingPlanAssistantIdsLoader(),
     trainingPlanGoalIdsLoader: createTrainingPlanGoalIdsLoader(),
+
+    // Whiteboard relation loaders
+    playsByWhiteboardId: playsByWhiteboardIdLoader,
+    phasesByPlayId: phasesByPlayIdLoader,
+    playerPositionsByPlayId: playerPositionsByPlayIdLoader,
+    movementsByPhaseId: movementsByPhaseIdLoader,
+    annotationsByPlayId: annotationsByPlayIdLoader,
+    annotationsByPhaseId: annotationsByPhaseIdLoader,
   };
 }
