@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="900" height="600" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Court Surface -->
+  <rect width="900" height="600" fill="#DEB887" />
+
+  <!-- Court Boundary -->
+  <rect x="50" y="50" width="800" height="500" fill="none" stroke="#ffffff" stroke-width="6" />
+
+  <!-- Center Line (Net) -->
+  <line x1="450" y1="50" x2="450" y2="550" stroke="#ffffff" stroke-width="8" />
+
+  <!-- Attack Lines (3-meter lines) -->
+  <line x1="200" y1="50" x2="200" y2="550" stroke="#ffffff" stroke-width="4" />
+  <line x1="700" y1="50" x2="700" y2="550" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Service Areas -->
+  <!-- Left service area -->
+  <line x1="50" y1="275" x2="200" y2="275" stroke="#ffffff" stroke-width="2" />
+  <line x1="50" y1="325" x2="200" y2="325" stroke="#ffffff" stroke-width="2" />
+
+  <!-- Right service area -->
+  <line x1="700" y1="275" x2="850" y2="275" stroke="#ffffff" stroke-width="2" />
+  <line x1="700" y1="325" x2="850" y2="325" stroke="#ffffff" stroke-width="2" />
+
+  <!-- Substitution zones -->
+  <line x1="50" y1="200" x2="90" y2="200" stroke="#ffffff" stroke-width="3" />
+  <line x1="50" y1="400" x2="90" y2="400" stroke="#ffffff" stroke-width="3" />
+  <line x1="810" y1="200" x2="850" y2="200" stroke="#ffffff" stroke-width="3" />
+  <line x1="810" y1="400" x2="850" y2="400" stroke="#ffffff" stroke-width="3" />
+
+  <!-- Net Representation -->
+  <rect x="446" y="50" width="8" height="500" fill="#ffffff" opacity="0.8" />
+
+  <!-- Court Labels (optional) -->
+  <text x="125" y="300" font-family="Arial" font-size="16" fill="#ffffff" text-anchor="middle">Service</text>
+  <text x="775" y="300" font-family="Arial" font-size="16" fill="#ffffff" text-anchor="middle">Service</text>
+</svg>

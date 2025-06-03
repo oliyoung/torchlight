@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="2000" height="1200" viewBox="0 0 2000 1200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Field Surface -->
+  <rect width="2000" height="1200" fill="#228B22" />
+
+  <!-- Field Boundary -->
+  <rect x="20" y="20" width="1960" height="1160" fill="none" stroke="#ffffff" stroke-width="8" />
+
+  <!-- Center Line -->
+  <line x1="1000" y1="20" x2="1000" y2="1180" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Center Circle -->
+  <circle cx="1000" cy="600" r="183" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Center Spot -->
+  <circle cx="1000" cy="600" r="8" fill="#ffffff" />
+
+  <!-- Left Side -->
+  <!-- Left Goal Area (6-yard box) -->
+  <rect x="20" y="414" width="110" height="372" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Left Penalty Area (18-yard box) -->
+  <rect x="20" y="276" width="330" height="648" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Left Penalty Spot -->
+  <circle cx="242" cy="600" r="8" fill="#ffffff" />
+
+  <!-- Left Penalty Arc -->
+  <path d="M 350 500 A 183 183 0 0 0 350 700" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Left Goal -->
+  <rect x="0" y="474" width="20" height="252" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Right Side -->
+  <!-- Right Goal Area (6-yard box) -->
+  <rect x="1870" y="414" width="110" height="372" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Right Penalty Area (18-yard box) -->
+  <rect x="1650" y="276" width="330" height="648" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Right Penalty Spot -->
+  <circle cx="1758" cy="600" r="8" fill="#ffffff" />
+
+  <!-- Right Penalty Arc -->
+  <path d="M 1650 500 A 183 183 0 0 1 1650 700" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Right Goal -->
+  <rect x="1980" y="474" width="20" height="252" fill="none" stroke="#ffffff" stroke-width="4" />
+
+  <!-- Corner Arcs -->
+  <path d="M 20 50 A 30 30 0 0 0 50 20" fill="none" stroke="#ffffff" stroke-width="4" />
+  <path d="M 1950 20 A 30 30 0 0 0 1980 50" fill="none" stroke="#ffffff" stroke-width="4" />
+  <path d="M 1980 1150 A 30 30 0 0 0 1950 1180" fill="none" stroke="#ffffff" stroke-width="4" />
+  <path d="M 50 1180 A 30 30 0 0 0 20 1150" fill="none" stroke="#ffffff" stroke-width="4" />
+</svg>

@@ -8,6 +8,7 @@ The whiteboard feature is a comprehensive 3D tactical whiteboard system that all
 
 ### Frontend (3D Whiteboard)
 - **Technology**: Three.js, React Three Fiber, Zustand state management
+- **Court System**: SVG-based court backgrounds for easy customization and maintenance
 - **Features**: Interactive drag-and-drop player positioning, multi-phase animation system, sport-specific court rendering, movement trails
 - **Location**: `app/(main)/whiteboard/` and `components/whiteboard/`
 
@@ -16,6 +17,33 @@ The whiteboard feature is a comprehensive 3D tactical whiteboard system that all
 - **Repository Layer**: Type-safe CRUD operations with user scoping and validation
 - **Data Loaders**: 7 DataLoader instances for efficient GraphQL query resolution
 - **GraphQL API**: Complete mutations and queries with field resolvers
+
+## Court System (SVG-Based)
+
+### Available Courts
+- **Basketball**: Full court and half court with NBA/FIBA markings
+- **Soccer**: Full field and half field with FIFA regulation markings
+- **Tennis**: Court with service boxes, baselines, and net
+- **Volleyball**: Beach/indoor court with attack lines and service areas
+- **Football**: American football field (uses soccer field as placeholder)
+
+### Benefits of SVG Courts
+- ✅ **Designer Friendly**: Courts can be edited in Figma, Illustrator, or Inkscape
+- ✅ **Version Control**: SVG files can be tracked and diffed in git
+- ✅ **Scalable Graphics**: Crisp rendering at any zoom level
+- ✅ **Rapid Prototyping**: New sports/courts can be added quickly
+- ✅ **Complex Designs**: Support for gradients, patterns, and intricate markings
+
+### Court Files Location
+All court SVG files are stored in `/public/courts/`:
+- `basketball-full.svg` - Complete NBA-style basketball court
+- `basketball-half.svg` - Half court for training drills
+- `soccer-full.svg` - FIFA regulation soccer field
+- `soccer-half.svg` - Half field for small-sided games
+- `tennis.svg` - Tennis court with proper service boxes
+- `volleyball.svg` - Volleyball court with attack lines
+
+*See [SVG Courts Guide](./svg-courts-guide.md) for detailed information on creating and customizing courts.*
 
 ## Database Schema
 
@@ -267,6 +295,14 @@ await updatePositions({
 ## File Structure
 
 ```
+/public/courts/
+├── basketball-full.svg                       # NBA-style basketball court
+├── basketball-half.svg                       # Half court for training
+├── soccer-full.svg                          # FIFA regulation soccer field
+├── soccer-half.svg                          # Half field for small games
+├── tennis.svg                               # Tennis court with service boxes
+└── volleyball.svg                           # Volleyball court with attack lines
+
 /supabase/migrations/
 ├── 20250603090000_create_whiteboards.sql      # Core tables
 └── 20250603090001_create_whiteboard_join_tables.sql  # Relationships
@@ -286,6 +322,14 @@ await updatePositions({
 
 /app/(main)/whiteboard/                        # Demo page
 /components/whiteboard/                        # 3D whiteboard components
+├── court-background.tsx                      # SVG-based court renderer
+├── whiteboard-canvas.tsx                     # 3D scene setup
+├── player-markers.tsx                        # Interactive player positioning
+└── play-renderer.tsx                         # Animation and movement rendering
+
+/docs/
+├── whiteboard-implementation.md              # Main implementation guide
+└── svg-courts-guide.md                      # SVG court system guide
 ```
 
 ## Status: Production Ready Backend
