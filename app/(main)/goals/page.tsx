@@ -45,7 +45,7 @@ function GoalsList() {
 	if (!data?.goals?.length) {
 		return (
 			<section
-				className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4 mt-6"
+				className="text-center p-10 border  bg-muted/10 flex flex-col items-center justify-center gap-4 mt-6"
 				aria-label="No goals available"
 			>
 				<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">

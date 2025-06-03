@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/context'
+import { ErrorMessage } from '@/components/ui/error-message'
 
 export default function LoginPageToken() {
   const [email, setEmail] = useState('')
@@ -44,21 +45,16 @@ export default function LoginPageToken() {
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="max-w-md p-5 bg-white rounded-lg shadow-md">
+      <div className="max-w-md p-5 bg-white  ">
         <h1 className="mb-5 text-xl font-bold">Sign in</h1>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
-          </div>
-        )}
+        {error && <ErrorMessage message={error} />}
 
         <input
           type="email"
-          placeholder="user@company.com"
+          placeholder="user@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 mb-3 border rounded-md"
+          className="w-full p-2 mb-3 border "
           disabled={loading}
         />
 
@@ -67,7 +63,7 @@ export default function LoginPageToken() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-3 border rounded-md"
+          className="w-full p-2 mb-3 border "
           disabled={loading}
         />
 
@@ -75,7 +71,7 @@ export default function LoginPageToken() {
           type="button"
           onClick={handleSignIn}
           disabled={loading}
-          className="w-full p-2 mb-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+          className="w-full p-2 mb-3 text-white bg-blue-600  hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? 'Signing in...' : 'Sign In'}
         </button>
@@ -84,7 +80,7 @@ export default function LoginPageToken() {
           type="button"
           onClick={handleSignUp}
           disabled={loading}
-          className="w-full p-2 mb-3 text-white bg-green-600 rounded-md hover:bg-green-700 disabled:opacity-50"
+          className="w-full p-2 mb-3 text-white bg-green-600  hover:bg-green-700 disabled:opacity-50"
         >
           {loading ? 'Signing up...' : 'Sign Up'}
         </button>

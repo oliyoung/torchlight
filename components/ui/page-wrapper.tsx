@@ -153,8 +153,8 @@ export function PageCard({
 	return (
 		<motion.div
 			ref={cardRef}
-			className={cn("hover:shadow-md transition-shadow",
-				"rounded-lg border bg-card transition-all duration-200",
+			className={cn("hover: transition-shadow",
+				" border bg-card transition-all duration-200",
 				!noPadding && "p-6",
 				className,
 			)}

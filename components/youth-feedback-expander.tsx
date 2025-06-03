@@ -58,13 +58,13 @@ export function YouthFeedbackExpander({
 
   const handleComplete = () => {
     if (!followUpQuestions) return;
-    
+
     const expandedTranscript = combineExpandedFeedback(
       initialFeedback,
       responses,
       followUpQuestions.questions
     );
-    
+
     onExpandedFeedback(expandedTranscript);
   };
 
@@ -101,10 +101,10 @@ export function YouthFeedbackExpander({
           </CardTitle>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-6">
         {/* Original Feedback */}
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="bg-blue-50 p-4  border border-blue-200">
           <h3 className="font-medium text-blue-900 mb-2">Original Response:</h3>
           <p className="text-blue-800 italic">"{initialFeedback}"</p>
         </div>
@@ -114,13 +114,13 @@ export function YouthFeedbackExpander({
           <div className="space-y-4">
             <Alert>
               <AlertDescription>
-                This response could use more detail. Let's help the athlete share more about their experience 
+                This response could use more detail. Let's help the athlete share more about their experience
                 with some friendly follow-up questions designed for their age level.
               </AlertDescription>
             </Alert>
-            
+
             <div className="flex gap-2">
-              <Button 
+              <Button
                 onClick={handleGenerateQuestions}
                 disabled={isGenerating}
                 className="flex-1"
@@ -135,7 +135,7 @@ export function YouthFeedbackExpander({
         ) : (
           /* Questions and Responses Step */
           <div className="space-y-6">
-            <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+            <div className="bg-yellow-50 p-4  border border-yellow-200">
               <h3 className="font-medium text-yellow-900 mb-2">Encouragement:</h3>
               <p className="text-yellow-800">{followUpQuestions.encouragement}</p>
             </div>
@@ -143,7 +143,7 @@ export function YouthFeedbackExpander({
             <div className="space-y-4">
               <h3 className="font-medium">Follow-up Questions</h3>
               <p className="text-sm text-muted-foreground">{followUpQuestions.context}</p>
-              
+
               {followUpQuestions.questions.map((question, index) => (
                 <Card key={index} className="border-l-4 border-l-blue-500">
                   <CardContent className="pt-4">
@@ -159,7 +159,7 @@ export function YouthFeedbackExpander({
                           </p>
                         </div>
                       </div>
-                      
+
                       <Textarea
                         placeholder={`Help the athlete answer: ${question.question}`}
                         value={responses[index.toString()] || ""}
@@ -177,7 +177,7 @@ export function YouthFeedbackExpander({
               <Button variant="outline" onClick={onCancel}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleComplete}
                 disabled={!hasAnyResponses}
               >

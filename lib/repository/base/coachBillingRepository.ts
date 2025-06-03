@@ -87,7 +87,6 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       .from(this.tableName)
       .select('*')
       .eq('coach_id', parseInt(coachId))
-      .eq('deleted_at', null)
       .single()
 
     if (error) {

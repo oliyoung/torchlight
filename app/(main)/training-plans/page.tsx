@@ -55,7 +55,7 @@ function TrainingPlansList() {
 	if (!data?.trainingPlans?.length) {
 		return (
 			<section
-				className="text-center p-10 border rounded-lg bg-muted/10 flex flex-col items-center justify-center gap-4 mt-6"
+				className="text-center p-10 border  bg-muted/10 flex flex-col items-center justify-center gap-4 mt-6"
 				aria-label="No training plans available"
 			>
 				<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
@@ -91,7 +91,7 @@ function TrainingPlansList() {
 		>
 			{data.trainingPlans.map((plan) => (
 				<li key={plan.id} className="p-0">
-					<Card className="h-full flex flex-col hover:shadow-md transition-shadow">
+					<Card className="h-full flex flex-col hover: transition-shadow">
 						<CardHeader>
 							<CardTitle>
 								<Link

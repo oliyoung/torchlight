@@ -1,5 +1,5 @@
-import type { GraphQLContext } from '@/lib/types'
 import { coachRepository, coachBillingRepository } from '@/lib/repository'
+import { GraphQLContext } from '@/app/api/graphql/route';
 
 /**
  * Creates a new coach profile during onboarding.
@@ -20,9 +20,8 @@ export async function createCoach(
 
   // Check if coach already exists
   const existingCoach = await coachRepository.getByUserId(userId)
-  console.log('Existing coach', { existingCoach })
   if (existingCoach) {
-    throw new Error('Coach profile already exists')
+    return existingCoach
   }
 
   try {

@@ -20,6 +20,8 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
     isAuthenticated
   } = useCoachProfile()
 
+  console.log('shouldShowOnboarding', shouldShowOnboarding)
+
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
   const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
 

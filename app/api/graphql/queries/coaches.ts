@@ -1,5 +1,6 @@
-import type { GraphQLContext } from '@/lib/types'
+
 import { coachRepository } from '@/lib/repository'
+import { GraphQLContext } from '../route'
 
 /**
  * Gets the current authenticated coach profile (me query).
@@ -19,7 +20,6 @@ export async function me(
   try {
     // Get coach by user ID
     const coach = await coachRepository.getByUserId(userId)
-    
     if (!coach) {
       return null // Coach profile not created yet
     }
@@ -62,11 +62,11 @@ export async function coach(
     // Use DataLoader for consistent caching
     if (context.dataloaders?.coachLoaders) {
       const coach = await context.dataloaders.coachLoaders.coachById.load(args.id)
-      
+
       if (coach && context.dataloaders.coachBillingLoaders) {
         coach.billing = await context.dataloaders.coachBillingLoaders.coachBillingByCoachId.load(coach.id)
       }
-      
+
       return coach
     }
 

@@ -18,7 +18,7 @@ export function createCoachBillingLoaders(): CoachBillingLoaders {
     async (ids: readonly string[]) => {
       const billingRecords = await coachBillingRepository.getByIds(Array.from(ids))
       const billingMap = new Map(billingRecords.map(billing => [billing.id, billing]))
-      
+
       return ids.map(id => billingMap.get(id) || null)
     },
     {
@@ -29,17 +29,21 @@ export function createCoachBillingLoaders(): CoachBillingLoaders {
 
   const coachBillingByCoachId = new DataLoader<string, CoachBilling | null>(
     async (coachIds: readonly string[]) => {
-      // Batch query all coach IDs at once
-      const billingRecords: CoachBilling[] = []
-      
-      for (const coachId of coachIds) {
-        const billing = await coachBillingRepository.getByCoachId(coachId)
-        if (billing) billingRecords.push(billing)
+      try {
+        const billingRecords: CoachBilling[] = []
+
+        for (const coachId of coachIds) {
+          const billing = await coachBillingRepository.getByCoachId(coachId)
+          if (billing) billingRecords.push(billing)
+        }
+
+        const billingMap = new Map(billingRecords.map(billing => [billing.coach?.id, billing]))
+
+        return coachIds.map(coachId => billingMap.get(coachId) || null)
+      } catch (error) {
+        console.error('Error fetching coach billing by coach ID:', error)
+        return coachIds.map(() => null)
       }
-      
-      const billingMap = new Map(billingRecords.map(billing => [billing.coachId, billing]))
-      
-      return coachIds.map(coachId => billingMap.get(coachId) || null)
     },
     {
       cache: true,

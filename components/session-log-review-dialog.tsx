@@ -17,11 +17,11 @@ interface SessionLogReviewDialogProps {
   currentTranscript?: string;
 }
 
-export function SessionLogReviewDialog({ 
-  isOpen, 
-  onOpenChange, 
-  onReviewSubmit, 
-  athleteAge = 16, 
+export function SessionLogReviewDialog({
+  isOpen,
+  onOpenChange,
+  onReviewSubmit,
+  athleteAge = 16,
   athleteName = "Athlete",
   currentTranscript = ""
 }: SessionLogReviewDialogProps) {
@@ -68,15 +68,15 @@ export function SessionLogReviewDialog({
 
           <TabsContent value="guided" className="mt-6">
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div className="bg-blue-50 p-4  border border-blue-200">
                 <h3 className="font-medium text-blue-900 mb-2">📝 Guided Session Review</h3>
                 <p className="text-blue-700 text-sm">
-                  Answer a few simple questions about your training session. This helps your coach understand 
+                  Answer a few simple questions about your training session. This helps your coach understand
                   how you're feeling and what you're learning!
                 </p>
               </div>
-              
-              <YouthSessionReview 
+
+              <YouthSessionReview
                 onReviewComplete={handleGuidedReviewComplete}
                 athleteAge={athleteAge}
               />
@@ -85,10 +85,10 @@ export function SessionLogReviewDialog({
 
           <TabsContent value="freeform" className="mt-6">
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div className="bg-green-50 p-4  border border-green-200">
                 <h3 className="font-medium text-green-900 mb-2">✏️ Free Writing</h3>
                 <p className="text-green-700 text-sm">
-                  Share your thoughts about today's training session in your own words. 
+                  Share your thoughts about today's training session in your own words.
                   Think about what went well, what was challenging, and how you're feeling.
                 </p>
               </div>
@@ -98,7 +98,7 @@ export function SessionLogReviewDialog({
                 <Textarea
                   value={freeformText}
                   onChange={(e) => setFreeformText(e.target.value)}
-                  placeholder={isYouthAthlete 
+                  placeholder={isYouthAthlete
                     ? "Tell your coach about today's training... How did it go? What did you learn? How are you feeling?"
                     : "Describe your training session experience, including what went well, challenges faced, energy levels, and any other observations..."
                   }
@@ -111,7 +111,7 @@ export function SessionLogReviewDialog({
                 <Button variant="outline" onClick={() => onOpenChange(false)}>
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   onClick={handleFreeformSubmit}
                   disabled={!freeformText.trim()}
                 >

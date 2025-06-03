@@ -33,7 +33,6 @@ export class CoachRepository extends EntityRepository<Coach> {
    * @returns Promise resolving to created coach
    */
   async createCoach(userId: string, email: string, input: CreateCoachInput = {}): Promise<Coach> {
-    console.log('Entering createCoach with:', { userId, email, input });
     const now = new Date()
 
     const coachData = {
@@ -47,11 +46,10 @@ export class CoachRepository extends EntityRepository<Coach> {
 
       // Account management
       account_status: 'ACTIVE' as AccountStatus,
-      onboarding_completed: false,
+      onboarding_completed: true,
       last_login_at: now ? now.toISOString() : null,
       created_at: now.toISOString(),
-      updated_at: now.toISOString(),
-      deleted_at: null
+      updated_at: now.toISOString()
     }
 
     console.log('createCoach - inserting coachData:', coachData);
@@ -80,8 +78,6 @@ export class CoachRepository extends EntityRepository<Coach> {
       .eq('user_id', userId)
       .single()
 
-    console.log('getByUserId - raw data:', data);
-
     if (error) {
       if (error.code === 'PGRST116') return null // Not found
       throw error
@@ -107,8 +103,6 @@ export class CoachRepository extends EntityRepository<Coach> {
       ...input.onboardingCompleted !== undefined && { onboarding_completed: input.onboardingCompleted },
       updated_at: new Date()
     }
-
-    console.log('updateByUserId - updating with updateData:', updateData);
 
     const { data, error } = await this.supabase
       .from(this.tableName)
@@ -162,8 +156,6 @@ export class CoachRepository extends EntityRepository<Coach> {
       avatar: row.avatar,
       timezone: row.timezone,
 
-      // Account management
-      accountStatus: row.account_status,
       onboardingCompleted: row.onboarding_completed,
       lastLoginAt: row.last_login_at,
       createdAt: row.created_at,

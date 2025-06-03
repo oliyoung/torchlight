@@ -12,7 +12,6 @@ const ME_QUERY = `
       lastName
       displayName
       timezone
-      accountStatus
       onboardingCompleted
       billing {
         id
@@ -35,7 +34,7 @@ const ME_QUERY = `
  */
 export function useCoachProfile() {
   const { user, loading: authLoading } = useAuth()
-  
+
   const [{ data, fetching, error }, refetch] = useQuery({
     query: ME_QUERY,
     pause: !user || authLoading,
@@ -44,7 +43,13 @@ export function useCoachProfile() {
 
   const coach = data?.me
   const loading = authLoading || fetching
-  
+
+  console.log('coach', coach);
+  console.log('user', user);
+  console.log('authLoading', authLoading);
+  console.log('fetching', fetching);
+  console.log('error', error);
+
   // Determine onboarding status
   const needsOnboarding = !loading && user && !coach
   const needsProfileCompletion = !loading && coach && !coach.onboardingCompleted
@@ -55,39 +60,39 @@ export function useCoachProfile() {
     user,
     loading,
     error,
-    
+
     // Onboarding state
     needsOnboarding,
     needsProfileCompletion,
     shouldShowOnboarding: needsOnboarding || needsProfileCompletion,
-    
+
     // Actions
     refetch: () => refetch({ requestPolicy: 'network-only' }),
-    
+
     // Convenience flags
     isAuthenticated: !!user,
     hasCoachProfile: !!coach,
     isOnboardingComplete: !!coach?.onboardingCompleted,
-    
+
     // Billing info (if available)
     billing: coach?.billing,
     subscriptionStatus: coach?.billing?.subscriptionStatus,
     subscriptionTier: coach?.billing?.subscriptionTier,
     isTrialActive: coach?.billing?.subscriptionStatus === 'TRIAL',
-    
+
     // Usage tracking
     athleteUsage: coach?.billing ? {
       current: coach.billing.currentAthleteCount,
       limit: coach.billing.monthlyAthleteLimit,
       remaining: Math.max(0, coach.billing.monthlyAthleteLimit - coach.billing.currentAthleteCount)
     } : null,
-    
+
     sessionLogUsage: coach?.billing ? {
       current: coach.billing.currentSessionLogCount,
       limit: coach.billing.monthlySessionLogLimit,
       remaining: Math.max(0, coach.billing.monthlySessionLogLimit - coach.billing.currentSessionLogCount)
     } : null,
-    
+
     aiCreditsRemaining: coach?.billing?.aiCreditsRemaining || 0
   }
 }

@@ -49,7 +49,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
     });
   };
 
-  const hasActiveFilters = filters.search || filters.sport || 
+  const hasActiveFilters = filters.search || filters.sport ||
     filters.sortBy !== "name" || filters.sortOrder !== "asc";
 
   const currentSortOption = SORT_OPTIONS.find(
@@ -100,9 +100,9 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
             {SORT_OPTIONS.map((option) => (
               <DropdownMenuItem
                 key={`${option.value}-${option.order}`}
-                onClick={() => updateFilters({ 
-                  sortBy: option.value, 
-                  sortOrder: option.order 
+                onClick={() => updateFilters({
+                  sortBy: option.value,
+                  sortOrder: option.order
                 })}
                 className="cursor-pointer"
               >
@@ -115,7 +115,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
 
       {/* Expanded filters */}
       {showFilters && (
-        <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/50 rounded-lg border">
+        <div className="flex flex-col sm:flex-row gap-4 p-4 bg-muted/50  border">
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">Sport</label>
             <SportSelect
@@ -152,7 +152,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2">
           {filters.search && (
-            <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md text-sm">
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1  text-sm">
               Search: "{filters.search}"
               <Button
                 variant="ghost"
@@ -165,7 +165,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
             </div>
           )}
           {filters.sport && (
-            <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-md text-sm">
+            <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1  text-sm">
               Sport: {filters.sport}
               <Button
                 variant="ghost"
