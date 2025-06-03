@@ -47,9 +47,9 @@ const NewAthleteForm: React.FC = () => {
 		setSuccess(false);
 		const tagsArray = values.tags
 			? values.tags
-					.split(",")
-					.map((tag) => tag.trim())
-					.filter(Boolean)
+				.split(",")
+				.map((tag) => tag.trim())
+				.filter(Boolean)
 			: [];
 		const { error } = await executeMutation({
 			input: {
@@ -183,7 +183,7 @@ const NewAthleteForm: React.FC = () => {
 				<textarea
 					id="notes"
 					{...register("notes")}
-					className="mt-1 block w-full rounded border border-input bg-background p-2"
+					className="mt-1 block w-full  border border-input bg-background p-2"
 					rows={3}
 					placeholder="Optional notes about the athlete"
 				/>

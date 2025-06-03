@@ -66,6 +66,17 @@ export class GoalRepository extends EntityRepository<Goal> {
   }
 
   /**
+   * Get all goals for a user across all their athletes
+   */
+  async getAllGoals(userId: string | null): Promise<Goal[]> {
+    logger.info({ userId }, "Fetching all goals for user");
+
+    if (!userId) return [];
+
+    return this.getAll(userId);
+  }
+
+  /**
    * Get all goals for a specific athlete
    */
   async getGoalsByAthleteId(

@@ -9,6 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { Loading } from "@/components/ui/loading";
 import { PageWrapper } from "@/components/ui/page-wrapper";
@@ -54,33 +55,13 @@ function TrainingPlansList() {
 
 	if (!data?.trainingPlans?.length) {
 		return (
-			<section
-				className="text-center p-10 border  bg-muted/10 flex flex-col items-center justify-center gap-4 mt-6"
-				aria-label="No training plans available"
-			>
-				<div className="h-24 w-24 rounded-full bg-muted flex items-center justify-center">
-					<PlusIcon
-						className="h-10 w-10 text-muted-foreground"
-						aria-hidden="true"
-					/>
-				</div>
-				<div className="space-y-2 max-w-md">
-					<h3 className="text-xl font-semibold">No training plans yet</h3>
-					<p className="text-muted-foreground">
-						Create training plans to help your athletes track their progress and
-						achieve their goals.
-					</p>
-				</div>
-				<Button size="lg" asChild className="mt-2">
-					<Link
-						href="/training-plans/new"
-						aria-label="Create your first training plan"
-					>
-						<PlusIcon className="w-5 h-5 mr-2" aria-hidden="true" />
-						Create First Training Plan
-					</Link>
-				</Button>
-			</section>
+			<EmptyState
+				title="No training plans yet"
+				description="Create training plans to help your athletes track their progress and achieve their goals."
+				actionLabel="Create First Training Plan"
+				actionHref="/training-plans/new"
+				ariaLabel="No training plans available"
+			/>
 		);
 	}
 
@@ -96,7 +77,7 @@ function TrainingPlansList() {
 							<CardTitle>
 								<Link
 									href={`/training-plans/${plan.id}`}
-									className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+									className="hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 "
 								>
 									{plan.athlete.firstName} {plan.athlete.lastName}
 								</Link>
@@ -122,7 +103,7 @@ function TrainingPlansList() {
 						<CardFooter className="pt-0">
 							<Link
 								href={`/training-plans/${plan.id}`}
-								className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-2 py-1 ml-auto transition-colors"
+								className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2  px-2 py-1 ml-auto transition-colors"
 							>
 								View details
 							</Link>

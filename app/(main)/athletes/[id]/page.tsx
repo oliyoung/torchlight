@@ -95,7 +95,7 @@ export default function Page() {
 				{data.athlete.tags?.map((tag: string) => (
 					<span
 						key={tag}
-						className="inline-block bg-zinc-200    dark:bg-zinc-700 text-xs rounded px-2 py-1 mr-2"
+						className="inline-block bg-zinc-200    dark:bg-zinc-700 text-xs  px-2 py-1 mr-2"
 					>
 						{tag}
 					</span>
@@ -131,7 +131,7 @@ export default function Page() {
 									<div className="flex items-start justify-between mb-2">
 										<h3 className="font-semibold text-lg">{goal.title}</h3>
 										<span
-											className={`px-2 py-1 rounded text-xs font-medium ${goal.status === "ACTIVE"
+											className={`px-2 py-1  text-xs font-medium ${goal.status === "ACTIVE"
 												? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
 												: goal.status === "COMPLETED"
 													? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"

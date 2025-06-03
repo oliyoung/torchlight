@@ -34,7 +34,7 @@ export default ({
 				<AuthProvider>
 					<UrqlProvider>
 						<OnboardingProvider>
-							<div className="text-foreground flex-col align-top flex gap-2 px-8 mx-20 sm:mx-5 xs:mx-2 my-8 rounded-4xl bg-stone-100">
+							<div className="text-foreground flex-col align-top flex gap-2 px-8 mx-20 sm:mx-5 xs:mx-2 my-8  bg-white">
 								<Navigation />
 								{children}
 							</div>

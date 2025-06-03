@@ -130,7 +130,7 @@ export function AssistantMultiSelect({
 										{assistant.name}
 										<button
 											type="button"
-											className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-offset-2"
+											className="ml-1 outline-none focus:ring-2 focus:ring-offset-2"
 											onClick={(e) => removeAssistant(assistant.id, e)}
 										>
 											<X className="h-3 w-3" />

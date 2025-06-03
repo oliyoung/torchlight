@@ -83,7 +83,7 @@ export function AssistantSelectDialog({
 							</label>
 							<select
 								id="assistant-select"
-								className="w-full border rounded px-2 py-1"
+								className="w-full border  px-2 py-1"
 								value={selectedId}
 								onChange={(e) => setSelectedId(e.target.value)}
 								required

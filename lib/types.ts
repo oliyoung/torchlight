@@ -675,7 +675,7 @@ export type QueryGoalArgs = {
  * All queries are automatically scoped to the authenticated coach's data.
  */
 export type QueryGoalsArgs = {
-  athleteId: Scalars['ID']['input'];
+  athleteId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -693,7 +693,7 @@ export type QuerySessionLogArgs = {
  * All queries are automatically scoped to the authenticated coach's data.
  */
 export type QuerySessionLogsArgs = {
-  athleteId: Scalars['ID']['input'];
+  athleteId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -1387,10 +1387,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
   coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType, RequireFields<QueryCoachArgs, 'id'>>;
   goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'athleteId' | 'id'>>;
-  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalsArgs, 'athleteId'>>;
+  goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, Partial<QueryGoalsArgs>>;
   me?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
   sessionLog?: Resolver<Maybe<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogArgs, 'id'>>;
-  sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogsArgs, 'athleteId'>>;
+  sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType, Partial<QuerySessionLogsArgs>>;
   trainingPlan?: Resolver<Maybe<ResolversTypes['TrainingPlan']>, ParentType, ContextType, RequireFields<QueryTrainingPlanArgs, 'id'>>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType, Partial<QueryTrainingPlansArgs>>;
 };

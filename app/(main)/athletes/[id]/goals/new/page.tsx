@@ -281,7 +281,7 @@ export default function NewGoalPage() {
 									type="checkbox"
 									id="createTrainingPlan"
 									{...register("createTrainingPlan")}
-									className="h-4 w-4 rounded border-gray-300"
+									className="h-4 w-4  border-gray-300"
 								/>
 								<Label htmlFor="createTrainingPlan">
 									Create Supporting Training Plan

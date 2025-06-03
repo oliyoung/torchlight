@@ -2,6 +2,7 @@
 
 import { AthletesFilterBar, type AthletesFilterState } from "@/components/athletes-filter-bar";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { PageCard, PageGrid, PageWrapper } from "@/components/ui/page-wrapper";
 import type { Athlete } from "@/lib/types";
@@ -128,9 +129,13 @@ export default function Page() {
 				)}
 
 				{filteredAndSortedAthletes.length === 0 && data?.athletes?.length === 0 && (
-					<div className="text-center py-8 text-muted-foreground">
-						No athletes found. Create your first athlete to get started.
-					</div>
+					<EmptyState
+						title="No athletes yet"
+						description="Create athletes to start tracking their progress and training plans."
+						actionLabel="Create First Athlete"
+						actionHref="/athletes/new"
+						ariaLabel="No athletes available"
+					/>
 				)}
 
 				{filteredAndSortedAthletes.length > 0 && (

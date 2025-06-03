@@ -91,7 +91,7 @@ export function GoalSelectDialog({
 							</label>
 							<select
 								id="goal-select"
-								className="w-full border rounded px-2 py-1"
+								className="w-full border  px-2 py-1"
 								value={selectedId}
 								onChange={(e) => setSelectedId(e.target.value)}
 								required

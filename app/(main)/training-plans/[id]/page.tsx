@@ -204,7 +204,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 								href={`/athletes/${plan.athlete.id}`}
 								className="text-primary hover:underline flex items-center ml-1"
 								aria-label={`View athlete profile: ${plan.athlete.firstName} ${plan.athlete.lastName}`}
-							>
+						>
 								{plan.athlete.firstName} {plan.athlete.lastName}
 							</Link>
 						</div>
@@ -213,7 +213,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 
 				{/* Status messages */}
 				{updateResult.fetching && (
-					<p className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+					<p className="text-sm text-muted-foreground bg-muted/50 p-2 ">
 						Updating training plan...
 					</p>
 				)}

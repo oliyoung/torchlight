@@ -34,7 +34,7 @@ export function PageWrapper({
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.3, ease: "easeOut" }}
 			className={cn(
-				"min-h-[calc(100vh-12rem)] rounded-4xl p-8 mb-4 shadow-sm bg-white",
+				"min-h-[calc(100vh-12rem)] -4xl p-8 mb-4 shadow-sm bg-white",
 				className,
 			)}
 		>

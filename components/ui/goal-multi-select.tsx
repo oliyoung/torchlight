@@ -102,7 +102,7 @@ export function GoalMultiSelect({
 											{goal.title}
 											<button
 												type="button"
-												className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-offset-1"
+												className="ml-1 ull outline-none focus:ring-2 focus:ring-offset-1"
 												onClick={(e) => removeGoal(goal.id, e)}
 												aria-label={`Remove ${goal.title}`}
 											>

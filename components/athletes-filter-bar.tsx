@@ -80,7 +80,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
           <FilterIcon className="h-4 w-4" />
           Filters
           {hasActiveFilters && (
-            <span className="bg-primary text-primary-foreground rounded-full w-2 h-2" />
+            <span className="bg-primary text-primary-foreground ull w-2 h-2" />
           )}
         </Button>
 
@@ -127,7 +127,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
           {/* Placeholder for future filters */}
           <div className="flex-1">
             <label className="text-sm font-medium mb-2 block">More filters</label>
-            <div className="text-sm text-muted-foreground p-2 bg-background rounded border-2 border-dashed">
+            <div className="text-sm text-muted-foreground p-2 bg-background  border-2 border-dashed">
               Additional filters can be added here (fitness level, tags, etc.)
             </div>
           </div>

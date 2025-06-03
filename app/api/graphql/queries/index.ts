@@ -37,9 +37,17 @@ export default {
   athletes: async (_parent: unknown, _args: unknown, context: GraphQLContext): Promise<Athlete[]> =>
     athleteRepository.getAthletes(context?.user?.id ?? null),
 
-  goals: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<Goal[]> =>
-    goalRepository.getGoalsByAthleteId(context?.user?.id ?? null, args.athleteId),
+  goals: async (_parent: unknown, args: { athleteId?: string }, context: GraphQLContext): Promise<Goal[]> => {
+    if (args.athleteId) {
+      return goalRepository.getGoalsByAthleteId(context?.user?.id ?? null, args.athleteId);
+    }
+    return goalRepository.getAllGoals(context?.user?.id ?? null);
+  },
 
-  sessionLogs: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<SessionLog[]> =>
-    sessionLogRepository.getSessionLogsByAthleteId(context?.user?.id ?? null, args.athleteId),
+  sessionLogs: async (_parent: unknown, args: { athleteId?: string }, context: GraphQLContext): Promise<SessionLog[]> => {
+    if (args.athleteId) {
+      return sessionLogRepository.getSessionLogsByAthleteId(context?.user?.id ?? null, args.athleteId);
+    }
+    return sessionLogRepository.getAllSessionLogs(context?.user?.id ?? null);
+  },
 }

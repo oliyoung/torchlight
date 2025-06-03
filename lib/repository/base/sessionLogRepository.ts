@@ -49,6 +49,17 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   }
 
   /**
+   * Get all session logs for a user across all their athletes
+   */
+  async getAllSessionLogs(userId: string | null): Promise<SessionLog[]> {
+    logger.info({ userId }, 'Fetching all session logs for user');
+
+    if (!userId) return [];
+
+    return this.getAll(userId);
+  }
+
+  /**
    * Get all session logs for a specific athlete
    */
   async getSessionLogsByAthleteId(userId: string | null, athleteId: string): Promise<SessionLog[]> {
