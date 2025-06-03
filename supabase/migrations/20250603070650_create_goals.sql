@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS goals CASCADE;
--- Goal table
 CREATE TABLE goals (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,

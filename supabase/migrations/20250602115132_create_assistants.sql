@@ -1,7 +1,3 @@
-DROP TABLE IF EXISTS assistants CASCADE;
-
-
--- Assistant table
 CREATE TABLE assistants (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,

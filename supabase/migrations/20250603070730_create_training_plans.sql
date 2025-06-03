@@ -1,6 +1,3 @@
-
-DROP TABLE IF EXISTS training_plans CASCADE;
-
 CREATE TABLE training_plans (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,

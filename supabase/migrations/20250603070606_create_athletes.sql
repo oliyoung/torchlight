@@ -1,5 +1,3 @@
-DROP TABLE IF EXISTS athletes CASCADE;
--- Athlete table
 CREATE TABLE athletes (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,

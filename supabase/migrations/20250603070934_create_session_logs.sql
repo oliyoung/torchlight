@@ -1,5 +1,3 @@
-
-DROP TABLE IF EXISTS session_logs CASCADE;
 CREATE TABLE session_logs (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
