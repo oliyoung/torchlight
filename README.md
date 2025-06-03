@@ -70,6 +70,18 @@ For more, see:
 
 This is an early-stage prototype. Key features like data modeling, AI integration points, and dashboard UX have been outlined and are actively being developed.
 
+## Testing & CI/CD
+
+- **End-to-End Testing:** Comprehensive Playwright test suite covering authentication, GraphQL API, and user workflows
+- **GitHub Actions:** Automated testing on every push and pull request. See [GitHub Actions Setup Guide](docs/github-actions-setup.md) for configuration
+- **Test Environment:** Uses dedicated test user and Supabase project for reliable CI/CD
+- **Test Coverage:**
+  - Authentication flows (login, logout, session management)
+  - GraphQL API endpoints and data mutations
+  - Cross-page navigation and state management
+  - Error handling and edge cases
+- **Local Testing:** Run `npx playwright test` after setting up test credentials (see [test documentation](tests/README.md))
+
 ---
 
 **This codebase is proprietary and confidential. All rights reserved. Unauthorized use, distribution, or copying is prohibited.**
