@@ -150,7 +150,6 @@ export type Availability = {
  */
 export type Coach = {
   __typename?: 'Coach';
-  accountStatus: AccountStatus;
   athletes: Array<Athlete>;
   avatar?: Maybe<Scalars['String']['output']>;
   billing?: Maybe<CoachBilling>;
@@ -179,7 +178,7 @@ export type CoachBilling = {
   aiCreditsRemaining?: Maybe<Scalars['Int']['output']>;
   billingCycleDay?: Maybe<Scalars['Int']['output']>;
   billingEmail?: Maybe<Scalars['String']['output']>;
-  coachId: Scalars['ID']['output'];
+  coach: Coach;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   currentAthleteCount: Scalars['Int']['output'];
@@ -1216,7 +1215,6 @@ export type AvailabilityResolvers<ContextType = GraphQLContext, ParentType exten
 };
 
 export type CoachResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Coach'] = ResolversParentTypes['Coach']> = {
-  accountStatus?: Resolver<ResolversTypes['AccountStatus'], ParentType, ContextType>;
   athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
   avatar?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   billing?: Resolver<Maybe<ResolversTypes['CoachBilling']>, ParentType, ContextType>;
@@ -1240,7 +1238,7 @@ export type CoachBillingResolvers<ContextType = GraphQLContext, ParentType exten
   aiCreditsRemaining?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   billingCycleDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   billingEmail?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  coachId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  coach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   currentAthleteCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

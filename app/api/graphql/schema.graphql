@@ -22,7 +22,6 @@ type Coach {
 	timezone: String # Coach's timezone for scheduling
 
 	# Account management
-	accountStatus: AccountStatus! # Account state (active, suspended, etc.)
 	onboardingCompleted: Boolean! # Whether initial setup is done
 	lastLoginAt: DateTime # Last successful login
 	createdAt: DateTime!
@@ -42,7 +41,7 @@ Integrated with Stripe for payment processing and subscription management.
 """
 type CoachBilling {
 	id: ID!
-	coachId: ID! # Foreign key to Coach
+	coach: Coach! # Foreign key to Coach
 
 	# Stripe integration
 	stripeCustomerId: String # Stripe customer ID for billing

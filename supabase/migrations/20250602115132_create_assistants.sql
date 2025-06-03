@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS assistants CASCADE;
+
+
+-- Assistant table
+CREATE TABLE assistants (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    sport VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    strengths TEXT[] NOT NULL,
+    bio VARCHAR(255) NOT NULL,
+    prompt_template VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP
+);
