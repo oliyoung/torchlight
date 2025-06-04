@@ -90,37 +90,11 @@ export class CoachPage {
 }
 
 /**
- * Mocked Page Object Model that uses mock data instead of real API calls
- */
-export class MockedCoachPage extends CoachPage {
-  constructor(page: Page, context: BrowserContext) {
-    super(page, context);
-  }
-
-  async makeGraphQLRequest(query: string, variables?: Record<string, any>) {
-    // For mocked version, we can just return the query to the intercepted GraphQL endpoint
-    // The mock will handle the response based on the query content
-    const response = await this.page.request.post(`${TEST_CONFIG.baseUrl}/api/graphql`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer mock-token'
-      },
-      data: {
-        query,
-        variables
-      }
-    });
-
-    return await response.json();
-  }
-}
-
-/**
  * Custom fixtures for mocked testing (no real authentication or API calls)
  */
 export type MockedTestFixtures = {
   mockedPage: Page;
-  mockedCoachPage: MockedCoachPage;
+  mockedCoachPage: CoachPage;
   mockedContext: BrowserContext;
 };
 
@@ -148,7 +122,7 @@ export const mockedTest = base.extend<MockedTestFixtures>({
     const { setupAllMocks } = await import('./mocks/graphql');
     await setupAllMocks(page, TEST_CONFIG.baseUrl);
 
-    const mockedCoachPage = new MockedCoachPage(page, context);
+    const mockedCoachPage = new CoachPage(page, context);
     await use(mockedCoachPage);
     await context.close();
   },

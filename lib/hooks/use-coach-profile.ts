@@ -44,12 +44,6 @@ export function useCoachProfile() {
   const coach = data?.me
   const loading = authLoading || fetching
 
-  console.log('coach', coach);
-  console.log('user', user);
-  console.log('authLoading', authLoading);
-  console.log('fetching', fetching);
-  console.log('error', error);
-
   // Determine onboarding status
   const needsOnboarding = !loading && user && !coach
   const needsProfileCompletion = !loading && coach && !coach.onboardingCompleted

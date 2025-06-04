@@ -175,12 +175,8 @@ export async function mockGraphQLAPI(page: Page) {
     }
 
     const { query, variables } = requestBody;
-
-    console.log('🔍 GraphQL Mock intercepted query:', query.substring(0, 100) + '...');
-
     // Route different GraphQL operations based on query content
     if (query.includes('athletes')) {
-      console.log('📊 Returning mock athletes data');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -189,7 +185,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else if (query.includes('goals')) {
-      console.log('🎯 Returning mock goals data');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -198,7 +193,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else if (query.includes('sessionLogs')) {
-      console.log('📝 Returning mock session logs data');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -207,7 +201,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else if (query.includes('assistants')) {
-      console.log('🤖 Returning mock assistants data');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -216,7 +209,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else if (query.includes('trainingPlans')) {
-      console.log('📋 Returning mock training plans data');
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -225,7 +217,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else if (query.includes('mutation')) {
-      console.log('✏️  Returning mock mutation response');
       // Mock successful mutations
       await route.fulfill({
         status: 200,
@@ -238,7 +229,6 @@ export async function mockGraphQLAPI(page: Page) {
         })
       });
     } else {
-      console.log('❓ Unknown query, returning empty data');
       // Default successful response for any other queries
       await route.fulfill({
         status: 200,
