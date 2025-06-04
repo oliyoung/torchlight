@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { YouthSessionReview } from "@/components/ui/youth-session-review";
+import { YouthSessionReview } from "@/components/youth-session-review";
 import { Badge } from "@/components/ui/badge";
 
 interface SessionLogReviewDialogProps {
