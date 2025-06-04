@@ -20,7 +20,10 @@
       "Bash(node:*)",
       "Bash(lsof:*)",
       "Bash(npx graphql-codegen:*)",
-      "WebFetch(domain:ui.shadcn.com)"
+      "WebFetch(domain:ui.shadcn.com)",
+      "Bash(yarn remove:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   },
