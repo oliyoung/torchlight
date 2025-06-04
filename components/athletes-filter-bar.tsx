@@ -21,7 +21,7 @@ export interface AthletesFilterState {
 
 interface AthletesFilterBarProps {
   filters: AthletesFilterState;
-  onFiltersChange: (filters: AthletesFilterState) => void;
+  onFiltersChangeAction: (filters: AthletesFilterState) => void;
 }
 
 const SORT_OPTIONS = [
@@ -33,15 +33,15 @@ const SORT_OPTIONS = [
   { value: "createdAt", label: "Oldest First", order: "asc" as const },
 ] as const;
 
-export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBarProps) {
+export function AthletesFilterBar({ filters, onFiltersChangeAction }: AthletesFilterBarProps) {
   const [showFilters, setShowFilters] = useState(false);
 
   const updateFilters = (updates: Partial<AthletesFilterState>) => {
-    onFiltersChange({ ...filters, ...updates });
+    onFiltersChangeAction({ ...filters, ...updates });
   };
 
   const clearFilters = () => {
-    onFiltersChange({
+    onFiltersChangeAction({
       search: "",
       sport: "",
       sortBy: "name",
@@ -157,7 +157,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 w-4 h-4"
+                className="p-0 w-4 h-4"
                 onClick={() => updateFilters({ search: "" })}
               >
                 <XIcon className="h-3 w-3" />
@@ -170,7 +170,7 @@ export function AthletesFilterBar({ filters, onFiltersChange }: AthletesFilterBa
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-auto p-0 w-4 h-4"
+                className="h-auto p-0 w-4"
                 onClick={() => updateFilters({ sport: "" })}
               >
                 <XIcon className="h-3 w-3" />
