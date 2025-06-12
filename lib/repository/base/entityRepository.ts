@@ -14,8 +14,8 @@ export type EntityMapping<T> = {
 };
 
 export class EntityRepository<T extends { id: string | number }> {
-  private readonly client: SupabaseClient;
-  private readonly entityMapping: EntityMapping<T>;
+  protected readonly client: SupabaseClient;
+  protected readonly entityMapping: EntityMapping<T>;
 
   constructor(entityMapping: EntityMapping<T>) {
     this.client = supabaseServiceRole;

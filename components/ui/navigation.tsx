@@ -13,6 +13,8 @@ import {
 	ChevronRight,
 	Menu,
 	X,
+	LogOut,
+	User,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -20,6 +22,14 @@ import { useState, createContext, useContext, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./separator";
 import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { LogoutMenuItem } from "@/components/logout-button";
 
 const navigationData = {
 	navMain: [
@@ -214,26 +224,40 @@ export default function Navigation() {
 				</div>
 				{/* User Section */}
 				<div className="border-t border-gray-200 p-4 justify-self-end">
-					<div className={cn(
-						"flex items-center",
-						isCollapsed ? "justify-center" : "space-x-3"
-					)}>
-						<div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-							<span className="text-sm font-medium text-gray-700">
-								{initials}
-							</span>
-						</div>
-						{!isCollapsed && (
-							<div className="flex-1 min-w-0">
-								<p className="text-sm font-medium text-primary-foreground truncate">
-									{displayName}
-								</p>
-								<p className="text-xs text-gray-500 truncate">
-									{email}
-								</p>
-							</div>
-						)}
-					</div>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<button className={cn(
+								"flex items-center w-full rounded-lg hover:bg-gray-100 transition-colors p-2",
+								isCollapsed ? "justify-center" : "space-x-3"
+							)}>
+								<div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+									<span className="text-sm font-medium text-gray-700">
+										{initials}
+									</span>
+								</div>
+								{!isCollapsed && (
+									<div className="flex-1 min-w-0 text-left">
+										<p className="text-sm font-medium text-primary-foreground truncate">
+											{displayName}
+										</p>
+										<p className="text-xs text-gray-500 truncate">
+											{email}
+										</p>
+									</div>
+								)}
+							</button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-56">
+							<DropdownMenuItem asChild>
+								<Link href="/settings" className="flex items-center">
+									<User className="mr-2 h-4 w-4" />
+									<span>Profile Settings</span>
+								</Link>
+							</DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<LogoutMenuItem />
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</nav>
 		</>

@@ -55,10 +55,33 @@ export class AssistantRepository extends EntityRepository<Assistant> {
     }
   }
 
-  // Inherited methods from EntityRepository provide basic CRUD operations:
-  // - getById(null, id) -> getAssistantById
-  // - getByIds(null, ids) -> getAssistantsByIds
-  // - create(null, data) -> createAssistant
-  // - update(null, id, data) -> updateAssistant
+  /**
+   * Get assistant by ID
+   */
+  async getAssistantById(id: string): Promise<Assistant | null> {
+    return this.getById(null, id);
+  }
+
+  /**
+   * Get assistants by IDs
+   */
+  async getAssistantsByIds(ids: string[]): Promise<Assistant[]> {
+    return this.getByIds(null, ids);
+  }
+
+  /**
+   * Create a new assistant
+   */
+  async createAssistant(input: Partial<Assistant>): Promise<Assistant | null> {
+    return this.create(null, input);
+  }
+
+  /**
+   * Update an assistant
+   */
+  async updateAssistant(id: string, input: Partial<Assistant>): Promise<Assistant | null> {
+    return this.update(null, id, input);
+  }
+
   // Note: Assistants use null for userId since they're globally available
 }

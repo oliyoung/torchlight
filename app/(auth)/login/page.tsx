@@ -19,9 +19,11 @@ export default function LoginPageToken() {
   const searchParams = useSearchParams()
   const { signIn, signUp, signInWithGoogle } = useAuth()
 
-  // Handle URL error parameters
+  // Handle URL error and message parameters
   useEffect(() => {
     const urlError = searchParams.get('error')
+    const urlMessage = searchParams.get('message')
+
     if (urlError) {
       switch (urlError) {
         case 'auth_callback_failed':
@@ -35,6 +37,35 @@ export default function LoginPageToken() {
           break
         default:
           setError('An error occurred. Please try again.')
+      }
+    } else if (urlMessage) {
+      // Handle logout messages (these are informational, not errors)
+      switch (urlMessage) {
+        case 'logged_out':
+          // Don't set as error - this is a successful logout
+          console.log('Successfully logged out')
+          break
+        case 'session_expired':
+          setError('Your session has expired. Please sign in again.')
+          break
+        case 'session_invalid':
+          setError('Your session is invalid. Please sign in again.')
+          break
+        case 'invalid_session':
+          setError('Invalid session detected. Please sign in again.')
+          break
+        case 'already_logged_out':
+          // Don't set as error - user was already logged out
+          console.log('User was already logged out')
+          break
+        case 'logout_error':
+          setError('There was an error during logout, but you have been signed out.')
+          break
+        case 'force_logout':
+          setError('You have been forcefully logged out due to session issues.')
+          break
+        default:
+          console.log('Unknown message:', urlMessage)
       }
     }
   }, [searchParams])

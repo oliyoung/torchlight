@@ -111,6 +111,7 @@ export type AssistantsInput = {
  */
 export type Athlete = {
   __typename?: 'Athlete';
+  age?: Maybe<Scalars['Int']['output']>;
   availability?: Maybe<Scalars['JSON']['output']>;
   birthday?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
@@ -1358,6 +1359,7 @@ export type AssistantResolvers<ContextType = GraphQLContext, ParentType extends 
 };
 
 export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Athlete'] = ResolversParentTypes['Athlete']> = {
+  age?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   availability?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   birthday?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;

@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for public routes and static files
   if (
     pathname.startsWith('/login') ||
+    pathname.startsWith('/logout') ||
     pathname.startsWith('/auth/callback') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/favicon.ico') ||

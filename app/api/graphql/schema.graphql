@@ -154,6 +154,7 @@ type Athlete {
 	email: String!
 	phone: String # Phone number for contact
 	birthday: DateTime # Date of birth for age calculations and program planning
+	age: Int # Calculated age in years based on birthday
 	gender: AthleteGender # Gender information for training considerations
 
 	# Emergency Contact Information
