@@ -111,27 +111,42 @@ export type AssistantsInput = {
  */
 export type Athlete = {
   __typename?: 'Athlete';
-  birthday?: Maybe<Scalars['String']['output']>;
+  availability?: Maybe<Scalars['JSON']['output']>;
+  birthday?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   email: Scalars['String']['output'];
+  emergencyContactName?: Maybe<Scalars['String']['output']>;
+  emergencyContactPhone?: Maybe<Scalars['String']['output']>;
   firstName: Scalars['String']['output'];
-  fitnessLevel?: Maybe<Scalars['String']['output']>;
-  gender?: Maybe<Scalars['String']['output']>;
+  fitnessLevel?: Maybe<FitnessLevel>;
+  gender?: Maybe<AthleteGender>;
   goals?: Maybe<Array<Goal>>;
+  goalsSummary?: Maybe<Scalars['String']['output']>;
   height?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
+  injuries?: Maybe<Scalars['String']['output']>;
   lastName: Scalars['String']['output'];
+  medicalConditions?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['String']['output']>;
+  preferredTrainingTime?: Maybe<Scalars['String']['output']>;
   sessionLogs?: Maybe<Array<SessionLog>>;
   sport: Scalars['String']['output'];
   tags?: Maybe<Array<Scalars['String']['output']>>;
   trainingHistory?: Maybe<Scalars['String']['output']>;
   trainingPlans: Array<TrainingPlan>;
   updatedAt: Scalars['DateTime']['output'];
-  userId: Scalars['ID']['output'];
   weight?: Maybe<Scalars['Float']['output']>;
 };
+
+/** Athlete gender options for training considerations. */
+export enum AthleteGender {
+  Female = 'FEMALE',
+  Male = 'MALE',
+  NonBinary = 'NON_BINARY',
+  PreferNotToSay = 'PREFER_NOT_TO_SAY'
+}
 
 /** Resource availability and practical constraints for goal achievement. */
 export type Availability = {
@@ -242,13 +257,26 @@ export type CoreGoal = {
  * All fields are validated and the athlete is automatically associated with the authenticated coach.
  */
 export type CreateAthleteInput = {
+  availability?: InputMaybe<Scalars['JSON']['input']>;
   birthday: Scalars['DateTime']['input'];
   email: Scalars['String']['input'];
+  emergencyContactName?: InputMaybe<Scalars['String']['input']>;
+  emergencyContactPhone?: InputMaybe<Scalars['String']['input']>;
   firstName: Scalars['String']['input'];
+  fitnessLevel?: InputMaybe<FitnessLevel>;
+  gender?: InputMaybe<AthleteGender>;
+  goalsSummary?: InputMaybe<Scalars['String']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  injuries?: InputMaybe<Scalars['String']['input']>;
   lastName: Scalars['String']['input'];
+  medicalConditions?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  preferredTrainingTime?: InputMaybe<Scalars['String']['input']>;
   sport: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  trainingHistory?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
 /**
@@ -269,10 +297,16 @@ export type CreateCoachInput = {
  */
 export type CreateGoalInput = {
   athleteId: Scalars['ID']['input'];
+  category: GoalCategory;
+  currentValue?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  priority: GoalPriority;
+  progressNotes?: InputMaybe<Scalars['String']['input']>;
   sport: Scalars['String']['input'];
+  targetValue?: InputMaybe<Scalars['Float']['input']>;
   title: Scalars['String']['input'];
+  unit?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -280,11 +314,21 @@ export type CreateGoalInput = {
  * Session logs capture training session details and progress toward goals.
  */
 export type CreateSessionLogInput = {
+  athleteFeedback?: InputMaybe<Scalars['String']['input']>;
   athleteId: Scalars['ID']['input'];
+  coachRating?: InputMaybe<Scalars['Int']['input']>;
   date: Scalars['DateTime']['input'];
+  durationMinutes?: InputMaybe<Scalars['Int']['input']>;
+  equipmentUsed?: InputMaybe<Array<Scalars['String']['input']>>;
+  exercisesPerformed?: InputMaybe<Scalars['JSON']['input']>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  intensityLevel?: InputMaybe<SessionIntensity>;
+  location?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  sessionType: SessionType;
+  title?: InputMaybe<Scalars['String']['input']>;
   transcript?: InputMaybe<Scalars['String']['input']>;
+  weatherConditions?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -294,7 +338,14 @@ export type CreateSessionLogInput = {
 export type CreateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   athleteId: Scalars['ID']['input'];
+  difficulty: TrainingPlanDifficulty;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  overview?: InputMaybe<Scalars['String']['input']>;
+  sport: Scalars['String']['input'];
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  title: Scalars['String']['input'];
 };
 
 /** Assessment of data quality for coaching analysis. */
@@ -331,6 +382,14 @@ export type ExtractionConfidence = {
   suggestedQuestions: Array<Scalars['String']['output']>;
 };
 
+/** Fitness level assessment for training planning. */
+export enum FitnessLevel {
+  Advanced = 'ADVANCED',
+  Beginner = 'BEGINNER',
+  Elite = 'ELITE',
+  Intermediate = 'INTERMEDIATE'
+}
+
 /**
  * Goal entity representing specific training objectives for athletes.
  * Goals can be linked to multiple session logs and training plans for comprehensive tracking.
@@ -338,20 +397,40 @@ export type ExtractionConfidence = {
 export type Goal = {
   __typename?: 'Goal';
   athlete: Athlete;
+  category: GoalCategory;
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  currentValue?: Maybe<Scalars['Float']['output']>;
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   dueDate?: Maybe<Scalars['DateTime']['output']>;
   evaluationResponse?: Maybe<Scalars['JSON']['output']>;
   id: Scalars['ID']['output'];
+  priority: GoalPriority;
   progressNotes?: Maybe<Scalars['String']['output']>;
+  progressPercentage?: Maybe<Scalars['Float']['output']>;
   sessionLogs: Array<SessionLog>;
-  sport?: Maybe<Scalars['String']['output']>;
+  sport: Scalars['String']['output'];
   status: GoalStatus;
+  targetValue?: Maybe<Scalars['Float']['output']>;
   title: Scalars['String']['output'];
   trainingPlans?: Maybe<Array<TrainingPlan>>;
+  unit?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
+
+/** Goal category classification for training focus areas. */
+export enum GoalCategory {
+  Endurance = 'ENDURANCE',
+  Flexibility = 'FLEXIBILITY',
+  Mental = 'MENTAL',
+  Nutrition = 'NUTRITION',
+  Recovery = 'RECOVERY',
+  Skill = 'SKILL',
+  Speed = 'SPEED',
+  Strength = 'STRENGTH',
+  Technique = 'TECHNIQUE'
+}
 
 /**
  * Detailed scoring and evaluation of goal quality across multiple dimensions.
@@ -385,6 +464,14 @@ export type GoalEvaluationResponse = {
   successIndicators: SuccessIndicators;
   timeline: Timeline;
 };
+
+/** Goal priority level for planning and focus. */
+export enum GoalPriority {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
 
 /** Goal lifecycle status indicating current state and progress. */
 export enum GoalStatus {
@@ -722,6 +809,15 @@ export type RefinedGoalSuggestion = {
   rationale: Scalars['String']['output'];
 };
 
+/** Session intensity level for tracking training load. */
+export enum SessionIntensity {
+  High = 'HIGH',
+  Low = 'LOW',
+  Moderate = 'MODERATE',
+  VeryHigh = 'VERY_HIGH',
+  VeryLow = 'VERY_LOW'
+}
+
 /**
  * SessionLog entity representing individual training session records.
  * Captures session details, progress notes, and AI-generated insights.
@@ -732,16 +828,36 @@ export type SessionLog = {
   actionItems?: Maybe<Array<Scalars['String']['output']>>;
   aiMetadata?: Maybe<AiMetadata>;
   athlete: Athlete;
+  athleteFeedback?: Maybe<Scalars['String']['output']>;
+  coachRating?: Maybe<Scalars['Int']['output']>;
   createdAt: Scalars['DateTime']['output'];
   date: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  durationMinutes?: Maybe<Scalars['Int']['output']>;
+  equipmentUsed?: Maybe<Array<Scalars['String']['output']>>;
+  exercisesPerformed?: Maybe<Scalars['JSON']['output']>;
   goals: Array<Goal>;
   id: Scalars['ID']['output'];
+  intensityLevel?: Maybe<SessionIntensity>;
+  location?: Maybe<Scalars['String']['output']>;
   notes?: Maybe<Scalars['String']['output']>;
+  sessionType: SessionType;
   summary?: Maybe<Scalars['String']['output']>;
+  title?: Maybe<Scalars['String']['output']>;
   transcript?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+  weatherConditions?: Maybe<Scalars['String']['output']>;
 };
+
+/** Session type classification for different kinds of training sessions. */
+export enum SessionType {
+  Assessment = 'ASSESSMENT',
+  Competition = 'COMPETITION',
+  Consultation = 'CONSULTATION',
+  Planning = 'PLANNING',
+  Recovery = 'RECOVERY',
+  Training = 'TRAINING'
+}
 
 /**
  * Root subscription type providing real-time updates for platform entities.
@@ -863,20 +979,34 @@ export type TrainingPlan = {
   __typename?: 'TrainingPlan';
   assistants?: Maybe<Array<Assistant>>;
   athlete: Athlete;
-  createdAt: Scalars['String']['output'];
-  endDate?: Maybe<Scalars['String']['output']>;
+  completionPercentage?: Maybe<Scalars['Float']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  deletedAt?: Maybe<Scalars['DateTime']['output']>;
+  difficulty: TrainingPlanDifficulty;
+  durationWeeks?: Maybe<Scalars['Int']['output']>;
+  endDate?: Maybe<Scalars['DateTime']['output']>;
   generatedBy?: Maybe<Scalars['String']['output']>;
+  generationMetadata?: Maybe<Scalars['JSON']['output']>;
   goals?: Maybe<Array<Goal>>;
   id: Scalars['ID']['output'];
   notes?: Maybe<Scalars['String']['output']>;
   overview?: Maybe<Scalars['String']['output']>;
   planJson?: Maybe<Scalars['JSON']['output']>;
   sourcePrompt?: Maybe<Scalars['String']['output']>;
-  startDate?: Maybe<Scalars['String']['output']>;
-  /** The current status of the training plan, reflecting its lifecycle and generation state. */
+  sport: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
   status: TrainingPlanStatus;
-  updatedAt: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
+
+/** Training plan difficulty level for appropriate challenge setting. */
+export enum TrainingPlanDifficulty {
+  Advanced = 'ADVANCED',
+  Beginner = 'BEGINNER',
+  Elite = 'ELITE',
+  Intermediate = 'INTERMEDIATE'
+}
 
 /**
  * Training plan lifecycle status indicating generation progress and readiness.
@@ -894,12 +1024,26 @@ export enum TrainingPlanStatus {
  * All fields are optional - only provided fields will be updated.
  */
 export type UpdateAthleteInput = {
+  availability?: InputMaybe<Scalars['JSON']['input']>;
+  birthday?: InputMaybe<Scalars['DateTime']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  emergencyContactName?: InputMaybe<Scalars['String']['input']>;
+  emergencyContactPhone?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
+  fitnessLevel?: InputMaybe<FitnessLevel>;
+  gender?: InputMaybe<AthleteGender>;
+  goalsSummary?: InputMaybe<Scalars['String']['input']>;
+  height?: InputMaybe<Scalars['Float']['input']>;
+  injuries?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
+  medicalConditions?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  preferredTrainingTime?: InputMaybe<Scalars['String']['input']>;
   sport?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
+  trainingHistory?: InputMaybe<Scalars['String']['input']>;
+  weight?: InputMaybe<Scalars['Float']['input']>;
 };
 
 /**
@@ -941,13 +1085,19 @@ export type UpdateCoachInput = {
  * All fields are optional - only provided fields will be updated.
  */
 export type UpdateGoalInput = {
+  category?: InputMaybe<GoalCategory>;
+  completedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  currentValue?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   dueDate?: InputMaybe<Scalars['DateTime']['input']>;
+  priority?: InputMaybe<GoalPriority>;
   progressNotes?: InputMaybe<Scalars['String']['input']>;
   sport?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<GoalStatus>;
+  targetValue?: InputMaybe<Scalars['Float']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   trainingPlanIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  unit?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -956,10 +1106,21 @@ export type UpdateGoalInput = {
  */
 export type UpdateSessionLogInput = {
   actionItems?: InputMaybe<Array<Scalars['String']['input']>>;
+  athleteFeedback?: InputMaybe<Scalars['String']['input']>;
+  coachRating?: InputMaybe<Scalars['Int']['input']>;
+  date?: InputMaybe<Scalars['DateTime']['input']>;
+  durationMinutes?: InputMaybe<Scalars['Int']['input']>;
+  equipmentUsed?: InputMaybe<Array<Scalars['String']['input']>>;
+  exercisesPerformed?: InputMaybe<Scalars['JSON']['input']>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  intensityLevel?: InputMaybe<SessionIntensity>;
+  location?: InputMaybe<Scalars['String']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  sessionType?: InputMaybe<SessionType>;
   summary?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
   transcript?: InputMaybe<Scalars['String']['input']>;
+  weatherConditions?: InputMaybe<Scalars['String']['input']>;
 };
 
 /**
@@ -968,8 +1129,16 @@ export type UpdateSessionLogInput = {
  */
 export type UpdateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  completionPercentage?: InputMaybe<Scalars['Float']['input']>;
+  difficulty?: InputMaybe<TrainingPlanDifficulty>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  notes?: InputMaybe<Scalars['String']['input']>;
   overview?: InputMaybe<Scalars['String']['input']>;
+  planJson?: InputMaybe<Scalars['JSON']['input']>;
+  sport?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
+  status?: InputMaybe<TrainingPlanStatus>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1062,6 +1231,7 @@ export type ResolversTypes = {
   AssistantsFilter: AssistantsFilter;
   AssistantsInput: AssistantsInput;
   Athlete: ResolverTypeWrapper<Athlete>;
+  AthleteGender: AthleteGender;
   Availability: ResolverTypeWrapper<Availability>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Coach: ResolverTypeWrapper<Coach>;
@@ -1080,10 +1250,13 @@ export type ResolversTypes = {
   EvaluationSummary: ResolverTypeWrapper<EvaluationSummary>;
   ExperienceLevel: ExperienceLevel;
   ExtractionConfidence: ResolverTypeWrapper<ExtractionConfidence>;
+  FitnessLevel: FitnessLevel;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Goal: ResolverTypeWrapper<Goal>;
+  GoalCategory: GoalCategory;
   GoalEvaluation: ResolverTypeWrapper<GoalEvaluation>;
   GoalEvaluationResponse: ResolverTypeWrapper<GoalEvaluationResponse>;
+  GoalPriority: GoalPriority;
   GoalStatus: GoalStatus;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -1092,7 +1265,9 @@ export type ResolversTypes = {
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   RefinedGoalSuggestion: ResolverTypeWrapper<RefinedGoalSuggestion>;
+  SessionIntensity: SessionIntensity;
   SessionLog: ResolverTypeWrapper<SessionLog>;
+  SessionType: SessionType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Subscription: ResolverTypeWrapper<{}>;
   SubscriptionStatus: SubscriptionStatus;
@@ -1100,6 +1275,7 @@ export type ResolversTypes = {
   SuccessIndicators: ResolverTypeWrapper<SuccessIndicators>;
   Timeline: ResolverTypeWrapper<Timeline>;
   TrainingPlan: ResolverTypeWrapper<TrainingPlan>;
+  TrainingPlanDifficulty: TrainingPlanDifficulty;
   TrainingPlanStatus: TrainingPlanStatus;
   UpdateAthleteInput: UpdateAthleteInput;
   UpdateCoachBillingInput: UpdateCoachBillingInput;
@@ -1182,25 +1358,32 @@ export type AssistantResolvers<ContextType = GraphQLContext, ParentType extends 
 };
 
 export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Athlete'] = ResolversParentTypes['Athlete']> = {
-  birthday?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  availability?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  birthday?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emergencyContactName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  emergencyContactPhone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  fitnessLevel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  gender?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  fitnessLevel?: Resolver<Maybe<ResolversTypes['FitnessLevel']>, ParentType, ContextType>;
+  gender?: Resolver<Maybe<ResolversTypes['AthleteGender']>, ParentType, ContextType>;
   goals?: Resolver<Maybe<Array<ResolversTypes['Goal']>>, ParentType, ContextType>;
+  goalsSummary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   height?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  injuries?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  medicalConditions?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  preferredTrainingTime?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Maybe<Array<ResolversTypes['SessionLog']>>, ParentType, ContextType>;
   sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   trainingHistory?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   weight?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1307,18 +1490,25 @@ export type ExtractionConfidenceResolvers<ContextType = GraphQLContext, ParentTy
 
 export type GoalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Goal'] = ResolversParentTypes['Goal']> = {
   athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['GoalCategory'], ParentType, ContextType>;
+  completedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currentValue?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   evaluationResponse?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  priority?: Resolver<ResolversTypes['GoalPriority'], ParentType, ContextType>;
   progressNotes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  progressPercentage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sessionLogs?: Resolver<Array<ResolversTypes['SessionLog']>, ParentType, ContextType>;
-  sport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['GoalStatus'], ParentType, ContextType>;
+  targetValue?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   trainingPlans?: Resolver<Maybe<Array<ResolversTypes['TrainingPlan']>>, ParentType, ContextType>;
+  unit?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -1406,15 +1596,25 @@ export type SessionLogResolvers<ContextType = GraphQLContext, ParentType extends
   actionItems?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   aiMetadata?: Resolver<Maybe<ResolversTypes['AIMetadata']>, ParentType, ContextType>;
   athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
+  athleteFeedback?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  coachRating?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  durationMinutes?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  equipmentUsed?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  exercisesPerformed?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  intensityLevel?: Resolver<Maybe<ResolversTypes['SessionIntensity']>, ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sessionType?: Resolver<ResolversTypes['SessionType'], ParentType, ContextType>;
   summary?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  title?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   transcript?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  weatherConditions?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1445,18 +1645,25 @@ export type TimelineResolvers<ContextType = GraphQLContext, ParentType extends R
 export type TrainingPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrainingPlan'] = ResolversParentTypes['TrainingPlan']> = {
   assistants?: Resolver<Maybe<Array<ResolversTypes['Assistant']>>, ParentType, ContextType>;
   athlete?: Resolver<ResolversTypes['Athlete'], ParentType, ContextType>;
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  endDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  completionPercentage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  difficulty?: Resolver<ResolversTypes['TrainingPlanDifficulty'], ParentType, ContextType>;
+  durationWeeks?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   generatedBy?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  generationMetadata?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   goals?: Resolver<Maybe<Array<ResolversTypes['Goal']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   notes?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   overview?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   planJson?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   sourcePrompt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  startDate?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sport?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['TrainingPlanStatus'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

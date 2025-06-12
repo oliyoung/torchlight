@@ -95,6 +95,26 @@ enum SubscriptionTier {
 }
 
 """
+Athlete gender options for training considerations.
+"""
+enum AthleteGender {
+	MALE # Male athlete
+	FEMALE # Female athlete
+	NON_BINARY # Non-binary athlete
+	PREFER_NOT_TO_SAY # Prefer not to specify
+}
+
+"""
+Fitness level assessment for training planning.
+"""
+enum FitnessLevel {
+	BEGINNER # New to training or sport
+	INTERMEDIATE # Some experience and fitness base
+	ADVANCED # High level of fitness and experience
+	ELITE # Professional or elite level athlete
+}
+
+"""
 Account status indicating the overall state of the coach's account.
 """
 enum AccountStatus {
@@ -128,23 +148,43 @@ Contains personal information, physical attributes, and relationships to goals, 
 All athlete data is automatically scoped to the authenticated coach's user account.
 """
 type Athlete {
-	userId: ID! # ID of the coach who owns this athlete record
 	id: ID!
-	birthday: String # Date of birth for age calculations and program planning
-	gender: String # Gender information for training considerations
-	fitnessLevel: String # Current fitness assessment (beginner, intermediate, advanced)
-	trainingHistory: String # Previous training background and experience
-	height: Float # Height in centimeters
-	weight: Float # Weight in kilograms
 	firstName: String!
 	lastName: String!
 	email: String!
+	phone: String # Phone number for contact
+	birthday: DateTime # Date of birth for age calculations and program planning
+	gender: AthleteGender # Gender information for training considerations
+
+	# Emergency Contact Information
+	emergencyContactName: String # Emergency contact person name
+	emergencyContactPhone: String # Emergency contact phone number
+
+	# Physical Information
+	height: Float # Height in centimeters
+	weight: Float # Weight in kilograms
+
+	# Training Information
+	sport: String! # Primary sport focus
+	fitnessLevel: FitnessLevel # Current fitness assessment
+	trainingHistory: String # Previous training background and experience
+	goalsSummary: String # Summary of athlete's goals
+	preferredTrainingTime: String # Preferred time for training sessions
+	availability: JSON # Weekly availability schedule
+
+	# Medical Information
+	medicalConditions: String # Known medical conditions
+	injuries: String # Current or past injuries
+
+	# Metadata
 	tags: [String!] # Custom tags for categorization and filtering
 	notes: String # General notes about the athlete
-	sport: String! # Primary sport focus
+
+	# Timestamps
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	deletedAt: DateTime # Soft delete timestamp
+
 	# Relationships
 	goals: [Goal!] # Associated training goals
 	sessionLogs: [SessionLog!] # Training session records
@@ -160,14 +200,30 @@ type Goal {
 	athlete: Athlete! # The athlete this goal belongs to
 	title: String! # Short, descriptive goal title
 	description: String # Detailed goal description and context
+	category: GoalCategory! # Goal category (strength, endurance, etc.)
+	priority: GoalPriority! # Goal priority level
+	sport: String! # Sport-specific classification
+
+	# Progress Tracking
+	targetValue: Float # Target value to achieve
+	currentValue: Float # Current progress value
+	unit: String # Unit of measurement (kg, seconds, reps, etc.)
+	progressPercentage: Float # Calculated progress percentage
+
+	# Status and Timeline
 	status: GoalStatus! # Current goal status
+	dueDate: DateTime # Target completion date
+	completedAt: DateTime # When the goal was completed
+
+	# Notes and Metadata
+	progressNotes: String # Coach notes on progress toward the goal
+	evaluationResponse: JSON # AI evaluation response data
+
+	# Timestamps
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	deletedAt: DateTime # Soft delete timestamp
-	dueDate: DateTime # Target completion date
-	progressNotes: String # Coach notes on progress toward the goal
-	sport: String # Sport-specific classification
-	evaluationResponse: JSON
+
 	# Relationships
 	sessionLogs: [SessionLog!]! # Sessions that worked toward this goal
 	trainingPlans: [TrainingPlan!] # Training plans that include this goal
@@ -183,6 +239,31 @@ enum GoalStatus {
 }
 
 """
+Goal category classification for training focus areas.
+"""
+enum GoalCategory {
+	STRENGTH # Strength and power development
+	ENDURANCE # Cardiovascular and muscular endurance
+	SKILL # Technical skill development
+	MENTAL # Mental performance and psychology
+	FLEXIBILITY # Flexibility and mobility
+	SPEED # Speed and agility training
+	TECHNIQUE # Sport-specific technique improvement
+	NUTRITION # Nutrition and dietary goals
+	RECOVERY # Recovery and injury prevention
+}
+
+"""
+Goal priority level for planning and focus.
+"""
+enum GoalPriority {
+	LOW # Low priority goal
+	MEDIUM # Medium priority goal
+	HIGH # High priority goal
+	CRITICAL # Critical priority goal
+}
+
+"""
 SessionLog entity representing individual training session records.
 Captures session details, progress notes, and AI-generated insights.
 Note: Called "SessionLog" instead of "Session" to avoid confusion with authentication sessions.
@@ -190,16 +271,63 @@ Note: Called "SessionLog" instead of "Session" to avoid confusion with authentic
 type SessionLog {
 	id: ID!
 	athlete: Athlete! # The athlete this session belongs to
+
+	# Session Information
+	title: String # Session title or name
+	sessionType: SessionType! # Type of session (training, assessment, etc.)
 	date: DateTime! # When the session took place
+	durationMinutes: Int # Duration of the session in minutes
+	location: String # Where the session took place
+
+	# Session Content
 	notes: String # Coach's notes about the session
 	transcript: String # Raw session transcript or detailed notes
 	summary: String # AI-generated summary of the session
 	actionItems: [String!] # AI-generated action items and next steps
-	goals: [Goal!]! # Goals that were worked on during this session
+
+	# Session Metrics
+	intensityLevel: SessionIntensity # Intensity level of the session
+	coachRating: Int # Coach's rating of the session (1-5)
+	athleteFeedback: String # Athlete's feedback about the session
+	weatherConditions: String # Weather conditions during session
+
+	# Equipment and Resources
+	equipmentUsed: [String!] # Equipment used during the session
+	exercisesPerformed: JSON # Structured data about exercises performed
+
+	# AI Metadata
 	aiMetadata: AIMetadata # Metadata about AI processing status
+
+	# Timestamps
 	createdAt: DateTime!
 	updatedAt: DateTime!
 	deletedAt: DateTime # Soft delete timestamp
+
+	# Relationships
+	goals: [Goal!]! # Goals that were worked on during this session
+}
+
+"""
+Session type classification for different kinds of training sessions.
+"""
+enum SessionType {
+	TRAINING # Regular training session
+	ASSESSMENT # Assessment or testing session
+	CONSULTATION # Consultation or planning session
+	COMPETITION # Competition or game
+	RECOVERY # Recovery or rehabilitation session
+	PLANNING # Planning or strategy session
+}
+
+"""
+Session intensity level for tracking training load.
+"""
+enum SessionIntensity {
+	VERY_LOW # Very low intensity
+	LOW # Low intensity
+	MODERATE # Moderate intensity
+	HIGH # High intensity
+	VERY_HIGH # Very high intensity
 }
 
 """
@@ -219,21 +347,39 @@ exercises, and progression tracking. Plans support real-time generation status u
 type TrainingPlan {
 	id: ID!
 	athlete: Athlete! # Athlete relationship
-	goals: [Goal!] # Multiple goals this plan addresses
-	assistants: [Assistant!] # AI assistants that contributed to plan generation
-	createdAt: String!
-	updatedAt: String!
-	startDate: String # When the training plan should begin
-	endDate: String # When the training plan should conclude
-	notes: String # Coach notes about the plan
-	planJson: JSON # Structured plan data (exercises, schedules, etc.)
+
+	# Plan Information
+	title: String! # Training plan title
 	overview: String # High-level plan description and objectives
+	difficulty: TrainingPlanDifficulty! # Plan difficulty level
+	sport: String! # Sport this plan is designed for
+
+	# Timeline
+	startDate: DateTime # When the training plan should begin
+	endDate: DateTime # When the training plan should conclude
+	durationWeeks: Int # Calculated duration in weeks
+
+	# Status and Progress
+	status: TrainingPlanStatus! # Current plan status
+	completionPercentage: Float # Progress completion percentage
+
+	# Content
+	planJson: JSON # Structured plan data (exercises, schedules, etc.)
+	notes: String # Coach notes about the plan
+
+	# AI Generation Metadata
 	sourcePrompt: String # Original prompt used to generate the plan
 	generatedBy: String # ID of the Assistant that generated the plan content
-	"""
-	The current status of the training plan, reflecting its lifecycle and generation state.
-	"""
-	status: TrainingPlanStatus!
+	generationMetadata: JSON # Additional AI generation metadata
+
+	# Timestamps
+	createdAt: DateTime!
+	updatedAt: DateTime!
+	deletedAt: DateTime # Soft delete timestamp
+
+	# Relationships
+	goals: [Goal!] # Multiple goals this plan addresses
+	assistants: [Assistant!] # AI assistants that contributed to plan generation
 }
 
 """
@@ -245,6 +391,16 @@ enum TrainingPlanStatus {
 	GENERATING # AI is currently generating plan content
 	GENERATED # Plan generation completed successfully
 	ERROR # Plan generation failed or encountered errors
+}
+
+"""
+Training plan difficulty level for appropriate challenge setting.
+"""
+enum TrainingPlanDifficulty {
+	BEGINNER # Beginner level training plan
+	INTERMEDIATE # Intermediate level training plan
+	ADVANCED # Advanced level training plan
+	ELITE # Elite level training plan
 }
 
 # Input types for filtering and searching
@@ -351,11 +507,34 @@ All fields are validated and the athlete is automatically associated with the au
 input CreateAthleteInput {
 	firstName: String!
 	lastName: String!
-	birthday: DateTime! # Required for age-appropriate training planning
 	email: String! # Required for communication
+	phone: String # Phone number for contact
+	birthday: DateTime! # Required for age-appropriate training planning
+	gender: AthleteGender # Gender information for training considerations
+
+	# Emergency Contact Information
+	emergencyContactName: String # Emergency contact person name
+	emergencyContactPhone: String # Emergency contact phone number
+
+	# Physical Information
+	height: Float # Height in centimeters
+	weight: Float # Weight in kilograms
+
+	# Training Information
+	sport: String! # Required primary sport focus
+	fitnessLevel: FitnessLevel # Current fitness assessment
+	trainingHistory: String # Previous training background and experience
+	goalsSummary: String # Summary of athlete's goals
+	preferredTrainingTime: String # Preferred time for training sessions
+	availability: JSON # Weekly availability schedule
+
+	# Medical Information
+	medicalConditions: String # Known medical conditions
+	injuries: String # Current or past injuries
+
+	# Metadata
 	tags: [String!] # Optional categorization tags
 	notes: String # Optional general notes
-	sport: String! # Required primary sport focus
 }
 
 """
@@ -366,9 +545,33 @@ input UpdateAthleteInput {
 	firstName: String
 	lastName: String
 	email: String
+	phone: String
+	birthday: DateTime
+	gender: AthleteGender
+
+	# Emergency Contact Information
+	emergencyContactName: String
+	emergencyContactPhone: String
+
+	# Physical Information
+	height: Float
+	weight: Float
+
+	# Training Information
+	sport: String
+	fitnessLevel: FitnessLevel
+	trainingHistory: String
+	goalsSummary: String
+	preferredTrainingTime: String
+	availability: JSON
+
+	# Medical Information
+	medicalConditions: String
+	injuries: String
+
+	# Metadata
 	tags: [String!] # Replaces existing tags entirely
 	notes: String
-	sport: String
 }
 
 """
@@ -379,8 +582,20 @@ input CreateGoalInput {
 	athleteId: ID! # The athlete this goal belongs to
 	title: String! # Required descriptive title
 	description: String # Optional detailed description
-	dueDate: DateTime # Optional target completion date
+	category: GoalCategory! # Required goal category
+	priority: GoalPriority! # Required goal priority
 	sport: String! # Required sport classification
+
+	# Progress Tracking
+	targetValue: Float # Target value to achieve
+	currentValue: Float # Current progress value
+	unit: String # Unit of measurement (kg, seconds, reps, etc.)
+
+	# Timeline
+	dueDate: DateTime # Optional target completion date
+
+	# Notes
+	progressNotes: String # Initial progress notes
 }
 
 """
@@ -390,10 +605,24 @@ All fields are optional - only provided fields will be updated.
 input UpdateGoalInput {
 	title: String
 	description: String
-	dueDate: DateTime
-	status: GoalStatus # Update goal progress status
-	progressNotes: String # Coach notes on progress
+	category: GoalCategory
+	priority: GoalPriority
 	sport: String
+
+	# Progress Tracking
+	targetValue: Float
+	currentValue: Float
+	unit: String
+
+	# Status and Timeline
+	status: GoalStatus # Update goal progress status
+	dueDate: DateTime
+	completedAt: DateTime
+
+	# Notes
+	progressNotes: String # Coach notes on progress
+
+	# Relationships
 	trainingPlanIds: [ID!] # Associate goal with training plans
 }
 
@@ -403,9 +632,29 @@ Session logs capture training session details and progress toward goals.
 """
 input CreateSessionLogInput {
 	athleteId: ID! # The athlete this session belongs to
+
+	# Session Information
+	title: String # Session title or name
+	sessionType: SessionType! # Type of session (training, assessment, etc.)
 	date: DateTime! # Required session date
+	durationMinutes: Int # Duration of the session in minutes
+	location: String # Where the session took place
+
+	# Session Content
 	notes: String # Optional coach notes
 	transcript: String # Optional detailed session transcript
+
+	# Session Metrics
+	intensityLevel: SessionIntensity # Intensity level of the session
+	coachRating: Int # Coach's rating of the session (1-5)
+	athleteFeedback: String # Athlete's feedback about the session
+	weatherConditions: String # Weather conditions during session
+
+	# Equipment and Resources
+	equipmentUsed: [String!] # Equipment used during the session
+	exercisesPerformed: JSON # Structured data about exercises performed
+
+	# Relationships
 	goalIds: [ID!] # Optional goals addressed in this session
 }
 
@@ -414,11 +663,31 @@ Input for updating an existing session log.
 Supports both manual updates and AI-generated content addition.
 """
 input UpdateSessionLogInput {
+	# Session Information
+	title: String
+	sessionType: SessionType
+	date: DateTime
+	durationMinutes: Int
+	location: String
+
+	# Session Content
 	notes: String # Coach notes
 	transcript: String # Session transcript
-	goalIds: [ID!] # Goals addressed in session (replaces existing)
 	summary: String # AI-generated or manual summary
 	actionItems: [String!] # AI-generated or manual action items
+
+	# Session Metrics
+	intensityLevel: SessionIntensity
+	coachRating: Int
+	athleteFeedback: String
+	weatherConditions: String
+
+	# Equipment and Resources
+	equipmentUsed: [String!]
+	exercisesPerformed: JSON
+
+	# Relationships
+	goalIds: [ID!] # Goals addressed in session (replaces existing)
 }
 
 # AI-powered input types for intelligent features
@@ -437,6 +706,21 @@ Plan content will be generated by AI based on specified goals and assistant expe
 """
 input CreateTrainingPlanInput {
 	athleteId: ID! # The athlete this plan is for
+
+	# Plan Information
+	title: String! # Training plan title
+	overview: String # High-level plan description and objectives
+	difficulty: TrainingPlanDifficulty! # Plan difficulty level
+	sport: String! # Sport this plan is designed for
+
+	# Timeline
+	startDate: DateTime # When the training plan should begin
+	endDate: DateTime # When the training plan should conclude
+
+	# Content
+	notes: String # Coach notes about the plan
+
+	# Relationships
 	assistantIds: [ID!] # AI assistants to use for plan generation
 	goalIds: [ID!] # Goals this plan should address
 }
@@ -650,8 +934,25 @@ Input for updating an existing training plan.
 All fields are optional - only provided fields will be updated.
 """
 input UpdateTrainingPlanInput {
+	# Plan Information
 	title: String # Plan title/name
 	overview: String # Plan overview description
+	difficulty: TrainingPlanDifficulty # Plan difficulty level
+	sport: String # Sport this plan is designed for
+
+	# Timeline
+	startDate: DateTime # When the training plan should begin
+	endDate: DateTime # When the training plan should conclude
+
+	# Status and Progress
+	status: TrainingPlanStatus # Update plan status
+	completionPercentage: Float # Update progress completion
+
+	# Content
+	planJson: JSON # Update structured plan data
+	notes: String # Update coach notes
+
+	# Relationships
 	assistantIds: [ID!] # Update associated AI assistants
 	goalIds: [ID!] # Update associated goals
 }

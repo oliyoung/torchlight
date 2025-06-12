@@ -14,8 +14,8 @@ export type EntityMapping<T> = {
 };
 
 export class EntityRepository<T extends { id: string | number }> {
-  private client: SupabaseClient;
-  private entityMapping: EntityMapping<T>;
+  private readonly client: SupabaseClient;
+  private readonly entityMapping: EntityMapping<T>;
 
   constructor(entityMapping: EntityMapping<T>) {
     this.client = supabaseServiceRole;
@@ -26,22 +26,56 @@ export class EntityRepository<T extends { id: string | number }> {
   protected transformResponse(data: unknown): T {
     if (!data) return null as unknown as T;
 
-    // Handle date fields conversion
-    const processDateFields = (obj: Record<string, unknown> = {}): Record<string, unknown> => {
-      const result = { ...obj };
-      if (obj.created_at) result.createdAt = new Date(obj.created_at as string);
-      if (obj.updated_at) result.updatedAt = new Date(obj.updated_at as string);
-      if (obj.deleted_at) result.deletedAt = obj.deleted_at ? new Date(obj.deleted_at as string) : null;
-      return result;
-    };
-
     // Apply custom transform if provided
     if (this.entityMapping.transform) {
       return this.entityMapping.transform(data);
     }
 
-    // Apply basic transform with date handling
-    return processDateFields(data as Record<string, unknown>) as unknown as T;
+    // Apply automatic transform using column mappings
+    return this.autoTransform(data as Record<string, unknown>) as unknown as T;
+  }
+
+  // Automatic transform that uses column mappings to convert snake_case to camelCase
+  private autoTransform(data: Record<string, unknown>): Record<string, unknown> {
+    if (!data) return {};
+
+    const result: Record<string, unknown> = {};
+    const { columnMappings } = this.entityMapping;
+
+    // Create reverse mapping (snake_case -> camelCase)
+    const reverseMapping: Record<string, string> = {};
+    if (columnMappings) {
+      for (const [camelCase, snakeCase] of Object.entries(columnMappings)) {
+        reverseMapping[snakeCase] = camelCase;
+      }
+    }
+
+    // Transform all fields
+    for (const [key, value] of Object.entries(data)) {
+      let targetKey: string;
+
+      // Use reverse mapping if available, otherwise convert snake_case to camelCase
+      if (reverseMapping[key]) {
+        targetKey = reverseMapping[key];
+      } else {
+        // Convert snake_case to camelCase
+        targetKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      }
+
+      // Handle special date fields
+      if (key === 'created_at' || key === 'updated_at') {
+        result[targetKey] = new Date(value as string);
+      } else if (key === 'deleted_at') {
+        result[targetKey] = value ? new Date(value as string) : null;
+      } else if (key.endsWith('_at') && value) {
+        // Handle other date fields that end with '_at'
+        result[targetKey] = new Date(value as string);
+      } else {
+        result[targetKey] = value;
+      }
+    }
+
+    return result;
   }
 
   // Transform array of entities
@@ -70,15 +104,18 @@ export class EntityRepository<T extends { id: string | number }> {
     return result;
   }
 
-  // Helper to add common filters like user_id
+  // Helper to add common filters - now handled by RLS policies
+  // This method is kept for backwards compatibility but no longer filters
+  // since RLS policies handle user scoping automatically
   protected withUserFilter(
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
     query: PostgrestFilterBuilder<any, any, any>,
     userId: string | null
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
   ): PostgrestFilterBuilder<any, any, any> {
-    if (!userId) return query;
-    return query.eq('user_id', userId);
+    // RLS policies now handle user scoping automatically
+    // No need to add manual filters
+    return query;
   }
 
   // Generic getById method
@@ -172,9 +209,27 @@ export class EntityRepository<T extends { id: string | number }> {
     try {
       const dbData = this.mapToDbColumns(input);
 
-      // Add user_id
-      if (!dbData.user_id) {
-        dbData.user_id = userId;
+      // Handle user scoping based on table type
+      if (this.entityMapping.tableName === 'coaches') {
+        // Coaches table uses user_id directly
+        dbData.user_id ??= userId;
+      } else {
+        // Other tables use coach_id - need to convert user_id to coach_id
+        if (!dbData.coach_id) {
+          // Get the coach_id for this user_id
+          const { data: coach, error: coachError } = await this.client
+            .from('coaches')
+            .select('id')
+            .eq('user_id', userId)
+            .single();
+
+          if (coachError || !coach) {
+            logger.error({ error: coachError, userId }, `Could not find coach for user_id when creating ${this.entityMapping.tableName}`);
+            return null;
+          }
+
+          dbData.coach_id = coach.id;
+        }
       }
 
       const { data, error } = await this.client

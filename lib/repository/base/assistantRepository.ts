@@ -8,23 +8,8 @@ const assistantMapping: EntityMapping<Assistant> = {
   tableName: 'assistants',
   columnMappings: {
     promptTemplate: 'prompt_template'
-  },
-  transform: (data: Record<string, unknown>) => {
-    if (!data) return null as unknown as Assistant;
-
-    return {
-      id: data.id as string,
-      name: data.name as string,
-      sport: data.sport as string,
-      role: data.role as string,
-      strengths: data.strengths as string[],
-      bio: data.bio as string,
-      promptTemplate: data.prompt_template as string,
-      createdAt: new Date(data.created_at as string),
-      updatedAt: new Date(data.updated_at as string),
-      deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null
-    } as Assistant;
   }
+  // No custom transform needed - auto-transform handles all field mappings and date conversions
 };
 
 export class AssistantRepository extends EntityRepository<Assistant> {
@@ -70,33 +55,10 @@ export class AssistantRepository extends EntityRepository<Assistant> {
     }
   }
 
-  /**
-   * Get an assistant by ID
-   */
-  async getAssistantById(id: string): Promise<Assistant | null> {
-    return this.getById(null, id);
-  }
-
-  /**
-   * Get multiple assistants by their IDs
-   */
-  async getAssistantsByIds(ids: string[]): Promise<Assistant[]> {
-    return this.getByIds(null, ids);
-  }
-
-  /**
-   * Create a new assistant
-   */
-  async createAssistant(assistantData: Partial<Assistant>): Promise<Assistant | null> {
-    // Assistants don't have a user_id as they're globally available
-    return this.create(null, assistantData);
-  }
-
-  /**
-   * Update an assistant
-   */
-  async updateAssistant(id: string, assistantData: Partial<Assistant>): Promise<Assistant | null> {
-    // Assistants don't have a user_id as they're globally available
-    return this.update(null, id, assistantData);
-  }
+  // Inherited methods from EntityRepository provide basic CRUD operations:
+  // - getById(null, id) -> getAssistantById
+  // - getByIds(null, ids) -> getAssistantsByIds
+  // - create(null, data) -> createAssistant
+  // - update(null, id, data) -> updateAssistant
+  // Note: Assistants use null for userId since they're globally available
 }

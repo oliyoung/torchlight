@@ -9,32 +9,16 @@ const trainingPlanMapping: EntityMapping<TrainingPlan> = {
   tableName: 'training_plans',
   columnMappings: {
     athleteId: 'athlete_id',
+    startDate: 'start_date',
+    endDate: 'end_date',
+    durationWeeks: 'duration_weeks',
+    completionPercentage: 'completion_percentage',
     planJson: 'plan_json',
+    sourcePrompt: 'source_prompt',
     generatedBy: 'generated_by',
-    sourcePrompt: 'source_prompt'
-  },
-  transform: (data: any) => {
-    if (!data) return null as unknown as TrainingPlan;
-
-    return {
-      id: data.id,
-      title: data.title,
-      overview: data.overview,
-      planJson: data.plan_json,
-      athleteId: data.athlete_id,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
-      deletedAt: data.deleted_at ? new Date(data.deleted_at) : null,
-      generatedBy: data.generated_by || null,
-      sourcePrompt: data.source_prompt || null,
-      frequency: data.frequency || null,
-      duration: data.duration || null,
-      summary: data.summary || null,
-      // These will be populated by GraphQL resolvers
-      athlete: undefined,
-      status: TrainingPlanStatus.Draft, // Default status
-    } as unknown as TrainingPlan;
+    generationMetadata: 'generation_metadata'
   }
+  // No custom transform needed - auto-transform handles all field mappings and date conversions
 };
 
 // Join table configurations
@@ -97,10 +81,25 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     logger.info({ data }, "Creating training plan");
 
     try {
-      // Remove the athlete lookup - just use the athleteId directly
+      // Create training plan with all new fields
       const dbTrainingPlan = {
         athlete_id: data.athleteId,
-        status: TrainingPlanStatus.Draft // Set initial status
+
+        // Plan Information
+        title: data.title,
+        overview: data.overview || null,
+        difficulty: data.difficulty,
+        sport: data.sport,
+
+        // Timeline
+        start_date: data.startDate || null,
+        end_date: data.endDate || null,
+
+        // Content
+        notes: data.notes || null,
+
+        // Status
+        status: TrainingPlanStatus.Draft
       };
 
       // Create the training plan
@@ -151,24 +150,41 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     try {
       // Create a flag to track if we need to update the main entity
       const hasEntityChanges = !!(
+        data.title !== undefined ||
         data.overview !== undefined ||
+        data.difficulty !== undefined ||
+        data.sport !== undefined ||
+        data.startDate !== undefined ||
+        data.endDate !== undefined ||
+        data.status !== undefined ||
+        data.completionPercentage !== undefined ||
         data.planJson !== undefined ||
-        data.athleteId !== undefined ||
-        data.generatedBy !== undefined ||
-        data.sourcePrompt !== undefined
+        data.notes !== undefined
       );
 
       let updatedPlan: TrainingPlan | null = null;
 
-      // Map athlete properties to database fields, only including defined fields
+      // Map all properties to database fields, only including defined fields
       if (hasEntityChanges) {
         const dbTrainingPlan: Record<string, unknown> = {};
 
+        // Plan Information
+        if (data.title !== undefined) dbTrainingPlan.title = data.title;
         if (data.overview !== undefined) dbTrainingPlan.overview = data.overview;
+        if (data.difficulty !== undefined) dbTrainingPlan.difficulty = data.difficulty;
+        if (data.sport !== undefined) dbTrainingPlan.sport = data.sport;
+
+        // Timeline
+        if (data.startDate !== undefined) dbTrainingPlan.start_date = data.startDate;
+        if (data.endDate !== undefined) dbTrainingPlan.end_date = data.endDate;
+
+        // Status and Progress
+        if (data.status !== undefined) dbTrainingPlan.status = data.status;
+        if (data.completionPercentage !== undefined) dbTrainingPlan.completion_percentage = data.completionPercentage;
+
+        // Content
         if (data.planJson !== undefined) dbTrainingPlan.plan_json = data.planJson;
-        if (data.athleteId !== undefined) dbTrainingPlan.athlete_id = data.athleteId;
-        if (data.generatedBy !== undefined) dbTrainingPlan.generated_by = data.generatedBy;
-        if (data.sourcePrompt !== undefined) dbTrainingPlan.source_prompt = data.sourcePrompt;
+        if (data.notes !== undefined) dbTrainingPlan.notes = data.notes;
 
         // Update the training plan basic data only if there are fields to update
         updatedPlan = await this.update(userId, id, dbTrainingPlan);

@@ -9,29 +9,19 @@ const sessionLogMapping: EntityMapping<SessionLog> = {
   tableName: 'session_logs',
   columnMappings: {
     athleteId: 'athlete_id',
-    userId: 'user_id',
+    sessionType: 'session_type',
+    durationMinutes: 'duration_minutes',
+    intensityLevel: 'intensity_level',
+    coachRating: 'coach_rating',
+    athleteFeedback: 'athlete_feedback',
+    weatherConditions: 'weather_conditions',
+    equipmentUsed: 'equipment_used',
+    exercisesPerformed: 'exercises_performed',
     actionItems: 'action_items',
     aiMetadata: 'ai_metadata'
-  },
-  transform: (data: Record<string, unknown>) => {
-    if (!data) return null as unknown as SessionLog;
-
-    return {
-      id: data.id as string,
-      athleteId: data.athlete_id as string,
-      date: new Date(data.date as string),
-      notes: data.notes as string | null,
-      transcript: data.transcript as string | null,
-      summary: data.summary as string | null,
-      actionItems: (data.action_items as string[]) || [],
-      aiMetadata: data.ai_metadata as Record<string, unknown> | null,
-      createdAt: new Date(data.created_at as string),
-      updatedAt: new Date(data.updated_at as string),
-      deletedAt: data.deleted_at ? new Date(data.deleted_at as string) : null,
-      athlete: undefined, // Populated by GraphQL resolver
-      goals: [] // Populated by GraphQL resolver
-    } as unknown as SessionLog;
+    // Note: Session logs don't have userId field - they're scoped via coach_id and RLS
   }
+  // No custom transform needed - auto-transform handles all field mappings and date conversions
 };
 
 // Goal to session log relationship configuration
@@ -98,12 +88,30 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
     logger.info({ input }, "Creating session log");
 
     try {
-      // Create the session log with mapped column names
+      // Create the session log with all new fields
       const dbData = {
+        athlete_id: input.athleteId,
+
+        // Session Information
+        title: input.title || null,
+        session_type: input.sessionType,
         date: input.date,
+        duration_minutes: input.durationMinutes || null,
+        location: input.location || null,
+
+        // Session Content
         notes: input.notes || null,
         transcript: input.transcript || null,
-        athlete_id: input.athleteId // Use database column name (will be mapped by EntityRepository)
+
+        // Session Metrics
+        intensity_level: input.intensityLevel || null,
+        coach_rating: input.coachRating || null,
+        athlete_feedback: input.athleteFeedback || null,
+        weather_conditions: input.weatherConditions || null,
+
+        // Equipment and Resources
+        equipment_used: input.equipmentUsed || [],
+        exercises_performed: input.exercisesPerformed || null
       };
 
       const sessionLog = await this.create(userId, dbData);
@@ -138,13 +146,33 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
     if (!userId) return null;
 
     try {
-      // Update the session log basic data
-      const sessionLog = await this.update(userId, sessionLogId, {
-        notes: input.notes,
-        transcript: input.transcript,
-        summary: input.summary,
-        actionItems: input.actionItems
-      });
+      // Build update data with all possible fields
+      const updateData: Record<string, unknown> = {};
+
+      // Session Information
+      if (input.title !== undefined) updateData.title = input.title;
+      if (input.sessionType !== undefined) updateData.sessionType = input.sessionType;
+      if (input.date !== undefined) updateData.date = input.date;
+      if (input.durationMinutes !== undefined) updateData.durationMinutes = input.durationMinutes;
+      if (input.location !== undefined) updateData.location = input.location;
+
+      // Session Content
+      if (input.notes !== undefined) updateData.notes = input.notes;
+      if (input.transcript !== undefined) updateData.transcript = input.transcript;
+      if (input.summary !== undefined) updateData.summary = input.summary;
+      if (input.actionItems !== undefined) updateData.actionItems = input.actionItems;
+
+      // Session Metrics
+      if (input.intensityLevel !== undefined) updateData.intensityLevel = input.intensityLevel;
+      if (input.coachRating !== undefined) updateData.coachRating = input.coachRating;
+      if (input.athleteFeedback !== undefined) updateData.athleteFeedback = input.athleteFeedback;
+      if (input.weatherConditions !== undefined) updateData.weatherConditions = input.weatherConditions;
+
+      // Equipment and Resources
+      if (input.equipmentUsed !== undefined) updateData.equipmentUsed = input.equipmentUsed;
+      if (input.exercisesPerformed !== undefined) updateData.exercisesPerformed = input.exercisesPerformed;
+
+      const sessionLog = await this.update(userId, sessionLogId, updateData);
 
       if (!sessionLog) {
         logger.error({ sessionLogId, input }, 'Failed to update session log');
@@ -152,7 +180,7 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
       }
 
       // Update goal associations if provided
-      if (input.goalIds) {
+      if (input.goalIds !== undefined) {
         await this.relationRepo.replaceRelations(
           goalSessionLogsConfig,
           sessionLogId,
