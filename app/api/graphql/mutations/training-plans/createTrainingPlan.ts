@@ -5,39 +5,51 @@ import { athleteRepository, goalRepository, trainingPlanRepository } from "@/lib
 import type { Athlete, CreateTrainingPlanInput, Goal, TrainingPlan } from "@/lib/types";
 
 export const createTrainingPlan = async (
-    _: unknown,
+    _parent: any,
     { input }: { input: CreateTrainingPlanInput },
-    context: GraphQLContext
+    context: { coachId: string | null; pubsub: any }
 ): Promise<TrainingPlan> => {
-    logger.info({ input }, "Creating training plan with input");
+    const { coachId } = context;
 
     const initialTrainingPlanData: CreateTrainingPlanInput & { overview: string; planJson: JSON } = {
         ...input,
-        overview: "",
-        planJson: {} as unknown as JSON,
+        overview: "AI-generated training plan",
+        planJson: {} as JSON
     };
 
-    const newTrainingPlan = await trainingPlanRepository.createTrainingPlan(context?.user?.id ?? null, initialTrainingPlanData);
-
-    if (!newTrainingPlan || !newTrainingPlan.id) {
-        throw new Error("Failed to create initial training plan.");
+    if (!coachId) {
+        throw new Error("Authentication required");
     }
 
-    const athlete = await athleteRepository.getAthleteById(context?.user?.id ?? null, input.athleteId);
-    const goals = await goalRepository.getGoalsByIds(context?.user?.id ?? null, input.goalIds ?? []);
+    try {
+        const trainingPlan = await trainingPlanRepository.createTrainingPlan(coachId, initialTrainingPlanData);
 
-    if (!athlete || goals.length !== (input.goalIds ?? []).length) {
-        logger.error({ input, newTrainingPlan }, 'Failed to fetch athlete');
+        if (!trainingPlan) {
+            logger.error({ coachId, input }, "Failed to create training plan - null returned from repository");
+            throw new Error("Failed to create training plan");
+        }
+
+        logger.info({ coachId, trainingPlanId: trainingPlan.id }, "Training plan created successfully");
+
+        const athlete = await athleteRepository.getAthleteById(coachId, input.athleteId);
+        const goals = await goalRepository.getGoalsByIds(coachId, input.goalIds ?? []);
+
+        if (!athlete || goals.length !== (input.goalIds ?? []).length) {
+            logger.error({ input, trainingPlan }, 'Failed to fetch athlete');
+        }
+
+        generateTrainingPlanContent(
+            trainingPlan.id,
+            coachId,
+            input.assistantIds ?? [],
+            athlete as Athlete,
+            goals as Goal[],
+            context.pubsub
+        ).catch(console.error);
+
+        return trainingPlan;
+    } catch (error) {
+        logger.error({ error, coachId, input }, "Failed to create training plan");
+        throw error;
     }
-
-    generateTrainingPlanContent(
-        newTrainingPlan.id,
-        context?.user?.id ?? null,
-        input.assistantIds ?? [],
-        athlete as Athlete,
-        goals as Goal[],
-        context.pubsub
-    ).catch(console.error);
-
-    return newTrainingPlan;
 };

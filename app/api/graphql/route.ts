@@ -30,6 +30,7 @@ import subscriptions from './subscriptions';
 export interface GraphQLContext {
   user: User | null;
   userId: string | null;
+  coachId: string | null;
   pubsub: PubSub;
   dataloaders?: {
     coachLoaders: ReturnType<typeof createCoachLoaders>;
@@ -286,17 +287,32 @@ const { handleRequest } = createYoga({
     }
 
     if (user) {
+      // Get the coach record to obtain coachId
+      let coachId: string | null = null;
+      try {
+        const supabase = createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey);
+        const { data: coach } = await supabase
+          .from('coaches')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        coachId = coach?.id || null;
+      } catch (error) {
+        logger.error({ error, userId: user.id }, 'Failed to fetch coach record');
+      }
+
       // Create all data loaders
       const loaders = {
         // Entity loaders
-        athlete: createAthleteLoader(user?.id),
-        trainingPlan: createTrainingPlanLoader(user?.id),
+        athlete: createAthleteLoader(coachId),
+        trainingPlan: createTrainingPlanLoader(coachId),
         assistant: createAssistantLoader(),
-        goal: createGoalLoader(user?.id),
-        sessionLog: createSessionLogLoader(user?.id),
+        goal: createGoalLoader(coachId),
+        sessionLog: createSessionLogLoader(coachId),
 
         // Relationship loaders
-        athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(user?.id),
+        athleteTrainingPlanIds: createAthleteTrainingPlanIdsLoader(coachId),
         goalSessionLogIds: createGoalSessionLogIdsLoader(),
         goalTrainingPlanIds: createGoalTrainingPlanIdsLoader(),
         sessionLogGoalIds: createSessionLogGoalIdsLoader(),
@@ -313,6 +329,7 @@ const { handleRequest } = createYoga({
       return {
         user,
         userId: user.id,
+        coachId,
         pubsub,
         loaders,
         dataloaders
@@ -321,6 +338,7 @@ const { handleRequest } = createYoga({
     return {
       user: null,
       userId: null,
+      coachId: null,
       pubsub,
       loaders: {} as any,
       dataloaders: undefined

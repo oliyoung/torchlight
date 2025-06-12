@@ -1,5 +1,4 @@
 import { summarizeSessionLog } from '@/ai/features/summarizeSessionLog';
-import type { GraphQLContext } from "@/app/api/graphql/route";
 import { logger } from "@/lib/logger";
 import type { AiSummarizeSessionLogInput, SessionLog } from "@/lib/types";
 
@@ -7,35 +6,35 @@ import type { AiSummarizeSessionLogInput, SessionLog } from "@/lib/types";
  * Mutation resolver to summarize a session log using AI.
  * This is a thin layer that delegates the core logic to summarizeSessionLogAI.
  *
- * @param _ - The root value (unused).
+ * @param _parent - The root value (unused).
  * @param input - The input object containing the session log ID.
- * @param context - The GraphQL context, including the authenticated user and pubsub.
+ * @param context - The GraphQL context, including the authenticated coach and pubsub.
  * @returns The updated SessionLog object.
- * @throws Error if the user is not authenticated or the underlying AI summarization fails.
+ * @throws Error if the coach is not authenticated or the underlying AI summarization fails.
  */
 export default async (
-    _: unknown,
+    _parent: any,
     { input }: { input: AiSummarizeSessionLogInput },
-    context: GraphQLContext
+    context: { coachId: string | null; pubsub: any }
 ): Promise<SessionLog> => {
-    logger.info({ input }, "SummarizeSessionLog mutation called");
+    const { coachId } = context;
+    const { sessionLogId } = input;
 
-    const sessionLogId = input.sessionLogId;
-    const userId = context?.user?.id ?? null;
+    logger.info({ coachId, sessionLogId }, "summarizeSessionLog mutation called");
 
-    if (!userId) {
-        logger.error("User not authenticated for summarizeSessionLog mutation.");
+    if (!coachId) {
+        logger.error("Coach not authenticated for summarizeSessionLog mutation.");
         throw new Error("Authentication required.");
     }
 
     try {
         // Delegate the core summarization logic to the AI feature function
-        const updatedSessionLog = await summarizeSessionLog(sessionLogId, userId, context.pubsub);
-        logger.info({ sessionLogId }, "SummarizeSessionLog mutation completed successfully.");
+        const updatedSessionLog = await summarizeSessionLog(sessionLogId, coachId, context.pubsub);
+
+        logger.info({ coachId, sessionLogId }, "summarizeSessionLog mutation completed successfully");
         return updatedSessionLog;
     } catch (error) {
-        logger.error({ sessionLogId, userId, error }, "Error in summarizeSessionLog mutation.");
-        // Rethrow the error to be handled by the GraphQL error handling layer
+        logger.error({ sessionLogId, coachId, error }, "Error in summarizeSessionLog mutation.");
         throw error;
     }
 };

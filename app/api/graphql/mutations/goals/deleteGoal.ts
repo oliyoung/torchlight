@@ -6,32 +6,31 @@ export interface DeleteGoalArgs {
 }
 
 export const deleteGoal = async (
-  _parent: unknown,
-  args: DeleteGoalArgs,
-  context: { userId: string | null }
+  _parent: any,
+  args: { id: string },
+  context: { coachId: string | null }
 ): Promise<boolean> => {
   const { id } = args;
-  const { userId } = context;
+  const { coachId } = context;
 
-  logger.info({ userId, goalId: id }, "deleteGoal mutation called");
+  logger.info({ coachId, goalId: id }, "deleteGoal mutation called");
 
-  if (!userId) {
-    logger.error("Unauthorized attempt to delete goal");
+  if (!coachId) {
     throw new Error("Authentication required");
   }
 
   try {
-    const success = await goalRepository.delete(userId, id);
+    const success = await goalRepository.delete(coachId, id);
 
     if (!success) {
-      logger.error({ userId, goalId: id }, "Failed to delete goal");
-      throw new Error("Goal not found or delete failed");
+      logger.error({ coachId, goalId: id }, "Failed to delete goal");
+      throw new Error("Failed to delete goal");
     }
 
-    logger.info({ userId, goalId: id }, "Goal deleted successfully");
+    logger.info({ coachId, goalId: id }, "Goal deleted successfully");
     return true;
   } catch (error) {
-    logger.error({ error, userId, goalId: id }, "Failed to delete goal");
+    logger.error({ error, coachId, goalId: id }, "Failed to delete goal");
     throw error;
   }
 };

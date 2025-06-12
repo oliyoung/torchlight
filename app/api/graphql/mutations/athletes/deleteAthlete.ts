@@ -6,32 +6,31 @@ export interface DeleteAthleteArgs {
 }
 
 export const deleteAthlete = async (
-  _parent: unknown,
-  args: DeleteAthleteArgs,
-  context: { userId: string | null }
+  _parent: any,
+  args: { id: string },
+  context: { coachId: string | null }
 ): Promise<boolean> => {
   const { id } = args;
-  const { userId } = context;
+  const { coachId } = context;
 
-  logger.info({ userId, athleteId: id }, "deleteAthlete mutation called");
+  logger.info({ coachId, athleteId: id }, "deleteAthlete mutation called");
 
-  if (!userId) {
-    logger.error("Unauthorized attempt to delete athlete");
+  if (!coachId) {
     throw new Error("Authentication required");
   }
 
   try {
-    const success = await athleteRepository.delete(userId, id);
+    const success = await athleteRepository.delete(coachId, id);
 
     if (!success) {
-      logger.error({ userId, athleteId: id }, "Athlete not found or failed to delete");
-      throw new Error("Athlete not found or failed to delete");
+      logger.error({ coachId, athleteId: id }, "Athlete not found or failed to delete");
+      throw new Error("Failed to delete athlete");
     }
 
-    logger.info({ userId, athleteId: id }, "Athlete deleted successfully");
+    logger.info({ coachId, athleteId: id }, "Athlete deleted successfully");
     return true;
   } catch (error) {
-    logger.error({ error, userId, athleteId: id }, "Failed to delete athlete");
+    logger.error({ error, coachId, athleteId: id }, "Failed to delete athlete");
     throw error;
   }
 };

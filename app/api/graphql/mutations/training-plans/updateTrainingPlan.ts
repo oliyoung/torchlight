@@ -1,30 +1,29 @@
-// @ts-nocheck
 import type { UpdateTrainingPlanInput, TrainingPlan } from "@/lib/types";
 import { logger } from "@/lib/logger";
 import { trainingPlanRepository } from "@/lib/repository";
-import type { GraphQLContext } from "../../route";
 
 export const updateTrainingPlan = async (
-    _: unknown,
+    _parent: any,
     { id, input }: { id: string; input: UpdateTrainingPlanInput },
-    context: GraphQLContext
+    context: { coachId: string | null }
 ): Promise<TrainingPlan> => {
-    logger.info({ id, input }, "Updating training plan");
+    const { coachId } = context;
+
+    logger.info({ coachId, id, input }, "updateTrainingPlan mutation called");
+
+    if (!coachId) {
+        throw new Error("Authentication required");
+    }
 
     try {
-        const existingPlan = await trainingPlanRepository.getTrainingPlanById(
-            context?.user?.id ?? null,
-            id
-        );
+        const existingPlan = await trainingPlanRepository.getTrainingPlanById(coachId, id);
 
         if (!existingPlan) {
-            logger.error({ id }, "Training plan not found for update");
+            logger.error({ coachId, id }, "Training plan not found for update");
             throw new Error(`Training plan with ID ${id} not found`);
         }
 
-        logger.info({ existingPlan }, "Found existing training plan");
-
-        const updateData: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[] } = {};
+        const updateData: any = {};
 
         if (input.title !== undefined && input.title !== null) {
             updateData.title = input.title;
@@ -42,23 +41,21 @@ export const updateTrainingPlan = async (
             updateData.goalIds = input.goalIds;
         }
 
-        logger.info({ updateData }, "Prepared update data");
-
         const updatedTrainingPlan = await trainingPlanRepository.updateTrainingPlan(
-            context?.user?.id ?? null,
+            coachId,
             id,
             updateData
         );
 
         if (!updatedTrainingPlan) {
-            logger.error({ id, updateData }, "Repository failed to update training plan");
+            logger.error({ coachId, id, updateData }, "Failed to update training plan");
             throw new Error(`Failed to update training plan with ID ${id}`);
         }
 
-        logger.info({ id, updatedPlan: updatedTrainingPlan }, "Successfully updated training plan");
+        logger.info({ coachId, id, updatedPlan: updatedTrainingPlan }, "Training plan updated successfully");
         return updatedTrainingPlan;
     } catch (error) {
-        logger.error({ id, input, error }, "Exception updating training plan");
+        logger.error({ error, coachId, id, input }, "Failed to update training plan");
         throw error;
     }
 };

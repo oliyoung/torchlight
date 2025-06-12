@@ -6,32 +6,31 @@ export interface DeleteSessionLogArgs {
 }
 
 export const deleteSessionLog = async (
-  _parent: unknown,
-  args: DeleteSessionLogArgs,
-  context: { userId: string | null }
+  _parent: any,
+  args: { id: string },
+  context: { coachId: string | null }
 ): Promise<boolean> => {
   const { id } = args;
-  const { userId } = context;
+  const { coachId } = context;
 
-  logger.info({ userId, sessionLogId: id }, "deleteSessionLog mutation called");
+  logger.info({ coachId, sessionLogId: id }, "deleteSessionLog mutation called");
 
-  if (!userId) {
-    logger.error("Unauthorized attempt to delete session log");
+  if (!coachId) {
     throw new Error("Authentication required");
   }
 
   try {
-    const success = await sessionLogRepository.delete(userId, id);
+    const success = await sessionLogRepository.delete(coachId, id);
 
     if (!success) {
-      logger.error({ userId, sessionLogId: id }, "Session log not found or failed to delete");
-      throw new Error("Session log not found or failed to delete");
+      logger.error({ coachId, sessionLogId: id }, "Session log not found or failed to delete");
+      throw new Error("Failed to delete session log");
     }
 
-    logger.info({ userId, sessionLogId: id }, "Session log deleted successfully");
+    logger.info({ coachId, sessionLogId: id }, "Session log deleted successfully");
     return true;
   } catch (error) {
-    logger.error({ error, userId, sessionLogId: id }, "Failed to delete session log");
+    logger.error({ error, coachId, sessionLogId: id }, "Failed to delete session log");
     throw error;
   }
 };

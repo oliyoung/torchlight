@@ -1,45 +1,34 @@
 import { analyzeSessionPatterns } from "@/ai/features/analyzeSessionPatterns";
 import { logger } from "@/lib/logger";
+import type { AiAnalyzeSessionPatternsInput } from "@/lib/types";
 
-export interface AnalyzeSessionPatternsArgs {
-    input: {
-        athleteId: string;
-        startDate: string;
-        endDate: string;
-        goalIds?: string[];
-    };
-}
+export default async function analyzeSessionPatternsResolver(
+    _parent: any,
+    args: { input: AiAnalyzeSessionPatternsInput },
+    context: { coachId: string | null }
+): Promise<string> {
+    const { input } = args;
+    const { coachId } = context;
 
-export const analyzeSessionPatternsResolver = async (
-    _parent: unknown,
-    args: AnalyzeSessionPatternsArgs,
-    context: { userId: string | null }
-): Promise<string> => {
-    const { athleteId, startDate, endDate, goalIds } = args.input;
-    const { userId } = context;
+    logger.info({ coachId, athleteId: input.athleteId, startDate: input.startDate, endDate: input.endDate, goalIds: input.goalIds }, "analyzeSessionPatterns mutation called");
 
-    logger.info({ userId, athleteId, startDate, endDate, goalIds }, "analyzeSessionPatterns mutation called");
-
-    if (!userId) {
-        logger.error("Unauthorized attempt to analyze session patterns");
+    if (!coachId) {
         throw new Error("Authentication required");
     }
 
     try {
         const analysis = await analyzeSessionPatterns(
-            athleteId,
-            new Date(startDate),
-            new Date(endDate),
-            goalIds,
-            userId
+            input.athleteId,
+            new Date(input.startDate),
+            new Date(input.endDate),
+            input.goalIds || undefined,
+            coachId
         );
 
-        logger.info({ userId, athleteId }, "Session pattern analysis completed successfully");
+        logger.info({ coachId, athleteId: input.athleteId }, "Session pattern analysis completed successfully");
         return analysis;
     } catch (error) {
-        logger.error({ error, userId, athleteId }, "Failed to analyze session patterns");
+        logger.error({ error, coachId, athleteId: input.athleteId }, "Failed to analyze session patterns");
         throw error;
     }
-};
-
-export default analyzeSessionPatternsResolver;
+}
