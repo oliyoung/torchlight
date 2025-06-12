@@ -1,4 +1,3 @@
-
 import { coachRepository } from '@/lib/repository'
 import { GraphQLContext } from '../route'
 
@@ -32,6 +31,16 @@ export async function me(
     return coach
   } catch (error) {
     console.error('Error fetching coach profile:', error)
+
+    // Handle JWT signature errors gracefully - this happens with new OAuth users
+    if (error && typeof error === 'object' && 'code' in error) {
+      if (error.code === 'PGRST301' || error.code === 'PGRST116') {
+        console.log('Coach profile not found or JWT signature error - user needs onboarding')
+        return null // User needs to complete onboarding
+      }
+    }
+
+    // For other errors, still throw
     throw new Error('Failed to fetch coach profile')
   }
 }

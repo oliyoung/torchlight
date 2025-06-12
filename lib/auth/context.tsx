@@ -19,6 +19,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>
   /** Sign up with email and password */
   signUp: (email: string, password: string) => Promise<{ error: any }>
+  /** Sign in with Google OAuth */
+  signInWithGoogle: () => Promise<{ error: any }>
   /** Sign out and clear tokens */
   signOut: () => Promise<void>
   /** Get current access token for API calls */
@@ -192,6 +194,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [supabase])
 
   /**
+   * Initiates Google OAuth sign-in flow.
+   * Redirects to Google for authentication and handles the callback.
+   *
+   * @returns Promise resolving to object with error (null on success)
+   * @example
+   * ```typescript
+   * const { error } = await signInWithGoogle()
+   * if (error) {
+   *   console.error('Google sign-in failed:', error.message)
+   * } else {
+   *   console.log('Google sign-in initiated!')
+   * }
+   * ```
+   */
+  const signInWithGoogle = useCallback(async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      }
+    })
+
+    return { error }
+  }, [supabase])
+
+  /**
    * Signs out the current user and clears all stored tokens.
    * Resets user and session state to null.
    *
@@ -232,8 +263,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signIn,
     signUp,
     signOut,
-    getAccessToken
-  }), [user, session, loading, signIn, signUp, signOut, getAccessToken])
+    getAccessToken,
+    signInWithGoogle
+  }), [user, session, loading, signIn, signUp, signOut, getAccessToken, signInWithGoogle])
 
   return (
     <AuthContext.Provider value={value}>
