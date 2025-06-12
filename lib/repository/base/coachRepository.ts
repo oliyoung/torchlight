@@ -1,5 +1,43 @@
-import { EntityRepository } from './entityRepository'
+import { EntityRepository, type EntityMapping } from './entityRepository'
 import type { Coach, CreateCoachInput, UpdateCoachInput, AccountStatus } from '@/lib/types'
+
+// Coach-specific column mappings
+const coachMapping: EntityMapping<Coach> = {
+  tableName: 'coaches',
+  columnMappings: {
+    userId: 'user_id',
+    firstName: 'first_name',
+    lastName: 'last_name',
+    displayName: 'display_name',
+    onboardingCompleted: 'onboarding_completed',
+    lastLoginAt: 'last_login_at'
+  },
+  transform: (data: Record<string, unknown>) => {
+    if (!data) return null as unknown as Coach;
+
+    return {
+      id: data.id?.toString() || '',
+      userId: data.user_id as string,
+      email: data.email as string,
+      firstName: data.first_name as string | null,
+      lastName: data.last_name as string | null,
+      displayName: data.display_name as string | null,
+      avatar: data.avatar as string | null,
+      timezone: data.timezone as string | null,
+
+      onboardingCompleted: data.onboarding_completed as boolean,
+      lastLoginAt: data.last_login_at as string | null,
+      createdAt: data.created_at as string,
+      updatedAt: data.updated_at as string,
+      deletedAt: data.deleted_at as string | null,
+
+      // These will be populated by data loaders
+      billing: null,
+      athletes: [],
+      trainingPlans: []
+    } as Coach;
+  }
+};
 
 /**
  * Repository for managing Coach entities.
@@ -7,19 +45,8 @@ import type { Coach, CreateCoachInput, UpdateCoachInput, AccountStatus } from '@
  * Coaches are the main users of the platform and own all other entities.
  */
 export class CoachRepository extends EntityRepository<Coach> {
-  protected supabase = this.getClient()
-  protected tableName = 'coaches'
-
   constructor() {
-    super({
-      tableName: 'coaches',
-      transform: (data: any) => this.mapFromDatabase(data)
-    })
-  }
-
-  protected getClient() {
-    // Access the protected client from parent
-    return (this as any).client
+    super(coachMapping);
   }
 
   /**
@@ -32,139 +59,75 @@ export class CoachRepository extends EntityRepository<Coach> {
    * @param input - Optional coach profile data
    * @returns Promise resolving to created coach
    */
-  async createCoach(userId: string, email: string, input: CreateCoachInput = {}): Promise<Coach> {
-    const now = new Date()
-
-    const coachData = {
-      user_id: userId,
+  async createCoach(userId: string, email: string, input: CreateCoachInput = {}): Promise<Coach | null> {
+    const coachData: Partial<Coach> = {
+      userId,
       email,
-      first_name: input.firstName || null,
-      last_name: input.lastName || null,
-      display_name: input.displayName || null,
+      firstName: input.firstName || null,
+      lastName: input.lastName || null,
+      displayName: input.displayName || null,
       avatar: null,
       timezone: input.timezone || 'UTC',
+      onboardingCompleted: true,
+      lastLoginAt: new Date().toISOString()
+    };
 
-      // Account management
-      account_status: 'ACTIVE' as AccountStatus,
-      onboarding_completed: true,
-      last_login_at: now.toISOString(),
-      created_at: now.toISOString(),
-      updated_at: now.toISOString()
-    }
-
-    console.log('createCoach - inserting coachData:', coachData);
-
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .insert(coachData)
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return this.mapFromDatabase(data)
+    return this.create(userId, coachData);
   }
 
   /**
    * Gets a coach by their Supabase user ID.
+   * Uses the base class getByField method with user_id field.
    *
    * @param userId - Supabase auth user UUID
    * @returns Promise resolving to coach or null if not found
    */
   async getByUserId(userId: string): Promise<Coach | null> {
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-
-    if (error) {
-      if (error.code === 'PGRST116') return null // Not found
-      throw error
-    }
-
-    return this.mapFromDatabase(data)
+    const coaches = await this.getByField(null, 'user_id', userId);
+    return coaches.length > 0 ? coaches[0] : null;
   }
 
   /**
    * Updates coach profile information.
+   * Note: This method needs custom implementation due to user_id lookup.
    *
    * @param userId - Supabase auth user UUID
    * @param input - Fields to update
-   * @returns Promise resolving to updated coach
+   * @returns Promise resolving to updated coach or null
    */
-  async updateByUserId(userId: string, input: UpdateCoachInput): Promise<Coach> {
-    const updateData = {
-      ...input.firstName !== undefined && { first_name: input.firstName },
-      ...input.lastName !== undefined && { last_name: input.lastName },
-      ...input.displayName !== undefined && { display_name: input.displayName },
-      ...input.avatar !== undefined && { avatar: input.avatar },
-      ...input.timezone !== undefined && { timezone: input.timezone },
-      ...input.onboardingCompleted !== undefined && { onboarding_completed: input.onboardingCompleted },
-      updated_at: new Date().toISOString()
-    }
+  async updateByUserId(userId: string, input: UpdateCoachInput): Promise<Coach | null> {
+    // First get the coach to find their ID
+    const coach = await this.getByUserId(userId);
+    if (!coach) return null;
 
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .update(updateData)
-      .eq('user_id', userId)
-      .select()
-      .single()
+    // Convert UpdateCoachInput to Partial<Coach> format
+    const updateData: Partial<Coach> = {
+      ...(input.firstName !== undefined && { firstName: input.firstName }),
+      ...(input.lastName !== undefined && { lastName: input.lastName }),
+      ...(input.displayName !== undefined && { displayName: input.displayName }),
+      ...(input.avatar !== undefined && { avatar: input.avatar }),
+      ...(input.timezone !== undefined && { timezone: input.timezone }),
+      ...(input.onboardingCompleted !== undefined && { onboardingCompleted: Boolean(input.onboardingCompleted) })
+    };
 
-    if (error) throw error
-
-    return this.mapFromDatabase(data)
+    // Use the base class update method
+    return this.update(userId, coach.id, updateData);
   }
 
   /**
    * Records last login timestamp.
    *
    * @param userId - Supabase auth user UUID
-   * @returns Promise resolving to updated coach
+   * @returns Promise resolving to updated coach or null
    */
-  async updateLastLogin(userId: string): Promise<Coach> {
-    const updateData = {
-      last_login_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
+  async updateLastLogin(userId: string): Promise<Coach | null> {
+    // First get the coach to find their ID
+    const coach = await this.getByUserId(userId);
+    if (!coach) return null;
 
-    const { data, error } = await this.supabase
-      .from(this.tableName)
-      .update(updateData)
-      .eq('user_id', userId)
-      .eq('deleted_at', null)
-      .select()
-      .single()
-
-    if (error) throw error
-
-    return this.mapFromDatabase(data)
-  }
-
-  /**
-   * Maps database row to Coach type with proper field transformations.
-   */
-  protected mapFromDatabase(row: any): Coach {
-    return {
-      id: row.id.toString(),
-      userId: row.user_id,
-      email: row.email,
-      firstName: row.first_name,
-      lastName: row.last_name,
-      displayName: row.display_name,
-      avatar: row.avatar,
-      timezone: row.timezone,
-
-      onboardingCompleted: row.onboarding_completed,
-      lastLoginAt: row.last_login_at,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at,
-
-      // These will be populated by data loaders
-      billing: null, // Will be populated by data loader
-      athletes: [],
-      trainingPlans: []
-    }
+    // Use the base class update method with lastLoginAt
+    return this.update(userId, coach.id, {
+      lastLoginAt: new Date().toISOString()
+    });
   }
 }

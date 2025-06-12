@@ -39,43 +39,71 @@ export class EntityRepository<T extends { id: string | number }> {
   private autoTransform(data: Record<string, unknown>): Record<string, unknown> {
     if (!data) return {};
 
+    const reverseMapping = this.createReverseMapping();
     const result: Record<string, unknown> = {};
+
+    for (const [key, value] of Object.entries(data)) {
+      const targetKey = this.getTargetKey(key, reverseMapping);
+      result[targetKey] = this.transformValue(key, value);
+    }
+
+    return result;
+  }
+
+  // Create reverse mapping from column mappings (snake_case -> camelCase)
+  private createReverseMapping(): Record<string, string> {
+    const reverseMapping: Record<string, string> = {};
     const { columnMappings } = this.entityMapping;
 
-    // Create reverse mapping (snake_case -> camelCase)
-    const reverseMapping: Record<string, string> = {};
     if (columnMappings) {
       for (const [camelCase, snakeCase] of Object.entries(columnMappings)) {
         reverseMapping[snakeCase] = camelCase;
       }
     }
 
-    // Transform all fields
-    for (const [key, value] of Object.entries(data)) {
-      let targetKey: string;
+    return reverseMapping;
+  }
 
-      // Use reverse mapping if available, otherwise convert snake_case to camelCase
-      if (reverseMapping[key]) {
-        targetKey = reverseMapping[key];
-      } else {
-        // Convert snake_case to camelCase
-        targetKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-      }
-
-      // Handle special date fields
-      if (key === 'created_at' || key === 'updated_at') {
-        result[targetKey] = new Date(value as string);
-      } else if (key === 'deleted_at') {
-        result[targetKey] = value ? new Date(value as string) : null;
-      } else if (key.endsWith('_at') && value) {
-        // Handle other date fields that end with '_at'
-        result[targetKey] = new Date(value as string);
-      } else {
-        result[targetKey] = value;
-      }
+  // Get the target key name (camelCase) for a given database key
+  private getTargetKey(key: string, reverseMapping: Record<string, string>): string {
+    if (reverseMapping[key]) {
+      return reverseMapping[key];
     }
 
-    return result;
+    // Convert snake_case to camelCase
+    return key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+  }
+
+  // Transform a value based on its key (handle date fields specially)
+  private transformValue(key: string, value: unknown): unknown {
+    if (this.isStandardDateField(key)) {
+      return new Date(value as string);
+    }
+
+    if (this.isNullableDateField(key, value)) {
+      return value ? new Date(value as string) : null;
+    }
+
+    if (this.isOtherDateField(key, value)) {
+      return new Date(value as string);
+    }
+
+    return value;
+  }
+
+  // Check if field is a standard date field (created_at, updated_at)
+  private isStandardDateField(key: string): boolean {
+    return key === 'created_at' || key === 'updated_at';
+  }
+
+  // Check if field is a nullable date field (deleted_at)
+  private isNullableDateField(key: string, value: unknown): boolean {
+    return key === 'deleted_at';
+  }
+
+  // Check if field is another date field (ends with '_at' and has value)
+  private isOtherDateField(key: string, value: unknown): boolean {
+    return key.endsWith('_at') && Boolean(value);
   }
 
   // Transform array of entities

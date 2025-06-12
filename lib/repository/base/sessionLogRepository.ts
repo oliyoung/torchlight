@@ -32,7 +32,7 @@ export const goalSessionLogsConfig = {
 };
 
 export class SessionLogRepository extends EntityRepository<SessionLog> {
-  private relationRepo: RelationRepository;
+  private readonly relationRepo: RelationRepository;
 
   constructor() {
     super(sessionLogMapping);

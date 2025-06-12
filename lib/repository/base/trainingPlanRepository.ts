@@ -35,7 +35,7 @@ const trainingPlanGoalsConfig = {
 };
 
 export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
-  private relationRepo: RelationRepository;
+  private readonly relationRepo: RelationRepository;
 
   constructor() {
     super(trainingPlanMapping);

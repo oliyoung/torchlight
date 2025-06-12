@@ -1,6 +1,5 @@
 import { logger } from "../../../lib/logger";
 import type {
-  Athlete,
   CreateGoalInput,
   Goal,
   UpdateGoalInput,
@@ -41,7 +40,7 @@ export const trainingPlanGoalsConfig = {
 };
 
 export class GoalRepository extends EntityRepository<Goal> {
-  private relationRepo: RelationRepository;
+  private readonly relationRepo: RelationRepository;
 
   constructor() {
     super(goalMapping);
