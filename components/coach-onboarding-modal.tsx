@@ -34,7 +34,7 @@ interface CoachOnboardingModalProps {
   onSuccess: () => void
 }
 
-export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: CoachOnboardingModalProps) {
+export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<CoachOnboardingModalProps>) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -87,7 +87,7 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: CoachOnboar
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
+      <DialogContent className="sm:max-w-[425px] bg-white" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Welcome to CoachBase!</DialogTitle>
           <DialogDescription>
@@ -147,8 +147,8 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: CoachOnboar
           {error && <ErrorMessage message={error} />}
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
               className="w-full"
             >

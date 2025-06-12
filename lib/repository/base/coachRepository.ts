@@ -47,7 +47,7 @@ export class CoachRepository extends EntityRepository<Coach> {
       // Account management
       account_status: 'ACTIVE' as AccountStatus,
       onboarding_completed: true,
-      last_login_at: now ? now.toISOString() : null,
+      last_login_at: now.toISOString(),
       created_at: now.toISOString(),
       updated_at: now.toISOString()
     }
@@ -101,14 +101,13 @@ export class CoachRepository extends EntityRepository<Coach> {
       ...input.avatar !== undefined && { avatar: input.avatar },
       ...input.timezone !== undefined && { timezone: input.timezone },
       ...input.onboardingCompleted !== undefined && { onboarding_completed: input.onboardingCompleted },
-      updated_at: new Date()
+      updated_at: new Date().toISOString()
     }
 
     const { data, error } = await this.supabase
       .from(this.tableName)
       .update(updateData)
       .eq('user_id', userId)
-      .eq('deleted_at', null)
       .select()
       .single()
 
@@ -125,8 +124,8 @@ export class CoachRepository extends EntityRepository<Coach> {
    */
   async updateLastLogin(userId: string): Promise<Coach> {
     const updateData = {
-      last_login_at: new Date(),
-      updated_at: new Date()
+      last_login_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     }
 
     const { data, error } = await this.supabase

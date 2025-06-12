@@ -62,14 +62,13 @@ const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   displayName: z.string().optional(),
-  email: z.string().email("Invalid email address"),
   timezone: z.string().optional(),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 function ProfileSection() {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const [{ data, fetching, error }] = useQuery({
@@ -100,7 +99,6 @@ function ProfileSection() {
         firstName: data.me.firstName || "",
         lastName: data.me.lastName || "",
         displayName: data.me.displayName || "",
-        email: data.me.email || "",
         timezone: data.me.timezone || "",
       });
     } else if (!fetching && !error) {
@@ -116,9 +114,7 @@ function ProfileSection() {
 
       let result;
       if (isCreating) {
-        // For creation, exclude email since it comes from auth context
-        const { email, ...createInput } = formData;
-        result = await createCoach({ input: createInput });
+        result = await createCoach({ input: formData });
       } else {
         result = await updateCoach({ input: formData });
       }
@@ -136,7 +132,6 @@ function ProfileSection() {
         type: 'success',
         text: `Profile ${isCreating ? 'created' : 'updated'} successfully.`
       });
-      setIsEditing(false);
 
       // Refresh the query to get the new data
       if (isCreating) {
@@ -235,8 +230,6 @@ function ProfileSection() {
               <Input
                 id="firstName"
                 {...register("firstName")}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
               />
               {errors.firstName && (
                 <p className="text-sm text-red-600">{errors.firstName.message}</p>
@@ -248,8 +241,6 @@ function ProfileSection() {
               <Input
                 id="lastName"
                 {...register("lastName")}
-                disabled={!isEditing}
-                className={!isEditing ? "bg-gray-50" : ""}
               />
               {errors.lastName && (
                 <p className="text-sm text-red-600">{errors.lastName.message}</p>
@@ -262,24 +253,16 @@ function ProfileSection() {
             <Input
               id="displayName"
               {...register("displayName")}
-              disabled={!isEditing}
-              className={!isEditing ? "bg-gray-50" : ""}
               placeholder="How you'd like to be addressed"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              id="email"
-              type="email"
-              {...register("email")}
-              disabled={!isEditing}
-              className={!isEditing ? "bg-gray-50" : ""}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-600">{errors.email.message}</p>
-            )}
+            <Label>Email Address</Label>
+            <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-600">
+              {data?.me?.email || 'Not available'}
+            </div>
+            <p className="text-xs text-gray-500">Email cannot be changed here. Contact support if you need to update your email address.</p>
           </div>
 
           <div className="space-y-2">
@@ -287,35 +270,15 @@ function ProfileSection() {
             <Input
               id="timezone"
               {...register("timezone")}
-              disabled={!isEditing}
-              className={!isEditing ? "bg-gray-50" : ""}
               placeholder="e.g., America/New_York"
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            {!isEditing ? (
-              <Button type="button" onClick={handleEdit}>
-                Edit Profile
-              </Button>
-            ) : (
-              <>
-                {!isCreatingProfile && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={isSubmitting}
-                  >
-                    Cancel
-                  </Button>
-                )}
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {isCreatingProfile ? 'Create Profile' : 'Save Changes'}
-                </Button>
-              </>
-            )}
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {isCreatingProfile ? 'Create Profile' : 'Save Changes'}
+            </Button>
           </div>
         </form>
       </CardContent>

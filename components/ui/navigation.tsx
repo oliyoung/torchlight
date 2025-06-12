@@ -19,13 +19,9 @@ import { usePathname } from "next/navigation";
 import { useState, createContext, useContext, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "./separator";
+import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
 
-const data = {
-	user: {
-		name: "Coach",
-		email: "coach@example.com",
-		avatar: "/avatars/coach.jpg",
-	},
+const navigationData = {
 	navMain: [
 		{
 			title: "Athletes",
@@ -120,6 +116,15 @@ export function MobileMenuButton() {
 export default function Navigation() {
 	const pathname = usePathname();
 	const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
+	const { coach, user } = useCoachProfile();
+
+	// Get display name and email with fallbacks
+	const displayName = coach?.displayName ||
+		(coach?.firstName && coach?.lastName ? `${coach.firstName} ${coach.lastName}` : coach?.firstName) ||
+		user?.email?.split('@')[0] ||
+		'Coach';
+	const email = coach?.email || user?.email || 'coach@example.com';
+	const initials = displayName.split(' ').map((n: string) => n.charAt(0)).join('').toUpperCase() || 'C';
 
 	return (
 		<>
@@ -163,7 +168,7 @@ export default function Navigation() {
 				</div>
 				<div className="border-t border-gray-200 p-4">
 					{/* Main Navigation */}
-					{data.navMain.map((item) => {
+					{navigationData.navMain.map((item) => {
 						const isActive = pathname === item.url;
 						return (
 							<Link
@@ -186,7 +191,7 @@ export default function Navigation() {
 				</div>
 				<div className="border-t border-gray-200 p-4">
 					{/* Secondary Navigation */}
-					{data.navSecondary.map((item) => {
+					{navigationData.navSecondary.map((item) => {
 						const isActive = pathname === item.url;
 						return (
 							<Link
@@ -215,16 +220,16 @@ export default function Navigation() {
 					)}>
 						<div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
 							<span className="text-sm font-medium text-gray-700">
-								{data.user.name.charAt(0)}
+								{initials}
 							</span>
 						</div>
 						{!isCollapsed && (
 							<div className="flex-1 min-w-0">
 								<p className="text-sm font-medium text-primary-foreground truncate">
-									{data.user.name}
+									{displayName}
 								</p>
 								<p className="text-xs text-gray-500 truncate">
-									{data.user.email}
+									{email}
 								</p>
 							</div>
 						)}
