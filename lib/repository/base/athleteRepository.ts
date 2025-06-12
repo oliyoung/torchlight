@@ -120,10 +120,56 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   }
 
   /**
-   * Update an athlete
+   * Update an athlete with calculated age
    */
   async updateAthlete(userId: string | null, id: string, input: Partial<Athlete>): Promise<Athlete | null> {
-    return this.update(userId, id, input);
+    if (!userId) {
+      console.warn('Attempted to update athlete without userId');
+      return null;
+    }
+
+    try {
+      // Filter out undefined/null values to avoid overwriting with nulls
+      const filteredInput = Object.fromEntries(
+        Object.entries(input).filter(([_, value]) => value !== undefined && value !== null)
+      ) as Partial<Athlete>;
+
+      // Check if we have any fields to update after filtering
+      if (Object.keys(filteredInput).length === 0) {
+        console.warn(`No valid fields to update for athlete ${id}`);
+        // Return the existing record with age calculation
+        return this.getAthleteById(userId, id);
+      }
+
+      const dbData = this.mapToDbColumns(filteredInput);
+
+      let query = this.client
+        .from(this.entityMapping.tableName)
+        .update(dbData)
+        .eq('id', id);
+
+      query = this.withUserFilter(query, userId);
+
+      // Use our custom select with age calculation
+      const { data, error } = await query
+        .select(this.getSelectWithAge())
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error updating athlete:', error);
+        return null;
+      }
+
+      if (!data) {
+        console.warn(`No rows affected when updating athlete ${id}`);
+        return null;
+      }
+
+      return this.transformResponse(data);
+    } catch (error) {
+      console.error('Exception updating athlete:', error);
+      return null;
+    }
   }
 
   /**

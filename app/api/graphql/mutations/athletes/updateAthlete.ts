@@ -22,7 +22,8 @@ export const updateAthlete = async (
       Object.entries(input).filter(([_, value]) => value !== undefined)
     ) as Partial<Athlete>;
 
-    const athlete = await athleteRepository.update(coachId, id, filteredInput);
+    // Use the specific updateAthlete method that includes age calculation
+    const athlete = await athleteRepository.updateAthlete(coachId, id, filteredInput);
 
     if (!athlete) {
       logger.error({ coachId, athleteId: id }, "Athlete not found or failed to update");
