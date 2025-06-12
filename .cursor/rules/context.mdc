@@ -1,9 +1,9 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
-# congenial-carnival Project Context - UPDATED
+# wisegrowth Project Context - UPDATED
 
 ## 1. Current State of the Codebase
 - This is a greenfield project with sophisticated architectural patterns already established. All features currently implemented in the codebase can be inferred from their UI completeness. New features should follow the established patterns and conventions.
@@ -128,4 +128,4 @@ alwaysApply: true
   - Be ready to support compliance needs in the future.
 
 ---
-This file is intended as a living document. Update as the project evolves to ensure all contributors have a clear, shared understanding of congenial-carnival's context and conventions.
+This file is intended as a living document. Update as the project evolves to ensure all contributors have a clear, shared understanding of wisegrowth's context and conventions.

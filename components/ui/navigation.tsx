@@ -150,9 +150,9 @@ export default function Navigation() {
 					{!isCollapsed && (
 						<div className="flex items-center space-x-2">
 							<div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-								<span className="text-white font-bold text-sm">CC</span>
+								<span className="text-white font-bold text-sm">WG</span>
 							</div>
-							<span className="font-semibold text-primary-foreground">Congenial Carnival</span>
+							<span className="font-semibold text-primary-foreground">wisegrowth</span>
 						</div>
 					)}
 					<button

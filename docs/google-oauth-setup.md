@@ -1,6 +1,6 @@
 # Google OAuth Setup Guide
 
-This guide walks you through setting up Google OAuth authentication with Supabase for the congenial-carnival project.
+This guide walks you through setting up Google OAuth authentication with Supabase for the wisegrowth project.
 
 ## Prerequisites
 

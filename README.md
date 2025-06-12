@@ -1,6 +1,6 @@
-# congenial-carnival Engineering Reference
+# wisegrowth Engineering Reference
 
-This README summarizes the core engineering conventions, context, and rules for the congenial-carnival project. For full details, see `.cursor/rules/context.mdc` and related MDC files.
+This README summarizes the core engineering conventions, context, and rules for the wisegrowth project. For full details, see `.cursor/rules/context.mdc` and related MDC files.
 
 ## Project Context & Conventions
 

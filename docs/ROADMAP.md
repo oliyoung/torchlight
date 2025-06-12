@@ -1,6 +1,6 @@
-# congenial-carnival Roadmap & Future Ideas
+# wisegrowth Roadmap & Future Ideas
 
-This document tracks planned features and future ideas for the congenial-carnival coaching platform. Items are roughly organized by priority but aren't strictly sequenced.
+This document tracks planned features and future ideas for the wisegrowth coaching platform. Items are roughly organized by priority but aren't strictly sequenced.
 
 ## Core Features
 

@@ -1,6 +1,6 @@
 # GitHub Actions Setup for Playwright Tests
 
-This document explains how to configure GitHub Actions to run Playwright tests for the congenial-carnival project.
+This document explains how to configure GitHub Actions to run Playwright tests for the wisegrowth project.
 
 ## Required GitHub Secrets
 

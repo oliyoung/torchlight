@@ -1,12 +1,12 @@
 # AI Integration Layer
 
-This directory contains the AI-powered features that enhance the congenial-carnival coaching platform with intelligent insights, automated summaries, and personalized training recommendations. The AI system is designed to support coaches, trainers, and mentors in making data-driven decisions while helping athletes develop better self-reflection skills.
+This directory contains the AI-powered features that enhance the wisegrowth coaching platform with intelligent insights, automated summaries, and personalized training recommendations. The AI system is designed to support coaches, trainers, and mentors in making data-driven decisions while helping athletes develop better self-reflection skills.
 
 ## Core Philosophy
 
 The AI integration follows the platform's **human-centered coaching approach** that:
 - **Augments rather than replaces** coach expertise and judgment - AI acts as a coach's assistant, not a replacement
-- **Turns conversations into progress** by extracting meaningful insights from session transcripts and notes  
+- **Turns conversations into progress** by extracting meaningful insights from session transcripts and notes
 - **Adapts to different developmental stages** - especially youth athletes who need guided reflection
 - **Maintains data privacy and security** with all processing respecting athlete confidentiality
 - **Provides actionable insights** rather than generic analysis
@@ -15,7 +15,7 @@ The AI integration follows the platform's **human-centered coaching approach** t
 
 ## Platform Context
 
-**congenial-carnival** is designed for coaches, trainers, and support professionals who want more than spreadsheets and sticky notes. The platform addresses the core problem of fragmented coaching systems where:
+**wisegrowth** is designed for coaches, trainers, and support professionals who want more than spreadsheets and sticky notes. The platform addresses the core problem of fragmented coaching systems where:
 - Critical context from past conversations is lost
 - Progress isn't easy to see across time
 - Planning the next step takes more time than the session itself
@@ -165,7 +165,7 @@ AI processing integrates with the platform's PubSub system for:
 
 The AI features directly address coach pain points identified through user research:
 
-> *"I used to rely on notebooks and my memory to track where athletes were at—and I always felt like I was missing something. congenial-carnival gives me a clean way to capture session notes, revisit long-term goals, and even get an AI summary of the big themes. It's like having a second brain for coaching."*  
+> *"I used to rely on notebooks and my memory to track where athletes were at—and I always felt like I was missing something. wisegrowth gives me a clean way to capture session notes, revisit long-term goals, and even get an AI summary of the big themes. It's like having a second brain for coaching."*
 > — Casey Tran, Athletic Performance Coach
 
 ### Key Benefits

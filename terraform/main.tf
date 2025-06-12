@@ -4,8 +4,8 @@ provider "aws" {
 
 # Define a secret in AWS Secrets Manager for environment variables
 resource "aws_secretsmanager_secret" "app_secrets" {
-  name        = "congenial-carnival-app-secrets"
-  description = "Secrets for the Congenial Carnival App Runner service"
+  name        = "wisegrowth-app-secrets"
+  description = "Secrets for the wisegrowth App Runner service"
 
   recovery_window_in_days = 0 # Set to a value > 0 for production
 }
@@ -32,7 +32,7 @@ variable "app_secrets_json" {
 
 # Define the AWS App Runner Service
 resource "aws_apprunner_service" "app_service" {
-  service_name = "congenial-carnival-service"
+  service_name = "wisegrowth-service"
 
   source_configuration {
     auto_deployments_enabled = true # Set to false if you want manual deployments
@@ -101,7 +101,7 @@ resource "aws_apprunner_service" "app_service" {
 
   tags = {
     Environment = "production"
-    Project     = "CongenialCarnival"
+    Project     = "wisegrowth"
   }
 }
 

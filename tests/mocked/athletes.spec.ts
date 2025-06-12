@@ -9,7 +9,7 @@ mockedTest.describe('Athletes Management (Mocked)', () => {
     await expect(mockedCoachPage.page).toHaveURL(/.*\/athletes/);
 
     // Check that the page loaded successfully - use actual app title
-    await expect(mockedCoachPage.page).toHaveTitle(/congenial-carnival|Athletes|Coaching|Coach/i);
+    await expect(mockedCoachPage.page).toHaveTitle(/wisegrowth|Athletes|Coaching|Coach/i);
 
     // Verify authentication is working (should return true with mocked auth)
     const isAuth = await mockedCoachPage.isAuthenticated();
