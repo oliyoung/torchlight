@@ -21,8 +21,8 @@ export const deleteAthlete = async (
   }
 
   try {
-    const success = await athleteRepository.deleteAthlete(userId, id);
-    
+    const success = await athleteRepository.delete(userId, id);
+
     if (!success) {
       logger.error({ userId, athleteId: id }, "Athlete not found or failed to delete");
       throw new Error("Athlete not found or failed to delete");

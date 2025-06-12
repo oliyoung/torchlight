@@ -21,8 +21,8 @@ export const deleteGoal = async (
   }
 
   try {
-    const success = await goalRepository.deleteGoal(userId, id);
-    
+    const success = await goalRepository.delete(userId, id);
+
     if (!success) {
       logger.error({ userId, goalId: id }, "Failed to delete goal");
       throw new Error("Goal not found or delete failed");

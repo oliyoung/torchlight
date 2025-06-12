@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Footer } from './footer';

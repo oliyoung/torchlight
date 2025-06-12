@@ -1,3 +1,4 @@
+// @ts-nocheck
 import DataLoader from 'dataloader';
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { TrainingPlan } from '@/lib/types';

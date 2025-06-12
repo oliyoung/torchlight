@@ -21,8 +21,8 @@ export const deleteSessionLog = async (
   }
 
   try {
-    const success = await sessionLogRepository.deleteSessionLog(userId, id);
-    
+    const success = await sessionLogRepository.delete(userId, id);
+
     if (!success) {
       logger.error({ userId, sessionLogId: id }, "Session log not found or failed to delete");
       throw new Error("Session log not found or failed to delete");

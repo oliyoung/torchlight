@@ -23,8 +23,13 @@ export const updateAthlete = async (
   }
 
   try {
-    const athlete = await athleteRepository.updateAthlete(userId, id, input);
-    
+    // Filter out null values from input to match Athlete type expectations
+    const filteredInput = Object.fromEntries(
+      Object.entries(input).filter(([_, value]) => value !== null)
+    ) as Partial<Athlete>;
+
+    const athlete = await athleteRepository.update(userId, id, filteredInput);
+
     if (!athlete) {
       logger.error({ userId, athleteId: id }, "Athlete not found or failed to update");
       throw new Error("Athlete not found or failed to update");

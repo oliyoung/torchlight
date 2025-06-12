@@ -119,7 +119,7 @@ export default function Page() {
 			<div className="space-y-6">
 				<AthletesFilterBar
 					filters={filters}
-					onFiltersChange={setFilters}
+					onFiltersChangeAction={setFilters}
 				/>
 
 				{filteredAndSortedAthletes.length === 0 && data?.athletes && data.athletes.length > 0 && (

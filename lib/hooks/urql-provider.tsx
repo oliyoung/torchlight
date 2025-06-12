@@ -45,11 +45,19 @@ export const UrqlProvider = ({ children }: UrqlProviderProps) => {
           },
           didAuthError(error) {
             // Check if we got an auth error (401, 403, or token expired)
-            return error.graphQLErrors.some(e =>
+            const hasGraphQLAuthError = error.graphQLErrors?.some(e =>
               e.extensions?.code === 'UNAUTHENTICATED' ||
               e.message.includes('JWT') ||
-              e.message.includes('token')
-            )
+              e.message.includes('token') ||
+              e.message.includes('Authentication required') ||
+              e.message.includes('expired')
+            ) || false
+
+            const hasNetworkAuthError = error.networkError &&
+              'status' in error.networkError &&
+              error.networkError.status === 401
+
+            return hasGraphQLAuthError || !!hasNetworkAuthError
           },
           async refreshAuth() {
             // Try to refresh the token

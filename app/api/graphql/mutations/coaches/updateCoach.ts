@@ -1,4 +1,4 @@
-import type { GraphQLContext } from '@/lib/types'
+import type { GraphQLContext } from '../../route'
 import { coachRepository } from '@/lib/repository'
 
 /**
@@ -7,15 +7,15 @@ import { coachRepository } from '@/lib/repository'
  */
 export async function updateCoach(
   parent: any,
-  args: { 
-    input: { 
+  args: {
+    input: {
       firstName?: string
       lastName?: string
       displayName?: string
       avatar?: string
       timezone?: string
       onboardingCompleted?: boolean
-    } 
+    }
   },
   context: GraphQLContext
 ) {

@@ -68,15 +68,34 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
-  
+
   const supabase = useMemo(() => createTokenClient(), [])
 
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
+      const { data: { session }, error } = await supabase.auth.getSession()
+
+      if (error || !session) {
+        // Clear any stored tokens if session is invalid
+        authStorage.clearTokens()
+        setSession(null)
+        setUser(null)
+      } else {
+        // Check if token is expired
+        const currentTime = Math.floor(Date.now() / 1000)
+        if (session.expires_at && session.expires_at < currentTime) {
+          console.warn('Session has expired, clearing tokens')
+          authStorage.clearTokens()
+          setSession(null)
+          setUser(null)
+        } else {
+          setSession(session)
+          setUser(session.user)
+          authStorage.setTokens(session)
+        }
+      }
+
       setLoading(false)
     }
 
@@ -84,18 +103,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
+      async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id)
 
-        // Update stored tokens
-        authStorage.setTokens(session)
+        if (event === 'SIGNED_OUT' || !session) {
+          authStorage.clearTokens()
+          setSession(null)
+          setUser(null)
+        } else if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+          // Check if new session is valid
+          const currentTime = Math.floor(Date.now() / 1000)
+          if (session.expires_at && session.expires_at < currentTime) {
+            console.warn('Received expired session, signing out')
+            await supabase.auth.signOut()
+            return
+          }
+
+          setSession(session)
+          setUser(session.user)
+          authStorage.setTokens(session)
+        }
+
+        setLoading(false)
       }
     )
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase])
 
   /**
    * Authenticates a user with email and password.

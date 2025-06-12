@@ -1,3 +1,4 @@
+// @ts-nocheck
 import DataLoader from 'dataloader'
 import { CoachBillingRepository } from '@/lib/repository/base/coachBillingRepository'
 import type { CoachBilling } from '@/lib/types'

@@ -71,7 +71,7 @@ export async function coach(
     }
 
     // Fallback to direct repository call
-    const coach = await coachRepository.getById(args.id)
+    const coach = await coachRepository.getById(userId, args.id)
     return coach
   } catch (error) {
     console.error('Error fetching coach:', error)

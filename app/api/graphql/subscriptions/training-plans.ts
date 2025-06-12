@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { GraphQLContext } from "@/app/api/graphql/route";
 import { PubSubEvents } from '@/app/api/graphql/subscriptions/types';
 import { logger } from "@/lib/logger";

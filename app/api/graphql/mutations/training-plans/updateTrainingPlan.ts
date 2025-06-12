@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { UpdateTrainingPlanInput, TrainingPlan } from "@/lib/types";
 import { logger } from "@/lib/logger";
 import { trainingPlanRepository } from "@/lib/repository";

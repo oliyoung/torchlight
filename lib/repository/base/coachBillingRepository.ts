@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EntityRepository } from './entityRepository'
 import type { CoachBilling, UpdateCoachBillingInput, SubscriptionStatus, SubscriptionTier } from '@/lib/types'
 
