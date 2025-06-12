@@ -36,7 +36,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
     const usageResetDate = new Date(now.getFullYear(), now.getMonth(), 1) // First of current month
 
     const billingData = {
-      coach_id: parseInt(coachId),
+      coach_id: coachId,
 
       // Stripe integration - initially null until subscription setup
       stripe_customer_id: null,
@@ -87,7 +87,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
     const { data, error } = await this.supabase
       .from(this.tableName)
       .select('*')
-      .eq('coach_id', parseInt(coachId))
+      .eq('coach_id', coachId)
       .single()
 
     if (error) {
@@ -127,7 +127,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
     const { data, error } = await this.supabase
       .from(this.tableName)
       .update(updateData)
-      .eq('coach_id', parseInt(coachId))
+      .eq('coach_id', coachId)
       .eq('deleted_at', null)
       .select()
       .single()
@@ -159,7 +159,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
     const { data, error } = await this.supabase
       .from(this.tableName)
       .update(updateData)
-      .eq('coach_id', parseInt(coachId))
+      .eq('coach_id', coachId)
       .eq('deleted_at', null)
       .select()
       .single()

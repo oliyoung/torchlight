@@ -29,25 +29,25 @@ export default {
 
   // Collection queries - use repository instances
   trainingPlans: async (_parent: unknown, args: { athleteId: string }, context: GraphQLContext): Promise<TrainingPlan[]> =>
-    trainingPlanRepository.getTrainingPlans(context?.user?.id ?? null, args.athleteId),
+    trainingPlanRepository.getTrainingPlans(context.coachId, args.athleteId),
 
   assistants: async (_parent: unknown, args: { input: AssistantsInput }, context: GraphQLContext): Promise<Assistant[]> =>
     assistantRepository.getAssistants(args.input),
 
   athletes: async (_parent: unknown, _args: unknown, context: GraphQLContext): Promise<Athlete[]> =>
-    athleteRepository.getAthletes(context?.user?.id ?? null),
+    athleteRepository.getAthletes(context.coachId),
 
   goals: async (_parent: unknown, args: { athleteId?: string }, context: GraphQLContext): Promise<Goal[]> => {
     if (args.athleteId) {
-      return goalRepository.getGoalsByAthleteId(context?.user?.id ?? null, args.athleteId);
+      return goalRepository.getGoalsByAthleteId(context.coachId, args.athleteId);
     }
-    return goalRepository.getAllGoals(context?.user?.id ?? null);
+    return goalRepository.getAllGoals(context.coachId);
   },
 
   sessionLogs: async (_parent: unknown, args: { athleteId?: string }, context: GraphQLContext): Promise<SessionLog[]> => {
     if (args.athleteId) {
-      return sessionLogRepository.getSessionLogsByAthleteId(context?.user?.id ?? null, args.athleteId);
+      return sessionLogRepository.getSessionLogsByAthleteId(context.coachId, args.athleteId);
     }
-    return sessionLogRepository.getAllSessionLogs(context?.user?.id ?? null);
+    return sessionLogRepository.getAllSessionLogs(context.coachId);
   },
 }
