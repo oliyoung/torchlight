@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useMemo, useCallback } 
 import type { User, Session } from '@supabase/supabase-js'
 import { createTokenClient } from '@/lib/supabase/client-token'
 import { authStorage } from '@/lib/auth/storage'
+import { useRouter, usePathname } from 'next/navigation'
 
 /**
  * Authentication context interface providing user state and auth methods.
@@ -70,8 +71,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const pathname = usePathname()
 
   const supabase = useMemo(() => createTokenClient(), [])
+
+  // Helper function to check if we're on an auth page
+  const isAuthPage = useCallback(() => {
+    return pathname?.startsWith('/login') ||
+      pathname?.startsWith('/logout') ||
+      pathname?.startsWith('/auth/') ||
+      pathname?.startsWith('/debug')
+  }, [pathname])
 
   useEffect(() => {
     // Get initial session
@@ -83,6 +94,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         authStorage.clearTokens()
         setSession(null)
         setUser(null)
+
+        // Redirect to login if not already on an auth page
+        if (!isAuthPage()) {
+          console.log('AuthProvider: No valid session found, redirecting to login')
+          router.push('/login?message=no_session')
+        }
       } else {
         // Check if token is expired
         const currentTime = Math.floor(Date.now() / 1000)
@@ -91,6 +108,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           authStorage.clearTokens()
           setSession(null)
           setUser(null)
+
+          // Redirect to login if not already on an auth page
+          if (!isAuthPage()) {
+            router.push('/login?message=session_expired')
+          }
         } else {
           setSession(session)
           setUser(session.user)
@@ -112,6 +134,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           authStorage.clearTokens()
           setSession(null)
           setUser(null)
+
+          // Redirect to login if not already on an auth page
+          if (!isAuthPage()) {
+            router.push('/login?message=signed_out')
+          }
         } else if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
           // Check if new session is valid
           const currentTime = Math.floor(Date.now() / 1000)
@@ -131,7 +158,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     )
 
     return () => subscription.unsubscribe()
-  }, [supabase])
+  }, [supabase, router, isAuthPage])
 
   /**
    * Authenticates a user with email and password.

@@ -17,7 +17,7 @@
 
 :root {
   --radius: 0.65rem;
-  --background: oklch(1 0 0);
+  --background: oklch(100% 0.00011 271.152);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
@@ -82,4 +82,16 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.541 0.281 293.009);
+}
+
+/* Custom utility classes for Tailwind v4 */
+/* These are needed because Tailwind v4 doesn't automatically generate classes for custom colors */
+.bg-background {
+  background-color: var(--background);
+}
+.text-background {
+  color: var(--background);
+}
+.border-background {
+  border-color: var(--background);
 }

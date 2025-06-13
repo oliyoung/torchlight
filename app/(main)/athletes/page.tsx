@@ -1,13 +1,12 @@
 "use client";
 
 import { AthletesFilterBar, type AthletesFilterState } from "@/components/athletes-filter-bar";
+import { AddAthleteModal } from "@/components/add-athlete-modal";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { PageCard, PageGrid, PageWrapper } from "@/components/ui/page-wrapper";
 import type { Athlete } from "@/lib/types";
 import { PlusIcon } from "lucide-react";
-import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { useQuery } from "urql";
 
@@ -40,7 +39,7 @@ function AthletesList({ athletes }: { athletes: Athlete[] }) {
 }
 
 export default function Page() {
-	const [{ data, fetching, error }] = useQuery<{ athletes: Athlete[] }>({
+	const [{ data, fetching, error }, reexecuteQuery] = useQuery<{ athletes: Athlete[] }>({
 		query: AthletesQuery,
 	});
 
@@ -107,14 +106,7 @@ export default function Page() {
 			title="Athletes"
 			description="Manage and view all your athletes"
 			breadcrumbs={[{ label: "Athletes", href: "/athletes" }]}
-			actions={
-				<Button asChild>
-					<Link href="/athletes/new">
-						<PlusIcon className="w-4 h-4 mr-2" />
-						Add Athlete
-					</Link>
-				</Button>
-			}
+			actions={<AddAthleteModal onSuccess={() => reexecuteQuery({ requestPolicy: 'network-only' })} />}
 		>
 			<div className="space-y-6">
 				<AthletesFilterBar
@@ -129,13 +121,30 @@ export default function Page() {
 				)}
 
 				{filteredAndSortedAthletes.length === 0 && data?.athletes?.length === 0 && (
-					<EmptyState
-						title="No athletes yet"
-						description="Create athletes to start tracking their progress and training plans."
-						actionLabel="Create First Athlete"
-						actionHref="/athletes/new"
-						ariaLabel="No athletes available"
-					/>
+					<div className="flex flex-col items-center justify-center text-center py-16 px-6">
+						<div className="mb-6 flex size-20 items-center justify-center rounded-full bg-muted/50">
+							<PlusIcon className="size-10 text-muted-foreground/70" aria-hidden="true" />
+						</div>
+						<div className="space-y-2 max-w-sm">
+							<h3 className="text-lg font-semibold tracking-tight text-foreground">
+								No athletes yet
+							</h3>
+							<p className="text-sm text-muted-foreground leading-relaxed">
+								Create athletes to start tracking their progress and training plans.
+							</p>
+						</div>
+						<div className="mt-6">
+							<AddAthleteModal
+								onSuccess={() => reexecuteQuery({ requestPolicy: 'network-only' })}
+								triggerButton={
+									<Button size="lg">
+										<PlusIcon className="size-4" aria-hidden="true" />
+										Create First Athlete
+									</Button>
+								}
+							/>
+						</div>
+					</div>
 				)}
 
 				{filteredAndSortedAthletes.length > 0 && (

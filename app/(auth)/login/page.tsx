@@ -54,6 +54,13 @@ export default function LoginPageToken() {
         case 'invalid_session':
           setError('Invalid session detected. Please sign in again.')
           break
+        case 'no_session':
+          setError('Please sign in to continue.')
+          break
+        case 'signed_out':
+          // Don't set as error - this is a successful sign out
+          console.log('Successfully signed out')
+          break
         case 'already_logged_out':
           // Don't set as error - user was already logged out
           console.log('User was already logged out')
