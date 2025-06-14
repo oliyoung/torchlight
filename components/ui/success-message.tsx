@@ -8,7 +8,7 @@ interface SuccessMessageProps {
 	className?: string
 }
 
-export function SuccessMessage({ message, className }: SuccessMessageProps) {
+export function SuccessMessage({ message, className }: Readonly<SuccessMessageProps>) {
 	return (
 		<Alert className={cn("border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/50 dark:text-green-200", className)}>
 			<CheckCircle2 className="size-4 text-green-600 dark:text-green-400" />

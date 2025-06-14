@@ -43,40 +43,40 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
   }
 
   /**
-   * Get all training plans for a user
+   * Get all training plans for a coach
    */
-  async getTrainingPlans(userId: string | null, athleteId?: string | null): Promise<TrainingPlan[]> {
-    if (!userId) return [];
+  async getTrainingPlans(coachId: string | null, athleteId?: string | null): Promise<TrainingPlan[]> {
+    if (!coachId) return [];
 
     if (athleteId) {
-      return this.getByField(userId, 'athlete_id', athleteId);
+      return this.getByField(coachId, 'athlete_id', athleteId);
     }
 
-    return this.getAll(userId);
+    return this.getAll(coachId);
   }
 
   /**
    * Get a training plan by ID
    */
-  async getTrainingPlanById(userId: string | null, id: string): Promise<TrainingPlan | null> {
-    return this.getById(userId, id);
+  async getTrainingPlanById(coachId: string | null, id: string): Promise<TrainingPlan | null> {
+    return this.getById(coachId, id);
   }
 
   /**
    * Get multiple training plans by their IDs
    */
-  async getTrainingPlansByIds(userId: string | null, ids: string[]): Promise<TrainingPlan[]> {
-    return this.getByIds(userId, ids);
+  async getTrainingPlansByIds(coachId: string | null, ids: string[]): Promise<TrainingPlan[]> {
+    return this.getByIds(coachId, ids);
   }
 
   /**
    * Create a new training plan with related assistants and goals
    */
   async createTrainingPlan(
-    userId: string | null,
+    coachId: string | null,
     data: CreateTrainingPlanInput
   ): Promise<TrainingPlan | null> {
-    if (!userId) return null;
+    if (!coachId) return null;
 
     logger.info({ data }, "Creating training plan");
 
@@ -103,7 +103,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
       };
 
       // Create the training plan
-      const trainingPlan = await this.create(userId, dbTrainingPlan);
+      const trainingPlan = await this.create(coachId, dbTrainingPlan);
 
       if (!trainingPlan) {
         logger.error({ data }, "Failed to create training plan");
@@ -139,11 +139,11 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
    * Update a training plan with related assistants and goals
    */
   async updateTrainingPlan(
-    userId: string | null,
+    coachId: string | null,
     id: string,
     data: Partial<TrainingPlan> & { assistantIds?: string[]; goalIds?: string[]; athleteId?: string; },
   ): Promise<TrainingPlan | null> {
-    if (!userId) return null;
+    if (!coachId) return null;
 
     logger.info({ id, data }, "Updating training plan");
 
@@ -187,7 +187,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
         if (data.notes !== undefined) dbTrainingPlan.notes = data.notes;
 
         // Update the training plan basic data only if there are fields to update
-        updatedPlan = await this.update(userId, id, dbTrainingPlan);
+        updatedPlan = await this.update(coachId, id, dbTrainingPlan);
 
         if (!updatedPlan) {
           logger.error({ id, data }, "Failed to update training plan entity data");
@@ -196,7 +196,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
       } else {
         // If we're only updating relations, we need to fetch the current plan
         logger.info({ id }, "Only updating relations, fetching current training plan");
-        updatedPlan = await this.getTrainingPlanById(userId, id);
+        updatedPlan = await this.getTrainingPlanById(coachId, id);
 
         if (!updatedPlan) {
           logger.error({ id }, "Training plan not found for relation update");

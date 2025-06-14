@@ -49,7 +49,7 @@ export function SportSelect({
 	label = "Sport",
 	error,
 	disabled = false,
-}: SportSelectProps) {
+}: Readonly<SportSelectProps>) {
 	const [open, setOpen] = React.useState(false);
 
 	const selectedSport = SPORTS.find((sport) => sport.id === value);
@@ -64,22 +64,21 @@ export function SportSelect({
 					{label}
 				</Label>
 			)}
-			<Popover open={open} onOpenChange={setOpen}>
+			<Popover open={open} onOpenChange={setOpen} modal={false}>
 				<PopoverTrigger asChild>
 					<Button
 						id={`${label.toLowerCase().replace(/\s+/g, "-")}-select`}
 						variant="outline"
-						role="combobox"
 						aria-label={label}
 						aria-expanded={open}
-						className="w-full justify-between"
+						className="w-full justify-between bg-input"
 						disabled={disabled}
 					>
 						{selectedSport ? selectedSport.name : "Select a sport..."}
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-[250px] p-0">
+				<PopoverContent className="w-[250px] p-0 z-[9999]" side="bottom" align="start">
 					<Command>
 						<CommandInput placeholder="Search sports..." />
 						<CommandList>
@@ -88,9 +87,9 @@ export function SportSelect({
 								{SPORTS.map((sport) => (
 									<CommandItem
 										key={sport.id}
-										value={sport.id}
-										onSelect={(currentValue) => {
-											onChange(currentValue === value ? "" : currentValue);
+										value={sport.name}
+										onSelect={() => {
+											onChange(sport.id);
 											setOpen(false);
 										}}
 									>

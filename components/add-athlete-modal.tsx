@@ -171,27 +171,6 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              {...register("email")}
-              autoComplete="email"
-              className="mt-1"
-            />
-            {errors.email && (
-              <span className="text-xs text-destructive">
-                {errors.email.message}
-              </span>
-            )}
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Controller
@@ -224,38 +203,6 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
             </div>
           </div>
 
-          <div>
-            <label
-              htmlFor="tags"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Tags (comma separated)
-            </label>
-            <Input
-              id="tags"
-              {...register("tags")}
-              autoComplete="off"
-              className="mt-1"
-              placeholder="e.g. basketball, youth"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="notes"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Notes
-            </label>
-            <textarea
-              id="notes"
-              {...register("notes")}
-              className="mt-1 block w-full border border-input bg-background p-2 rounded-md"
-              rows={3}
-              placeholder="Optional notes about the athlete"
-            />
-          </div>
-
           <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
@@ -265,7 +212,7 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={result.fetching}>
+            <Button type="submit" variant='default' disabled={result.fetching}>
               {result.fetching ? "Creating..." : "Create Athlete"}
             </Button>
           </div>

@@ -109,7 +109,6 @@ export function AssistantMultiSelect({
 					<Button
 						id={`${label.toLowerCase().replace(/\s+/g, "-")}-select`}
 						variant="outline"
-						role="combobox"
 						aria-label={label}
 						aria-expanded={open}
 						className={cn(
@@ -144,7 +143,7 @@ export function AssistantMultiSelect({
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-[300px] p-0">
+				<PopoverContent className="w-[300px] p-0 z-[9999]">
 					{fetching ? (
 						<div className="p-4 text-center text-sm text-muted-foreground">
 							Loading assistants...
@@ -167,7 +166,7 @@ export function AssistantMultiSelect({
 										{assistants.map((assistant) => (
 											<CommandItem
 												key={assistant.id}
-												value={assistant.id}
+												value={assistant.name}
 												onSelect={() => handleSelect(assistant.id)}
 											>
 												<div className="flex items-center">

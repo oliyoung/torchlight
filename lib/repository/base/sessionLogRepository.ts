@@ -40,50 +40,50 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   }
 
   /**
-   * Get all session logs for a user across all their athletes
+   * Get all session logs for a coach across all their athletes
    */
-  async getAllSessionLogs(userId: string | null): Promise<SessionLog[]> {
-    logger.info({ userId }, 'Fetching all session logs for user');
+  async getAllSessionLogs(coachId: string | null): Promise<SessionLog[]> {
+    logger.info({ coachId }, 'Fetching all session logs for coach');
 
-    if (!userId) return [];
+    if (!coachId) return [];
 
-    return this.getAll(userId);
+    return this.getAll(coachId);
   }
 
   /**
    * Get all session logs for a specific athlete
    */
-  async getSessionLogsByAthleteId(userId: string | null, athleteId: string): Promise<SessionLog[]> {
-    logger.info({ userId, athleteId }, 'Fetching session logs for athlete');
+  async getSessionLogsByAthleteId(coachId: string | null, athleteId: string): Promise<SessionLog[]> {
+    logger.info({ coachId, athleteId }, 'Fetching session logs for athlete');
 
-    if (!userId) return [];
+    if (!coachId) return [];
 
-    return this.getByField(userId, 'athlete_id', athleteId);
+    return this.getByField(coachId, 'athlete_id', athleteId);
   }
 
   /**
    * Get a session log by ID
    */
-  async getSessionLogById(userId: string | null, sessionLogId: string): Promise<SessionLog | null> {
-    logger.info({ userId, sessionLogId }, 'Fetching session log by ID');
+  async getSessionLogById(coachId: string | null, sessionLogId: string): Promise<SessionLog | null> {
+    logger.info({ coachId, sessionLogId }, 'Fetching session log by ID');
 
-    return this.getById(userId, sessionLogId);
+    return this.getById(coachId, sessionLogId);
   }
 
   /**
    * Get session logs by their IDs
    */
-  async getSessionLogsByIds(userId: string | null, sessionLogIds: string[]): Promise<SessionLog[]> {
-    logger.info({ userId, count: sessionLogIds.length }, 'Fetching session logs by IDs');
+  async getSessionLogsByIds(coachId: string | null, sessionLogIds: string[]): Promise<SessionLog[]> {
+    logger.info({ coachId, count: sessionLogIds.length }, 'Fetching session logs by IDs');
 
-    return this.getByIds(userId, sessionLogIds);
+    return this.getByIds(coachId, sessionLogIds);
   }
 
   /**
    * Create a new session log
    */
-  async createSessionLog(userId: string | null, input: CreateSessionLogInput): Promise<SessionLog | null> {
-    if (!userId) return null;
+  async createSessionLog(coachId: string | null, input: CreateSessionLogInput): Promise<SessionLog | null> {
+    if (!coachId) return null;
 
     logger.info({ input }, "Creating session log");
 
@@ -114,7 +114,7 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
         exercises_performed: input.exercisesPerformed || null
       };
 
-      const sessionLog = await this.create(userId, dbData);
+      const sessionLog = await this.create(coachId, dbData);
 
       if (!sessionLog) {
         logger.error({ input }, "Failed to create session log");
@@ -140,10 +140,10 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   /**
    * Update a session log
    */
-  async updateSessionLog(userId: string | null, sessionLogId: string, input: UpdateSessionLogInput): Promise<SessionLog | null> {
-    logger.info({ userId, sessionLogId, input }, 'Updating session log');
+  async updateSessionLog(coachId: string | null, sessionLogId: string, input: UpdateSessionLogInput): Promise<SessionLog | null> {
+    logger.info({ coachId, sessionLogId, input }, 'Updating session log');
 
-    if (!userId) return null;
+    if (!coachId) return null;
 
     try {
       // Build update data with all possible fields
@@ -172,7 +172,7 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
       if (input.equipmentUsed !== undefined) updateData.equipmentUsed = input.equipmentUsed;
       if (input.exercisesPerformed !== undefined) updateData.exercisesPerformed = input.exercisesPerformed;
 
-      const sessionLog = await this.update(userId, sessionLogId, updateData);
+      const sessionLog = await this.update(coachId, sessionLogId, updateData);
 
       if (!sessionLog) {
         logger.error({ sessionLogId, input }, 'Failed to update session log');
@@ -247,15 +247,15 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   /**
    * Summarize a session log (mock implementation)
    */
-  async summarizeSessionLog(userId: string | null, sessionLogId: string): Promise<SessionLog | null> {
-    logger.info({ userId, sessionLogId }, 'Summarizing session log');
+  async summarizeSessionLog(coachId: string | null, sessionLogId: string): Promise<SessionLog | null> {
+    logger.info({ coachId, sessionLogId }, 'Summarizing session log');
 
-    const sessionLog = await this.getById(userId, sessionLogId);
+    const sessionLog = await this.getById(coachId, sessionLogId);
     if (!sessionLog) return null;
 
     // In a real implementation, this would call an AI service
     // For now, we'll just update the session log with a mock summary
-    return this.update(userId, sessionLogId, {
+    return this.update(coachId, sessionLogId, {
       summary: "This is a mock AI-generated summary of the session.",
       aiMetadata: {
         ...sessionLog.aiMetadata,
@@ -265,10 +265,10 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
     });
   }
 
-  async generateSession(userId: string | null, input: AiGenerateSessionInput): Promise<SessionLog | null> {
-    logger.info({ userId, input }, 'Generating session');
+  async generateSession(coachId: string | null, input: AiGenerateSessionInput): Promise<SessionLog | null> {
+    logger.info({ coachId, input }, 'Generating session');
 
-    const sessionLog = await this.createSessionLog(userId, {
+    const sessionLog = await this.createSessionLog(coachId, {
       ...input,
       date: new Date()
     } as CreateSessionLogInput);
@@ -278,15 +278,15 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   /**
    * Generate action items for a session log (mock implementation)
    */
-  async generateActionItems(userId: string | null, sessionLogId: string): Promise<SessionLog | null> {
-    logger.info({ userId, sessionLogId }, 'Generating action items for session log');
+  async generateActionItems(coachId: string | null, sessionLogId: string): Promise<SessionLog | null> {
+    logger.info({ coachId, sessionLogId }, 'Generating action items for session log');
 
-    const sessionLog = await this.getById(userId, sessionLogId);
+    const sessionLog = await this.getById(coachId, sessionLogId);
     if (!sessionLog) return null;
 
     // In a real implementation, this would call an AI service
     // For now, we'll just update the session log with mock action items
-    return this.update(userId, sessionLogId, {
+    return this.update(coachId, sessionLogId, {
       actionItems: ["This is a mock action item 1", "This is a mock action item 2"],
       aiMetadata: {
         ...sessionLog.aiMetadata,
@@ -299,13 +299,13 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   /**
    * Add summary to a session log
    */
-  async addSummary(userId: string | null, sessionLogId: string, summary: string, actionItems: string[] = []): Promise<SessionLog | null> {
-    if (!userId) return null;
+  async addSummary(coachId: string | null, sessionLogId: string, summary: string, actionItems: string[] = []): Promise<SessionLog | null> {
+    if (!coachId) return null;
 
     logger.info({ sessionLogId, summary, actionItems }, "Adding summary to session log");
 
     try {
-      const updatedLog = await this.update(userId, sessionLogId, {
+      const updatedLog = await this.update(coachId, sessionLogId, {
         summary,
         actionItems,
         aiMetadata: {
@@ -324,13 +324,13 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
   /**
    * Add next steps to a session log
    */
-  async addNextSteps(userId: string | null, sessionLogId: string, actionItems: string[]): Promise<SessionLog | null> {
-    if (!userId) return null;
+  async addNextSteps(coachId: string | null, sessionLogId: string, actionItems: string[]): Promise<SessionLog | null> {
+    if (!coachId) return null;
 
     logger.info({ sessionLogId, actionItems }, "Adding next steps to session log");
 
     try {
-      const updatedLog = await this.update(userId, sessionLogId, {
+      const updatedLog = await this.update(coachId, sessionLogId, {
         actionItems,
         aiMetadata: {
           nextStepsGenerated: true,

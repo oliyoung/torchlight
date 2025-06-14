@@ -6,7 +6,7 @@ interface ErrorMessageProps {
 	message: string;
 }
 
-export function ErrorMessage({ message }: ErrorMessageProps) {
+export function ErrorMessage({ message }: Readonly<ErrorMessageProps>) {
 	return (
 		<Alert variant="destructive">
 			<TriangleAlertIcon className="h-4 w-4" />

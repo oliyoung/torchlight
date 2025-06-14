@@ -6,12 +6,12 @@ import { goalRepository } from '@/lib/repository';
 /**
  * Creates a DataLoader for batching goal requests
  */
-export const createGoalLoader = (userId: string | null) =>
+export const createGoalLoader = (coachId: string | null) =>
   new DataLoader<string, Goal | null>(async (goalIds) => {
-    logger.info({ userId, count: goalIds.length }, 'Batch loading goals');
+    logger.info({ coachId, count: goalIds.length }, 'Batch loading goals');
 
     // Get all the goals in a single query using the repository
-    const goals = await goalRepository.getGoalsByIds(userId, goalIds as string[]);
+    const goals = await goalRepository.getGoalsByIds(coachId, goalIds as string[]);
 
     // Create a map for O(1) lookups
     const goalMap = new Map(

@@ -39,15 +39,16 @@ const navigationData = {
 			icon: Users,
 		},
 		{
-			title: "Training Plans",
-			url: "/training-plans",
-			icon: FileTextIcon,
-		},
-		{
 			title: "Goals",
 			url: "/goals",
 			icon: TargetIcon,
 		},
+		{
+			title: "Training Plans",
+			url: "/training-plans",
+			icon: FileTextIcon,
+		},
+
 		{
 			title: "Session Logs",
 			url: "/session-logs",

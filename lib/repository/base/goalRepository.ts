@@ -48,62 +48,62 @@ export class GoalRepository extends EntityRepository<Goal> {
   }
 
   /**
-   * Get all goals for a user across all their athletes
+   * Get all goals for a coach across all their athletes
    */
-  async getAllGoals(userId: string | null): Promise<Goal[]> {
-    logger.info({ userId }, "Fetching all goals for user");
+  async getAllGoals(coachId: string | null): Promise<Goal[]> {
+    logger.info({ coachId }, "Fetching all goals for coach");
 
-    if (!userId) return [];
+    if (!coachId) return [];
 
-    return this.getAll(userId);
+    return this.getAll(coachId);
   }
 
   /**
    * Get all goals for a specific athlete
    */
   async getGoalsByAthleteId(
-    userId: string | null,
+    coachId: string | null,
     athleteId: string,
   ): Promise<Goal[]> {
-    logger.info({ userId, athleteId }, "Fetching goals for athlete");
+    logger.info({ coachId, athleteId }, "Fetching goals for athlete");
 
-    if (!userId) return [];
+    if (!coachId) return [];
 
-    return this.getByField(userId, "athlete_id", athleteId);
+    return this.getByField(coachId, "athlete_id", athleteId);
   }
 
   /**
    * Get a goal by ID
    */
   async getGoalById(
-    userId: string | null,
+    coachId: string | null,
     goalId: string,
   ): Promise<Goal | null> {
-    logger.info({ userId, goalId }, "Fetching goal by ID");
+    logger.info({ coachId, goalId }, "Fetching goal by ID");
 
-    return this.getById(userId, goalId);
+    return this.getById(coachId, goalId);
   }
 
   /**
    * Get goals by their IDs
    */
   async getGoalsByIds(
-    userId: string | null,
+    coachId: string | null,
     goalIds: string[],
   ): Promise<Goal[]> {
-    logger.info({ userId, count: goalIds.length }, "Fetching goals by IDs");
+    logger.info({ coachId, count: goalIds.length }, "Fetching goals by IDs");
 
-    return this.getByIds(userId, goalIds);
+    return this.getByIds(coachId, goalIds);
   }
 
   /**
    * Create a new goal
    */
   async createGoal(
-    userId: string | null,
+    coachId: string | null,
     input: CreateGoalInput & { trainingPlanIds?: string[] },
   ): Promise<Goal | null> {
-    if (!userId) return null;
+    if (!coachId) return null;
 
     logger.info({ input }, "Creating goal");
 
@@ -131,7 +131,7 @@ export class GoalRepository extends EntityRepository<Goal> {
       };
 
       // Create the goal first
-      const newGoal = await this.create(userId, dbGoal);
+      const newGoal = await this.create(coachId, dbGoal);
 
       // If we have training plan IDs and the goal was created successfully
       if (newGoal && input.trainingPlanIds && input.trainingPlanIds.length > 0) {
@@ -150,11 +150,11 @@ export class GoalRepository extends EntityRepository<Goal> {
    * Update a goal
    */
   async updateGoal(
-    userId: string | null,
+    coachId: string | null,
     goalId: string,
     input: UpdateGoalInput,
   ): Promise<Goal | null> {
-    if (!userId) return null;
+    if (!coachId) return null;
 
     logger.info({ goalId, input }, "Updating goal");
 
@@ -182,7 +182,7 @@ export class GoalRepository extends EntityRepository<Goal> {
       if (input.progressNotes !== undefined) dbGoal.progress_notes = input.progressNotes;
 
       // Update the goal first
-      const updatedGoal = await this.update(userId, goalId, dbGoal);
+      const updatedGoal = await this.update(coachId, goalId, dbGoal);
 
       // If we have training plan IDs and the goal was updated successfully
       if (updatedGoal && input.trainingPlanIds !== undefined) {
@@ -208,7 +208,7 @@ export class GoalRepository extends EntityRepository<Goal> {
    * Get goals associated with a training plan
    */
   async getGoalsByTrainingPlanId(
-    userId: string | null,
+    coachId: string | null,
     trainingPlanId: string,
   ): Promise<Goal[]> {
     try {
@@ -225,7 +225,7 @@ export class GoalRepository extends EntityRepository<Goal> {
       if (!goalIds.length) return [];
 
       // Get the actual goals
-      return this.getByIds(userId, goalIds);
+      return this.getByIds(coachId, goalIds);
     } catch (error) {
       logger.error(
         { error, trainingPlanId },

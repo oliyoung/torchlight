@@ -74,7 +74,6 @@ export function GoalTitleSelect({
 					<Button
 						id={`${label.toLowerCase().replace(/\s+/g, "-")}-select`}
 						variant="outline"
-						role="combobox"
 						aria-label={label}
 						aria-expanded={open}
 						className="w-full justify-between"

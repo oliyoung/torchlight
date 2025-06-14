@@ -138,7 +138,7 @@ export class EntityRepository<T extends { id: string | number }> {
   protected withUserFilter(
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
     query: PostgrestFilterBuilder<any, any, any>,
-    userId: string | null
+    coachId: string | null
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
   ): PostgrestFilterBuilder<any, any, any> {
     // RLS policies now handle user scoping automatically
@@ -147,8 +147,8 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic getById method
-  async getById(userId: string | null, id: string | number): Promise<T | null> {
-    logger.info({ userId, id, entity: this.entityMapping.tableName }, `Fetching ${this.entityMapping.tableName} by ID`);
+  async getById(coachId: string | null, id: string | number): Promise<T | null> {
+    logger.info({ coachId, id, entity: this.entityMapping.tableName }, `Fetching ${this.entityMapping.tableName} by ID`);
 
     try {
       let query = this.client
@@ -156,7 +156,7 @@ export class EntityRepository<T extends { id: string | number }> {
         .select('*')
         .eq('id', id);
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       const { data, error } = await query.single();
 
@@ -173,10 +173,10 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic getByIds method for batching
-  async getByIds(userId: string | null, ids: (string | number)[]): Promise<T[]> {
+  async getByIds(coachId: string | null, ids: (string | number)[]): Promise<T[]> {
     if (!ids.length) return [];
 
-    logger.info({ userId, count: ids.length, entity: this.entityMapping.tableName }, `Batch loading ${this.entityMapping.tableName}`);
+    logger.info({ coachId, count: ids.length, entity: this.entityMapping.tableName }, `Batch loading ${this.entityMapping.tableName}`);
 
     try {
       let query = this.client
@@ -184,7 +184,7 @@ export class EntityRepository<T extends { id: string | number }> {
         .select('*')
         .in('id', ids);
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       const { data, error } = await query;
 
@@ -201,15 +201,15 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic getAll method
-  async getAll(userId: string | null): Promise<T[]> {
-    logger.info({ userId, entity: this.entityMapping.tableName }, "Fetching all entities");
+  async getAll(coachId: string | null): Promise<T[]> {
+    logger.info({ coachId, entity: this.entityMapping.tableName }, "Fetching all entities");
 
     try {
       let query = this.client
         .from(this.entityMapping.tableName)
         .select('*');
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       const { data, error } = await query;
 
@@ -226,9 +226,9 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic create method
-  async create(userId: string | null, input: Partial<T>): Promise<T | null> {
-    if (!userId) {
-      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to create ${this.entityMapping.tableName} without userId`);
+  async create(coachId: string | null, input: Partial<T>): Promise<T | null> {
+    if (!coachId) {
+      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to create ${this.entityMapping.tableName} without coachId`);
       return null;
     }
 
@@ -239,25 +239,12 @@ export class EntityRepository<T extends { id: string | number }> {
 
       // Handle user scoping based on table type
       if (this.entityMapping.tableName === 'coaches') {
-        // Coaches table uses user_id directly
-        dbData.user_id ??= userId;
+        // Special case: coaches table creation should not happen through this method
+        // Use CoachRepository.createCoach() instead which handles userId properly
+        throw new Error('Coach creation should use CoachRepository.createCoach() method');
       } else {
-        // Other tables use coach_id - need to convert user_id to coach_id
-        if (!dbData.coach_id) {
-          // Get the coach_id for this user_id
-          const { data: coach, error: coachError } = await this.client
-            .from('coaches')
-            .select('id')
-            .eq('user_id', userId)
-            .single();
-
-          if (coachError || !coach) {
-            logger.error({ error: coachError, userId }, `Could not find coach for user_id when creating ${this.entityMapping.tableName}`);
-            return null;
-          }
-
-          dbData.coach_id = coach.id;
-        }
+        // Other tables use coach_id directly
+        dbData.coach_id ??= coachId;
       }
 
       const { data, error } = await this.client
@@ -279,9 +266,9 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic update method
-  async update(userId: string | null, id: string | number, input: Partial<T>): Promise<T | null> {
-    if (!userId) {
-      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to update ${this.entityMapping.tableName} without userId`);
+  async update(coachId: string | null, id: string | number, input: Partial<T>): Promise<T | null> {
+    if (!coachId) {
+      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to update ${this.entityMapping.tableName} without coachId`);
       return null;
     }
 
@@ -303,7 +290,7 @@ export class EntityRepository<T extends { id: string | number }> {
           .select('*')
           .eq('id', id);
 
-        query = this.withUserFilter(query, userId);
+        query = this.withUserFilter(query, coachId);
 
         const { data, error } = await query.maybeSingle();
 
@@ -323,7 +310,7 @@ export class EntityRepository<T extends { id: string | number }> {
         .update(dbData)
         .eq('id', id);
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       // Use maybeSingle instead of single to avoid PGRST116 error when no rows match
       const { data, error } = await query
@@ -336,7 +323,7 @@ export class EntityRepository<T extends { id: string | number }> {
       }
 
       if (!data) {
-        logger.warn({ id, userId }, `No rows affected when updating ${this.entityMapping.tableName}`);
+        logger.warn({ id, coachId }, `No rows affected when updating ${this.entityMapping.tableName}`);
         return null;
       }
 
@@ -348,9 +335,9 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic delete method (soft delete if deleted_at column exists)
-  async delete(userId: string | null, id: string | number): Promise<boolean> {
-    if (!userId) {
-      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to delete ${this.entityMapping.tableName} without userId`);
+  async delete(coachId: string | null, id: string | number): Promise<boolean> {
+    if (!coachId) {
+      logger.warn({ entity: this.entityMapping.tableName }, `Attempted to delete ${this.entityMapping.tableName} without coachId`);
       return false;
     }
 
@@ -363,7 +350,7 @@ export class EntityRepository<T extends { id: string | number }> {
         .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       const { error } = await query;
 
@@ -374,7 +361,7 @@ export class EntityRepository<T extends { id: string | number }> {
           .delete()
           .eq('id', id);
 
-        deleteQuery = this.withUserFilter(deleteQuery, userId);
+        deleteQuery = this.withUserFilter(deleteQuery, coachId);
 
         const { error: deleteError } = await deleteQuery;
 
@@ -395,8 +382,8 @@ export class EntityRepository<T extends { id: string | number }> {
   }
 
   // Generic method to get entities by a field value
-  async getByField(userId: string | null, field: string, value: unknown): Promise<T[]> {
-    logger.info({ userId, field, entity: this.entityMapping.tableName }, `Fetching ${this.entityMapping.tableName} by field ${field}`);
+  async getByField(coachId: string | null, field: string, value: unknown): Promise<T[]> {
+    logger.info({ coachId, field, entity: this.entityMapping.tableName }, `Fetching ${this.entityMapping.tableName} by field ${field}`);
 
     try {
       let query = this.client
@@ -404,7 +391,7 @@ export class EntityRepository<T extends { id: string | number }> {
         .select('*')
         .eq(field, String(value));
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       const { data, error } = await query;
 

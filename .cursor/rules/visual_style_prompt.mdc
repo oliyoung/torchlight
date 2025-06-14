@@ -42,20 +42,26 @@ Create a warm, personal, and subtly playful interface that feels like a clean co
 ## Color Palette
 
 ### Primary Colors
-- **Deep Sage**: #4A5D23 - Primary brand color, grounding and trustworthy
-- **Warm Charcoal**: #2D3436 - Main text and interface elements
-- **Soft Cream**: #FAF7F2 - Primary background, warm alternative to pure white
+- **Deep Burgundy**: Rich crimson red, passionate and sophisticated
+- **Emerald Green**: Deep jewel-toned green, grounding and luxurious
+- **Warm Cream**: Soft off-white background with golden undertones
 
 ### Secondary Colors
-- **Dusty Blue**: #6C7B95 - Secondary actions, calm focus states
-- **Clay Orange**: #D47B47 - Accent color for highlights and success states
-- **Warm Gray**: #8B9DC3 - Supporting text and subtle elements
+- **Golden Amber**: Warm honey tones for highlights and accents
+- **Terracotta**: Earthy rust orange for warmth and energy
+- **Sage Green**: Muted green-gray for subtle, calming elements
 
 ### Functional Colors
-- **Sage Green**: #7FB069 - Success, progress, positive feedback
-- **Soft Amber**: #F4A261 - Warnings, attention needed
-- **Muted Coral**: #E76F51 - Alerts, important notices
-- **Light Sage**: #E8F5E8 - Subtle backgrounds, hover states
+- **Forest Green**: Deep green for success and positive states
+- **Burnt Sienna**: Warm rust for warnings and attention
+- **Deep Crimson**: Rich red for alerts and important notices
+- **Warm Beige**: Soft neutral for subtle backgrounds
+
+### Dark Mode Palette
+- **Deep Emerald Black**: Rich black with green undertones for backgrounds
+- **Warm Ivory**: Soft off-white for text and light elements
+- **Vibrant Crimson**: Bright red accents that pop in dark environments
+- **Golden Glow**: Warm amber highlights reminiscent of tungsten lighting
 
 ## Typography (Google Fonts)
 

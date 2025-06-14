@@ -72,7 +72,28 @@ export class CoachRepository extends EntityRepository<Coach> {
       lastLoginAt: new Date().toISOString()
     };
 
-    return this.create(userId, coachData);
+    // Special case: For coach creation, we need to use the direct database insert
+    // since the base create() method now expects coachId but we're creating the coach
+    try {
+      const dbData = this.mapToDbColumns(coachData);
+      dbData.user_id = userId; // Explicitly set the user_id
+
+      const { data, error } = await this.client
+        .from(this.entityMapping.tableName)
+        .insert(dbData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating coach:', error);
+        return null;
+      }
+
+      return this.transformResponse(data);
+    } catch (error) {
+      console.error('Exception creating coach:', error);
+      return null;
+    }
   }
 
   /**
@@ -110,8 +131,28 @@ export class CoachRepository extends EntityRepository<Coach> {
       ...(input.onboardingCompleted !== undefined && { onboardingCompleted: Boolean(input.onboardingCompleted) })
     };
 
-    // Use the base class update method
-    return this.update(userId, coach.id, updateData);
+    // Special case: For coach updates, we need to use the coach.id as coachId
+    // since coaches are special and don't have a separate coach_id field
+    try {
+      const dbData = this.mapToDbColumns(updateData);
+
+      const { data, error } = await this.client
+        .from(this.entityMapping.tableName)
+        .update(dbData)
+        .eq('id', coach.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating coach:', error);
+        return null;
+      }
+
+      return this.transformResponse(data);
+    } catch (error) {
+      console.error('Exception updating coach:', error);
+      return null;
+    }
   }
 
   /**
@@ -125,9 +166,28 @@ export class CoachRepository extends EntityRepository<Coach> {
     const coach = await this.getByUserId(userId);
     if (!coach) return null;
 
-    // Use the base class update method with lastLoginAt
-    return this.update(userId, coach.id, {
-      lastLoginAt: new Date().toISOString()
-    });
+    // Special case: For coach updates, we need to use direct database update
+    try {
+      const dbData = this.mapToDbColumns({
+        lastLoginAt: new Date().toISOString()
+      });
+
+      const { data, error } = await this.client
+        .from(this.entityMapping.tableName)
+        .update(dbData)
+        .eq('id', coach.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating coach last login:', error);
+        return null;
+      }
+
+      return this.transformResponse(data);
+    } catch (error) {
+      console.error('Exception updating coach last login:', error);
+      return null;
+    }
   }
 }

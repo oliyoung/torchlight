@@ -35,19 +35,19 @@ export interface DataLoaders {
  * Creates all DataLoaders for the GraphQL context
  * This ensures proper batching and caching for all entity and relation resolvers
  */
-export function createDataLoaders(userId: string | null): DataLoaders {
+export function createDataLoaders(coachId: string | null): DataLoaders {
   return {
     // Entity loaders
     coachLoaders: createCoachLoaders(),
     coachBillingLoaders: createCoachBillingLoaders(),
-    athleteLoader: createAthleteLoader(userId),
-    goalLoader: createGoalLoader(userId),
-    sessionLogLoader: createSessionLogLoader(userId),
-    trainingPlanLoader: createTrainingPlanLoader(userId),
+    athleteLoader: createAthleteLoader(coachId),
+    goalLoader: createGoalLoader(coachId),
+    sessionLogLoader: createSessionLogLoader(coachId),
+    trainingPlanLoader: createTrainingPlanLoader(coachId),
     assistantLoader: createAssistantLoader(),
 
     // Relation loaders
-    athleteTrainingPlanIdsLoader: createAthleteTrainingPlanIdsLoader(userId),
+    athleteTrainingPlanIdsLoader: createAthleteTrainingPlanIdsLoader(coachId),
     goalSessionLogIdsLoader: createGoalSessionLogIdsLoader(),
     sessionLogGoalIdsLoader: createSessionLogGoalIdsLoader(),
     trainingPlanAssistantIdsLoader: createTrainingPlanAssistantIdsLoader(),

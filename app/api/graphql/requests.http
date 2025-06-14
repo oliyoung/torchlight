@@ -61,6 +61,31 @@ mutation CreateCoach($input: CreateCoachInput!) {
 
 ###
 
+POST http://localhost:3000/api/graphql HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjU0MzIxL2F1dGgvdjEiLCJzdWIiOiI0YTM1Yzc1Yy0yNDUwLTRmODEtODRmOS1lMmQwZWZjZTk3OWYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzQ5ODAyMDc4LCJpYXQiOjE3NDk3OTg0NzgsImVtYWlsIjoib2xpeW91bmdAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJnb29nbGUiLCJwcm92aWRlcnMiOlsiZ29vZ2xlIl19LCJ1c2VyX21ldGFkYXRhIjp7ImF2YXRhcl91cmwiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJVE53aUtVUnQzYUFMY3ljUF9WUnotdzd6cVRubWhwck9GbkVhZEhBZWwzTkswRHVjUD1zOTYtYyIsImVtYWlsIjoib2xpeW91bmdAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik9saSBZb3VuZyIsImlzcyI6Imh0dHBzOi8vYWNjb3VudHMuZ29vZ2xlLmNvbSIsIm5hbWUiOiJPbGkgWW91bmciLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInBpY3R1cmUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS9BQ2c4b2NJVE53aUtVUnQzYUFMY3ljUF9WUnotdzd6cVRubWhwck9GbkVhZEhBZWwzTkswRHVjUD1zOTYtYyIsInByb3ZpZGVyX2lkIjoiMTAyNzc4ODYyNjk3NDk4NTUwODU5Iiwic3ViIjoiMTAyNzc4ODYyNjk3NDk4NTUwODU5In0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoib2F1dGgiLCJ0aW1lc3RhbXAiOjE3NDk3OTEzODl9XSwic2Vzc2lvbl9pZCI6ImEzZjYxZWRiLWU2OTgtNGZiZC04ZWFhLTkwYTVlNmY4MzBlYyIsImlzX2Fub255bW91cyI6ZmFsc2V9.JuzRyfkAhdU1azs1jY382-9Zr23swEa6vWnAaJePM4I
+X-REQUEST-TYPE: GraphQL
+
+mutation CreateAthlete($input: CreateAthleteInput!) {
+    createAthlete(input: $input) {
+      id
+    __typename
+  }
+}
+
+{
+    "input": {
+        "birthday": "2012-07-17",
+        "email": "",
+        "firstName": "Lola",
+        "gender": "FEMALE",
+        "lastName": "Young",
+        "sport": "basketball",
+        "tags": []
+    }
+}
+
+###
 # 1. AI - Extract and Evaluate Goal (existing example)
 POST http://localhost:3000/api/graphql HTTP/1.1
 Content-Type: application/json

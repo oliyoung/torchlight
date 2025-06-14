@@ -1,12 +1,12 @@
 "use client";
 
 import { AthletesFilterBar, type AthletesFilterState } from "@/components/athletes-filter-bar";
-import { AddAthleteModal } from "@/components/add-athlete-modal";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { PageCard, PageGrid, PageWrapper } from "@/components/ui/page-wrapper";
 import type { Athlete } from "@/lib/types";
 import { PlusIcon } from "lucide-react";
+import Link from "next/link";
 import React, { useMemo, useState } from "react";
 import { useQuery } from "urql";
 
@@ -106,7 +106,14 @@ export default function Page() {
 			title="Athletes"
 			description="Manage and view all your athletes"
 			breadcrumbs={[{ label: "Athletes", href: "/athletes" }]}
-			actions={<AddAthleteModal onSuccess={() => reexecuteQuery({ requestPolicy: 'network-only' })} />}
+			actions={
+				<Button asChild>
+					<Link href="/athletes/new">
+						<PlusIcon className="w-4 h-4 mr-2" />
+						Add Athlete
+					</Link>
+				</Button>
+			}
 		>
 			<div className="space-y-6">
 				<AthletesFilterBar
@@ -134,15 +141,12 @@ export default function Page() {
 							</p>
 						</div>
 						<div className="mt-6">
-							<AddAthleteModal
-								onSuccess={() => reexecuteQuery({ requestPolicy: 'network-only' })}
-								triggerButton={
-									<Button size="lg">
-										<PlusIcon className="size-4" aria-hidden="true" />
-										Create First Athlete
-									</Button>
-								}
-							/>
+							<Button asChild size="lg">
+								<Link href="/athletes/new">
+									<PlusIcon className="size-4" aria-hidden="true" />
+									Create First Athlete
+								</Link>
+							</Button>
 						</div>
 					</div>
 				)}

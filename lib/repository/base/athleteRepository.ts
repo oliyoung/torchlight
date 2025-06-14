@@ -65,13 +65,13 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   /**
    * Get all athletes for a coach with calculated age
    */
-  async getAthletes(userId: string | null): Promise<Athlete[]> {
+  async getAthletes(coachId: string | null): Promise<Athlete[]> {
     return this.executeQueryWithAge<Athlete[]>(
       () => {
         let query = this.client
           .from(this.entityMapping.tableName)
           .select(this.getSelectWithAge());
-        return this.withUserFilter(query, userId);
+        return this.withUserFilter(query, coachId);
       },
       'Error fetching athletes with age'
     );
@@ -80,14 +80,14 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   /**
    * Get athlete by ID with calculated age
    */
-  async getAthleteById(userId: string | null, id: string): Promise<Athlete | null> {
+  async getAthleteById(coachId: string | null, id: string): Promise<Athlete | null> {
     return this.executeQueryWithAge<Athlete | null>(
       () => {
         let query = this.client
           .from(this.entityMapping.tableName)
           .select(this.getSelectWithAge())
           .eq('id', id);
-        return this.withUserFilter(query, userId);
+        return this.withUserFilter(query, coachId);
       },
       'Error fetching athlete with age',
       true
@@ -97,7 +97,7 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   /**
    * Get athletes by IDs with calculated age
    */
-  async getAthletesByIds(userId: string | null, ids: string[]): Promise<Athlete[]> {
+  async getAthletesByIds(coachId: string | null, ids: string[]): Promise<Athlete[]> {
     if (!ids.length) return [];
 
     return this.executeQueryWithAge<Athlete[]>(
@@ -106,7 +106,7 @@ export class AthleteRepository extends EntityRepository<Athlete> {
           .from(this.entityMapping.tableName)
           .select(this.getSelectWithAge())
           .in('id', ids);
-        return this.withUserFilter(query, userId);
+        return this.withUserFilter(query, coachId);
       },
       'Error batch loading athletes with age'
     );
@@ -115,16 +115,16 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   /**
    * Create a new athlete
    */
-  async createAthlete(userId: string | null, input: Partial<Athlete>): Promise<Athlete | null> {
-    return this.create(userId, input);
+  async createAthlete(coachId: string | null, input: Partial<Athlete>): Promise<Athlete | null> {
+    return this.create(coachId, input);
   }
 
   /**
    * Update an athlete with calculated age
    */
-  async updateAthlete(userId: string | null, id: string, input: Partial<Athlete>): Promise<Athlete | null> {
-    if (!userId) {
-      console.warn('Attempted to update athlete without userId');
+  async updateAthlete(coachId: string | null, id: string, input: Partial<Athlete>): Promise<Athlete | null> {
+    if (!coachId) {
+      console.warn('Attempted to update athlete without coachId');
       return null;
     }
 
@@ -138,7 +138,7 @@ export class AthleteRepository extends EntityRepository<Athlete> {
       if (Object.keys(filteredInput).length === 0) {
         console.warn(`No valid fields to update for athlete ${id}`);
         // Return the existing record with age calculation
-        return this.getAthleteById(userId, id);
+        return this.getAthleteById(coachId, id);
       }
 
       const dbData = this.mapToDbColumns(filteredInput);
@@ -148,7 +148,7 @@ export class AthleteRepository extends EntityRepository<Athlete> {
         .update(dbData)
         .eq('id', id);
 
-      query = this.withUserFilter(query, userId);
+      query = this.withUserFilter(query, coachId);
 
       // Use our custom select with age calculation
       const { data, error } = await query
@@ -175,8 +175,8 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   /**
    * Delete an athlete
    */
-  async deleteAthlete(userId: string | null, id: string): Promise<boolean> {
-    return this.delete(userId, id);
+  async deleteAthlete(coachId: string | null, id: string): Promise<boolean> {
+    return this.delete(coachId, id);
   }
 
   /**

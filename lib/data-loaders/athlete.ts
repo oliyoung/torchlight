@@ -6,11 +6,11 @@ import DataLoader from 'dataloader';
 /**
  * Create a DataLoader for batching athlete requests
  */
-export function createAthleteLoader(userId: string | null) {
+export function createAthleteLoader(coachId: string | null) {
   return new DataLoader<string, Athlete | null>(async (athleteIds) => {
     try {
       // Get all the athletes in a single query
-      const athletes = await athleteRepository.getAthletesByIds(userId, athleteIds as string[]);
+      const athletes = await athleteRepository.getAthletesByIds(coachId, athleteIds as string[]);
 
       // Create a map for easy lookup
       const athleteMap = new Map(

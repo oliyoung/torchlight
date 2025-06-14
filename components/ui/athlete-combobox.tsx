@@ -69,10 +69,9 @@ export function AthleteCombobox({
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
-						role="combobox"
 						aria-label={label ?? "Select an athlete"}
 						aria-expanded={open}
-						className="w-full justify-between"
+						className="w-full justify-between bg-input"
 						disabled={fetching || disabled}
 					>
 						{selectedAthlete
@@ -81,7 +80,7 @@ export function AthleteCombobox({
 						<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 					</Button>
 				</PopoverTrigger>
-				<PopoverContent className="w-[350px] p-0">
+				<PopoverContent className="w-[350px] p-0 z-[9999]">
 					<Command>
 						<CommandInput placeholder="Search athlete..." />
 						<CommandList>
@@ -90,9 +89,9 @@ export function AthleteCombobox({
 								{athletes.map((athlete) => (
 									<CommandItem
 										key={athlete.id}
-										value={athlete.id}
-										onSelect={(currentValue) => {
-											onChange(currentValue === value ? "" : currentValue);
+										value={`${athlete.firstName} ${athlete.lastName} ${athlete.email}`}
+										onSelect={() => {
+											onChange(athlete.id);
 											setOpen(false);
 										}}
 									>
