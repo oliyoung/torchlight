@@ -132,18 +132,18 @@ export class EntityRepository<T extends { id: string | number }> {
     return result;
   }
 
-  // Helper to add common filters - now handled by RLS policies
-  // This method is kept for backwards compatibility but no longer filters
-  // since RLS policies handle user scoping automatically
+  // Helper to add common filters
   protected withUserFilter(
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
     query: PostgrestFilterBuilder<any, any, any>,
     coachId: string | null
     // biome-ignore lint/suspicious/noExplicitAny: Required for compatibility with PostgrestFilterBuilder
   ): PostgrestFilterBuilder<any, any, any> {
-    // RLS policies now handle user scoping automatically
-    // No need to add manual filters
-    return query;
+    if (!coachId) return query;
+
+    // Apply coach_id filter for user scoping
+    // Since we use service role client, we need manual filtering
+    return query.eq('coach_id', coachId);
   }
 
   // Generic getById method
@@ -164,8 +164,9 @@ export class EntityRepository<T extends { id: string | number }> {
         logger.error({ error, id }, `Error fetching ${this.entityMapping.tableName}`);
         return null;
       }
-
-      return this.transformResponse(data);
+      const transformedData = this.transformResponse(data);
+      logger.info({ transformedData }, "Transformed data");
+      return transformedData;
     } catch (error) {
       logger.error({ error, id }, `Exception fetching ${this.entityMapping.tableName}`);
       return null;

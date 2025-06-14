@@ -180,7 +180,7 @@ const { handleRequest } = createYoga({
       Goal: {
         athlete: async (parent, _args, context) => {
           try {
-            const athleteId = parent.athlete_id;
+            const athleteId = parent.athleteId ?? parent.athlete_id;
             if (!athleteId) return null;
             return context.loaders.athlete.load(athleteId);
           } catch (error) {

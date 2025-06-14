@@ -209,7 +209,7 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
 
     const athletesRemaining = Math.max(0, billing.monthlyAthleteLimit - billing.currentAthleteCount);
     const sessionLogsRemaining = Math.max(0, billing.monthlySessionLogLimit - billing.currentSessionLogCount);
-    const aiCreditsRemaining = billing.aiCreditsRemaining || 0;
+    const aiCreditsRemaining = billing.aiCreditsRemaining ?? 0;
 
     return {
       canCreateAthlete: athletesRemaining > 0,
@@ -220,12 +220,4 @@ export class CoachBillingRepository extends EntityRepository<CoachBilling> {
       aiCreditsRemaining
     };
   }
-
-  // Inherited methods from EntityRepository provide basic CRUD operations:
-  // - getAll(null) -> getAllBilling
-  // - getById(null, id) -> getBillingById
-  // - getByIds(null, ids) -> getBillingByIds
-  // - create(null, data) -> createBilling
-  // - update(null, id, data) -> updateBilling
-  // Note: CoachBilling uses null for userId since it's not user-scoped directly
 }

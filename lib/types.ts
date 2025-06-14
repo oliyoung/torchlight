@@ -753,7 +753,6 @@ export type QueryCoachArgs = {
  * All queries are automatically scoped to the authenticated coach's data.
  */
 export type QueryGoalArgs = {
-  athleteId: Scalars['ID']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -1578,7 +1577,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   athlete?: Resolver<Maybe<ResolversTypes['Athlete']>, ParentType, ContextType, RequireFields<QueryAthleteArgs, 'id'>>;
   athletes?: Resolver<Array<ResolversTypes['Athlete']>, ParentType, ContextType>;
   coach?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType, RequireFields<QueryCoachArgs, 'id'>>;
-  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'athleteId' | 'id'>>;
+  goal?: Resolver<Maybe<ResolversTypes['Goal']>, ParentType, ContextType, RequireFields<QueryGoalArgs, 'id'>>;
   goals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType, Partial<QueryGoalsArgs>>;
   me?: Resolver<Maybe<ResolversTypes['Coach']>, ParentType, ContextType>;
   sessionLog?: Resolver<Maybe<ResolversTypes['SessionLog']>, ParentType, ContextType, RequireFields<QuerySessionLogArgs, 'id'>>;

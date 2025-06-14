@@ -35,7 +35,7 @@ export class AssistantRepository extends EntityRepository<Assistant> {
       // Apply filters if provided - use ilike for case-insensitive matching
       if (sport) query = query.ilike('sport', `%${sport}%`);
       if (role) query = query.ilike('role', `%${role}%`);
-      if (strengths && strengths.length > 0) {
+      if (strengths?.length) {
         // Filter for assistants that have at least one of the requested strengths
         // This assumes strengths is stored as an array in Supabase
         query = query.contains('strengths', strengths);
@@ -82,6 +82,4 @@ export class AssistantRepository extends EntityRepository<Assistant> {
   async updateAssistant(id: string, input: Partial<Assistant>): Promise<Assistant | null> {
     return this.update(null, id, input);
   }
-
-  // Note: Assistants use null for userId since they're globally available
 }

@@ -11,7 +11,7 @@ export interface JoinTableConfig {
 }
 
 export class RelationRepository {
-  private client: SupabaseClient;
+  private readonly client: SupabaseClient;
 
   constructor() {
     this.client = supabaseServiceRole;

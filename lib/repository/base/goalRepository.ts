@@ -112,29 +112,29 @@ export class GoalRepository extends EntityRepository<Goal> {
       const dbGoal = {
         athlete_id: input.athleteId,
         title: input.title,
-        description: input.description || null,
+        description: input.description ?? null,
         category: input.category,
         priority: input.priority,
         sport: input.sport,
 
         // Progress Tracking
-        target_value: input.targetValue || null,
-        current_value: input.currentValue || 0,
-        unit: input.unit || null,
+        target_value: input.targetValue ?? null,
+        current_value: input.currentValue ?? 0,
+        unit: input.unit ?? null,
 
         // Status and Timeline
         status: GoalStatus.Active,
-        due_date: input.dueDate || null,
+        due_date: input.dueDate ?? null,
 
         // Notes
-        progress_notes: input.progressNotes || null
+        progress_notes: input.progressNotes ?? null
       };
 
       // Create the goal first
       const newGoal = await this.create(coachId, dbGoal);
 
       // If we have training plan IDs and the goal was created successfully
-      if (newGoal && input.trainingPlanIds && input.trainingPlanIds.length > 0) {
+      if (newGoal && input.trainingPlanIds?.length) {
         // Add relationships between the goal and training plans
         await this.addTrainingPlans(newGoal.id, input.trainingPlanIds);
       }

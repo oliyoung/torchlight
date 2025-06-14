@@ -442,7 +442,7 @@ type Query {
 
 	# Goal queries
 	goals(athleteId: ID): [Goal!]! # Get all goals for a specific athlete, or all goals if athleteId is omitted
-	goal(id: ID!, athleteId: ID!): Goal # Get specific goal by ID and athlete
+	goal(id: ID!): Goal # Get specific goal by ID
 
 	# Session log queries
 	sessionLogs(athleteId: ID): [SessionLog!]! # Get all session logs for an athlete, or all session logs if athleteId is omitted

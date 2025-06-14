@@ -8,6 +8,7 @@ import {
 import type { Assistant, AssistantsInput, Athlete, Goal, SessionLog, TrainingPlan } from "@/lib/types";
 import type { GraphQLContext } from "../route";
 import { me, coach } from "./coaches";
+import { logger } from "@/lib/logger";
 
 export default {
   // Coach queries
@@ -21,7 +22,7 @@ export default {
   athlete: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Athlete | null> =>
     context.loaders.athlete.load(args.id),
 
-  goal: async (_parent: unknown, args: { id: string; athleteId: string }, context: GraphQLContext): Promise<Goal | null> =>
+  goal: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<Goal | null> =>
     context.loaders.goal.load(args.id),
 
   sessionLog: async (_parent: unknown, args: { id: string }, context: GraphQLContext): Promise<SessionLog | null> =>
@@ -39,7 +40,9 @@ export default {
 
   goals: async (_parent: unknown, args: { athleteId?: string }, context: GraphQLContext): Promise<Goal[]> => {
     if (args.athleteId) {
-      return goalRepository.getGoalsByAthleteId(context.coachId, args.athleteId);
+      const goals = await goalRepository.getGoalsByAthleteId(context.coachId, args.athleteId);
+      logger.info({ goals }, "Goals");
+      return goals;
     }
     return goalRepository.getAllGoals(context.coachId);
   },

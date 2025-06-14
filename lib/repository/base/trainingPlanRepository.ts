@@ -87,16 +87,16 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
 
         // Plan Information
         title: data.title,
-        overview: data.overview || null,
+        overview: data.overview ?? null,
         difficulty: data.difficulty,
         sport: data.sport,
 
         // Timeline
-        start_date: data.startDate || null,
-        end_date: data.endDate || null,
+        start_date: data.startDate ?? null,
+        end_date: data.endDate ?? null,
 
         // Content
-        notes: data.notes || null,
+        notes: data.notes ?? null,
 
         // Status
         status: TrainingPlanStatus.Draft

@@ -14,9 +14,23 @@ const athleteMapping: EntityMapping<Athlete> = {
     goalsSummary: 'goals_summary',
     preferredTrainingTime: 'preferred_training_time',
     medicalConditions: 'medical_conditions'
-    // Note: Athletes don't have userId field - they're scoped via coach_id and RLS
   }
-  // No custom transform needed - auto-transform handles all field mappings and date conversions
+};
+
+// Athlete with age view mapping
+const athleteWithAgeMapping: EntityMapping<Athlete> = {
+  tableName: 'athletes_with_age',
+  columnMappings: {
+    firstName: 'first_name',
+    lastName: 'last_name',
+    emergencyContactName: 'emergency_contact_name',
+    emergencyContactPhone: 'emergency_contact_phone',
+    fitnessLevel: 'fitness_level',
+    trainingHistory: 'training_history',
+    goalsSummary: 'goals_summary',
+    preferredTrainingTime: 'preferred_training_time',
+    medicalConditions: 'medical_conditions'
+  }
 };
 
 export class AthleteRepository extends EntityRepository<Athlete> {
@@ -25,29 +39,15 @@ export class AthleteRepository extends EntityRepository<Athlete> {
   }
 
   /**
-   * Get the select clause with age calculation
-   */
-  private getSelectWithAge(): string {
-    return `
-      *,
-      CASE
-        WHEN birthday IS NOT NULL
-        THEN EXTRACT(YEAR FROM AGE(birthday))::int
-        ELSE NULL
-      END as age
-    `;
-  }
-
-  /**
-   * Execute a query with age calculation and proper error handling
+   * Execute a query using the athletes_with_age view
    */
   private async executeQueryWithAge<T>(
-    queryBuilder: () => any,
+    queryBuilder: (tableName: string) => any,
     errorMessage: string,
     isSingle = false
   ): Promise<T> {
     try {
-      const query = queryBuilder();
+      const query = queryBuilder(athleteWithAgeMapping.tableName);
       const { data, error } = isSingle ? await query.single() : await query;
 
       if (error) {
@@ -67,10 +67,10 @@ export class AthleteRepository extends EntityRepository<Athlete> {
    */
   async getAthletes(coachId: string | null): Promise<Athlete[]> {
     return this.executeQueryWithAge<Athlete[]>(
-      () => {
+      (tableName) => {
         let query = this.client
-          .from(this.entityMapping.tableName)
-          .select(this.getSelectWithAge());
+          .from(tableName)
+          .select('*');
         return this.withUserFilter(query, coachId);
       },
       'Error fetching athletes with age'
@@ -82,10 +82,10 @@ export class AthleteRepository extends EntityRepository<Athlete> {
    */
   async getAthleteById(coachId: string | null, id: string): Promise<Athlete | null> {
     return this.executeQueryWithAge<Athlete | null>(
-      () => {
+      (tableName) => {
         let query = this.client
-          .from(this.entityMapping.tableName)
-          .select(this.getSelectWithAge())
+          .from(tableName)
+          .select('*')
           .eq('id', id);
         return this.withUserFilter(query, coachId);
       },
@@ -101,10 +101,10 @@ export class AthleteRepository extends EntityRepository<Athlete> {
     if (!ids.length) return [];
 
     return this.executeQueryWithAge<Athlete[]>(
-      () => {
+      (tableName) => {
         let query = this.client
-          .from(this.entityMapping.tableName)
-          .select(this.getSelectWithAge())
+          .from(tableName)
+          .select('*')
           .in('id', ids);
         return this.withUserFilter(query, coachId);
       },
@@ -150,9 +150,9 @@ export class AthleteRepository extends EntityRepository<Athlete> {
 
       query = this.withUserFilter(query, coachId);
 
-      // Use our custom select with age calculation
+      // Return without age - we'll fetch with age separately
       const { data, error } = await query
-        .select(this.getSelectWithAge())
+        .select('*')
         .maybeSingle();
 
       if (error) {
@@ -165,7 +165,8 @@ export class AthleteRepository extends EntityRepository<Athlete> {
         return null;
       }
 
-      return this.transformResponse(data);
+      // Fetch the updated record with age calculation
+      return this.getAthleteById(coachId, id);
     } catch (error) {
       console.error('Exception updating athlete:', error);
       return null;
@@ -177,23 +178,5 @@ export class AthleteRepository extends EntityRepository<Athlete> {
    */
   async deleteAthlete(coachId: string | null, id: string): Promise<boolean> {
     return this.delete(coachId, id);
-  }
-
-  /**
-   * Calculate age from birthday
-   */
-  calculateAge(birthday: string): number {
-    const birthDate = new Date(birthday);
-    const today = new Date();
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    // If birthday hasn't occurred this year yet, subtract 1
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-
-    return age;
   }
 }
