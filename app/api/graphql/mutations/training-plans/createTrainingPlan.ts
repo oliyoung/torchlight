@@ -37,14 +37,7 @@ export const createTrainingPlan = async (
             logger.error({ input, trainingPlan }, 'Failed to fetch athlete');
         }
 
-        generateTrainingPlanContent(
-            trainingPlan.id,
-            coachId,
-            input.assistantIds ?? [],
-            athlete as Athlete,
-            goals as Goal[],
-            context.pubsub
-        ).catch(console.error);
+        // TODO: Generate training plan content
 
         return trainingPlan;
     } catch (error) {

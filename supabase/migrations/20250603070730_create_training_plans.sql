@@ -11,7 +11,6 @@ CREATE TABLE training_plans (
     title VARCHAR(255),
     overview TEXT,
     difficulty training_plan_difficulty NOT NULL DEFAULT 'INTERMEDIATE',
-    sport VARCHAR(255) NOT NULL,
 
     -- Timeline
     start_date DATE,
@@ -47,7 +46,6 @@ CREATE TABLE training_plans (
 
     -- Constraints
     CONSTRAINT chk_training_plans_title_not_empty CHECK (length(trim(title)) > 0),
-    CONSTRAINT chk_training_plans_sport_not_empty CHECK (length(trim(sport)) > 0),
     CONSTRAINT chk_training_plans_date_order CHECK (start_date IS NULL OR end_date IS NULL OR start_date <= end_date),
     CONSTRAINT chk_training_plans_completion_percentage CHECK (completion_percentage >= 0 AND completion_percentage <= 100),
     CONSTRAINT chk_training_plans_duration_positive CHECK (duration_weeks IS NULL OR duration_weeks > 0)
@@ -58,7 +56,6 @@ CREATE INDEX idx_training_plans_coach_id ON training_plans(coach_id) WHERE delet
 CREATE INDEX idx_training_plans_athlete_id ON training_plans(athlete_id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_training_plans_status ON training_plans(status) WHERE deleted_at IS NULL;
 CREATE INDEX idx_training_plans_difficulty ON training_plans(difficulty) WHERE deleted_at IS NULL;
-CREATE INDEX idx_training_plans_sport ON training_plans(sport) WHERE deleted_at IS NULL;
 CREATE INDEX idx_training_plans_start_date ON training_plans(start_date) WHERE deleted_at IS NULL;
 CREATE INDEX idx_training_plans_generated_by ON training_plans(generated_by) WHERE deleted_at IS NULL;
 CREATE INDEX idx_training_plans_deleted_at ON training_plans(deleted_at);
@@ -76,7 +73,6 @@ ALTER TABLE training_plans ADD COLUMN search_vector tsvector
     to_tsvector('english',
       coalesce(title, '') || ' ' ||
       coalesce(overview, '') || ' ' ||
-      coalesce(sport, '') || ' ' ||
       coalesce(notes, '')
     )
   ) STORED;
