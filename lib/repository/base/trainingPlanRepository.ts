@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import type { CreateTrainingPlanInput, TrainingPlan } from "@/lib/types";
-import { TrainingPlanStatus } from "@/lib/types";
+import { TrainingPlanStatus, TrainingPlanDifficulty } from "@/lib/types";
 import { type EntityMapping, EntityRepository } from "./entityRepository";
 import { RelationRepository } from "./relationRepository";
 
@@ -84,7 +84,7 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
       // Create training plan with all new fields
       const dbTrainingPlan = {
         overview: data.overview ?? null,
-        difficulty: data.difficulty,
+        difficulty: data.difficulty ?? TrainingPlanDifficulty.Intermediate,
         athlete_id: data.athleteId,
         start_date: data.startDate ?? null,
         end_date: data.endDate ?? null,

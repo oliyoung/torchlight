@@ -42,7 +42,6 @@ const CreateGoalMutation = `
     createGoal(input: $input) {
       id
       title
-      sport
       trainingPlans {
         id
       }
@@ -114,7 +113,8 @@ export default function NewGoalPage() {
           athleteId: values.athleteId,
           title: values.title,
           description: values.description || "",
-          sport: athleteSport, // Use the athlete's sport
+          category: "SKILL", // Default category since it's required
+          priority: "MEDIUM", // Default priority since it's required
           dueDate: values.dueDate,
         },
       });

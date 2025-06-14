@@ -60,7 +60,6 @@ const CREATE_GOAL_MUTATION = `
 			title
 			description
 			status
-			sport
 		}
 	}
 `;
@@ -125,14 +124,14 @@ export function GoalEvaluationDialog({
 
 			const goalTitle = coreGoal.primaryObjective;
 			const goalDescription = refinedGoal.improvedGoalStatement || goalText;
-			const sport = coreGoal.sport || "General";
 
 			const result = await executeCreateGoal({
 				input: {
 					athleteId,
 					title: goalTitle,
 					description: goalDescription,
-					sport,
+					category: "SKILL", // Default category since it's required
+					priority: "MEDIUM", // Default priority since it's required
 				},
 			});
 

@@ -702,7 +702,6 @@ input CreateTrainingPlanInput {
 	assistantIds: [ID!] # AI assistants to use for plan generation
 	goalIds: [ID!] # Goals this plan should address
 	overview: String # High-level plan description and objectives
-	difficulty: TrainingPlanDifficulty! # Plan difficulty level
 	notes: String # Coach notes about the plan
 	startDate: DateTime # When the training plan should begin
 	endDate: DateTime # When the training plan should conclude

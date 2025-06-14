@@ -79,7 +79,6 @@ function GoalsList() {
 								<span>
 									Athlete: {goal.athlete.firstName} {goal.athlete.lastName}
 								</span>
-								{goal.sport && <span>Sport: {goal.sport}</span>}
 								{goal.dueDate && (
 									<span>
 										Due: {new Date(goal.dueDate).toLocaleDateString()}

@@ -25,7 +25,6 @@ const TrainingPlanQuery = gql`
   query TrainingPlan($id: ID!) {
     trainingPlan(id: $id) {
       id
-      title
       athlete {
         id
         firstName
@@ -56,7 +55,6 @@ const UpdateTrainingPlanMutation = `
   mutation UpdateTrainingPlan($id: ID!, $input: UpdateTrainingPlanInput!) {
     updateTrainingPlan(id: $id, input: $input) {
       id
-      title
       assistants {
         id
         name
@@ -196,7 +194,7 @@ const TrainingPlanDetailPage: React.FC = () => {
 			<Breadcrumbs />
 			<div className="space-y-6">
 				<div className="space-y-2">
-					<Heading>{plan.title}</Heading>
+					<Heading>Training Plan</Heading>
 					{plan.athlete && (
 						<div className="flex items-center text-muted-foreground">
 							<UserIcon className="w-4 h-4 mr-1" />

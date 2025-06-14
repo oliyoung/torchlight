@@ -337,7 +337,6 @@ export type CreateSessionLogInput = {
 export type CreateTrainingPlanInput = {
   assistantIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   athleteId: Scalars['ID']['input'];
-  difficulty: TrainingPlanDifficulty;
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   goalIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   notes?: InputMaybe<Scalars['String']['input']>;

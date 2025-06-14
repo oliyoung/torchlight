@@ -1,7 +1,7 @@
 import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlan";
 import { logger } from "@/lib/logger";
 import { trainingPlanRepository } from "@/lib/repository";
-import type { AiGenerateTrainingPlanInput, TrainingPlan, TrainingPlanDifficulty } from "@/lib/types";
+import type { AiGenerateTrainingPlanInput, TrainingPlan } from "@/lib/types";
 
 export default async (
   _parent: any,
@@ -22,7 +22,6 @@ export default async (
     const trainingPlan = await trainingPlanRepository.createTrainingPlan(coachId, {
       athleteId,
       goalIds,
-      difficulty: TrainingPlanDifficulty.Intermediate,
     });
 
     if (!trainingPlan) {

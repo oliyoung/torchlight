@@ -48,9 +48,9 @@ export const AthleteTrainingPlansList: React.FC<
 					{trainingPlans.map((plan) => (
 						<Card key={plan.id} className="h-full">
 							<CardHeader>
-								<CardTitle className="text-lg">{plan.title}</CardTitle>
-								{plan.summary && (
-									<CardDescription>{plan.summary}</CardDescription>
+								<CardTitle className="text-lg">Training Plan</CardTitle>
+								{plan.overview && (
+									<CardDescription>{plan.overview}</CardDescription>
 								)}
 							</CardHeader>
 							<CardContent>

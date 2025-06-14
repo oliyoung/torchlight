@@ -1,7 +1,6 @@
 import { createTrainingPlan } from "../createTrainingPlan";
 import { trainingPlanRepository, athleteRepository, goalRepository } from "@/lib/repository";
 import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlan";
-import { TrainingPlanDifficulty } from "@/lib/types";
 
 jest.mock("@/lib/repository");
 jest.mock("@/ai/features/generateTrainingPlan");
@@ -12,7 +11,7 @@ const mockInput = {
     athleteId: "athlete-1",
     goalIds: ["goal-1", "goal-2"],
     assistantIds: ["assistant-1"],
-    difficulty: TrainingPlanDifficulty.Beginner
+    overview: "Test training plan overview"
 };
 const mockAthlete = { id: "athlete-1" };
 const mockGoals = [{ id: "goal-1" }, { id: "goal-2" }];

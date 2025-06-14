@@ -147,7 +147,6 @@ export default function Page() {
 										</p>
 									)}
 									<div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-										{goal.sport && <span>Sport: {goal.sport}</span>}
 										{goal.dueDate && (
 											<span>
 												Due: {new Date(goal.dueDate).toLocaleDateString()}
