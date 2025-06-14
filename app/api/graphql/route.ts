@@ -22,7 +22,7 @@ import { supabaseConfig } from '@/lib/supabase/config';
 import type { User } from '@supabase/supabase-js';
 import type DataLoader from 'dataloader'
 import type { PubSub } from 'graphql-subscriptions'
-import { type YogaInitialContext, createSchema, createYoga } from 'graphql-yoga'
+import { createSchema, createYoga } from 'graphql-yoga'
 import mutations from './mutations';
 import queries from './queries';
 import subscriptions from './subscriptions';

@@ -13,7 +13,6 @@ CREATE TABLE goals (
     description TEXT,
     category goal_category NOT NULL,
     priority goal_priority NOT NULL DEFAULT 'MEDIUM',
-    sport VARCHAR(255) NOT NULL,
 
     -- Progress Tracking
     target_value DECIMAL(10,2),
@@ -42,7 +41,6 @@ CREATE TABLE goals (
 
     -- Constraints
     CONSTRAINT chk_goals_title_not_empty CHECK (length(trim(title)) > 0),
-    CONSTRAINT chk_goals_sport_not_empty CHECK (length(trim(sport)) > 0),
     CONSTRAINT chk_goals_target_value_positive CHECK (target_value IS NULL OR target_value > 0),
     CONSTRAINT chk_goals_current_value_non_negative CHECK (current_value IS NULL OR current_value >= 0),
     CONSTRAINT chk_goals_progress_percentage CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
@@ -60,7 +58,6 @@ CREATE INDEX idx_goals_status ON goals(status) WHERE deleted_at IS NULL;
 CREATE INDEX idx_goals_category ON goals(category) WHERE deleted_at IS NULL;
 CREATE INDEX idx_goals_priority ON goals(priority) WHERE deleted_at IS NULL;
 CREATE INDEX idx_goals_due_date ON goals(due_date) WHERE deleted_at IS NULL;
-CREATE INDEX idx_goals_sport ON goals(sport) WHERE deleted_at IS NULL;
 CREATE INDEX idx_goals_deleted_at ON goals(deleted_at);
 
 -- Composite indexes for common queries
@@ -73,7 +70,6 @@ ALTER TABLE goals ADD COLUMN search_vector tsvector
     to_tsvector('english',
       coalesce(title, '') || ' ' ||
       coalesce(description, '') || ' ' ||
-      coalesce(sport, '') || ' ' ||
       coalesce(progress_notes, '')
     )
   ) STORED;
