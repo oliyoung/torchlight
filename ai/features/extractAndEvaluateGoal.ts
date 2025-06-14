@@ -39,7 +39,7 @@ const goalEvaluationResponseSchema = z.object({
     timeline: z.object({
         targetDate: z.string().nullable(),
         duration: z.string().nullable(),
-        urgencyLevel: z.enum(["immediate", "short-term", "medium-term", "long-term"]),
+        urgencyLevel: z.enum(["IMMEDIATE", "SHORT_TERM", "MEDIUM_TERM", "LONG_TERM"]),
         milestones: z.array(z.string()),
     }),
     motivation: z.object({
@@ -57,7 +57,7 @@ const goalEvaluationResponseSchema = z.object({
     }),
     constraints: z.object({
         physicalLimitations: z.array(z.string()),
-        experienceLevel: z.enum(["beginner", "intermediate", "advanced", "returning"]),
+        experienceLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED", "RETURNING"]),
         previousChallenges: z.array(z.string()),
         riskFactors: z.array(z.string()),
     }),
@@ -67,13 +67,13 @@ const goalEvaluationResponseSchema = z.object({
         secondaryBenefits: z.array(z.string()),
     }),
     extractionConfidence: z.object({
-        overallConfidence: z.enum(["high", "medium", "low"]),
+        overallConfidence: z.enum(["HIGH", "MEDIUM", "LOW"]),
         missingInformation: z.array(z.string()),
         assumptions: z.array(z.string()),
         suggestedQuestions: z.array(z.string()),
     }),
     coachingFeedback: z.object({
-        dataQuality: z.enum(["excellent", "good", "limited", "insufficient"]),
+        dataQuality: z.enum(["EXCELLENT", "GOOD", "LIMITED", "INSUFFICIENT"]),
         keyGapsIdentified: z.array(z.string()),
         improvementSuggestions: z.array(z.string()),
         riskFlags: z.array(z.string()),
@@ -143,15 +143,15 @@ export const extractAndEvaluateGoal = async (
             athleteName: `${athlete.firstName} ${athlete.lastName}`,
             athleteAge: athleteAge.toString(),
             athleteSport: athlete.sport,
-            athleteExperience: athlete.trainingHistory || "Not specified",
-            athleteFitnessLevel: athlete.fitnessLevel || "Not specified",
-            athleteTrainingHistory: athlete.trainingHistory || "No training history provided",
-            athleteBirthday: athlete.birthday || "Not specified",
-            athleteGender: athlete.gender || "Not specified",
-            athleteHeight: athlete.height?.toString() || "Not specified",
-            athleteWeight: athlete.weight?.toString() || "Not specified",
+            athleteExperience: athlete.trainingHistory ?? "Not specified",
+            athleteFitnessLevel: athlete.fitnessLevel ?? "Not specified",
+            athleteTrainingHistory: athlete.trainingHistory ?? "No training history provided",
+            athleteBirthday: athlete.birthday ?? "Not specified",
+            athleteGender: athlete.gender ?? "Not specified",
+            athleteHeight: athlete.height?.toString() ?? "Not specified",
+            athleteWeight: athlete.weight?.toString() ?? "Not specified",
             coachRelationship: "Current coach", // Could be enhanced with actual relationship data
-            athletePreviousGoals: athlete.notes || "No previous goals recorded",
+            athletePreviousGoals: athlete.notes ?? "No previous goals recorded",
             goalText: goalText
         };
 

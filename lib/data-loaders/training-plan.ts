@@ -26,7 +26,6 @@ async function getTrainingPlansByIds(userId: string | null, trainingPlanIds: str
   // Format the data into TrainingPlan objects
   const trainingPlans = data.map(plan => ({
     id: plan.id,
-    title: plan.title,
     overview: plan.overview,
     planJson: plan.plan_json,
     athleteId: plan.athlete_id,

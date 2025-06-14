@@ -23,7 +23,7 @@ messages:
       ### 2. Timeline Information
       - **Target Date**: Specific deadline if mentioned (date, event, season)
       - **Duration**: How long they expect this goal to take
-      - **Urgency Level**: Immediate, short-term (weeks), medium-term (months), long-term (year+)
+      - **Urgency Level**: IMMEDIATE, SHORT_TERM (weeks), MEDIUM_TERM (months), LONG_TERM (year+)
       - **Key Milestones**: Any intermediate targets or checkpoints mentioned
 
       ### 3. Motivation & Context
@@ -40,7 +40,7 @@ messages:
 
       ### 5. Constraints & Limitations
       - **Physical Limitations**: Injuries, recovery from setbacks, physical restrictions
-      - **Experience Level**: Beginner, intermediate, advanced, returning after break
+      - **Experience Level**: BEGINNER, INTERMEDIATE, ADVANCED, RETURNING
       - **Previous Challenges**: What hasn't worked before, obstacles encountered
       - **Risk Factors**: Age considerations, injury history, overtraining concerns
 

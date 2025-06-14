@@ -93,7 +93,6 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
         athlete_id: input.athleteId,
 
         // Session Information
-        title: input.title || null,
         session_type: input.sessionType,
         date: input.date,
         duration_minutes: input.durationMinutes || null,
@@ -150,7 +149,6 @@ export class SessionLogRepository extends EntityRepository<SessionLog> {
       const updateData: Record<string, unknown> = {};
 
       // Session Information
-      if (input.title !== undefined) updateData.title = input.title;
       if (input.sessionType !== undefined) updateData.sessionType = input.sessionType;
       if (input.date !== undefined) updateData.date = input.date;
       if (input.durationMinutes !== undefined) updateData.durationMinutes = input.durationMinutes;

@@ -8,7 +8,7 @@ CREATE TABLE training_plans (
     athlete_id UUID NOT NULL REFERENCES athletes(id) ON DELETE CASCADE,
 
     -- Plan Information
-    title VARCHAR(255) NOT NULL,
+    title VARCHAR(255),
     overview TEXT,
     difficulty training_plan_difficulty NOT NULL DEFAULT 'INTERMEDIATE',
     sport VARCHAR(255) NOT NULL,

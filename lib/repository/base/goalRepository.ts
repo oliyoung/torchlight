@@ -115,7 +115,6 @@ export class GoalRepository extends EntityRepository<Goal> {
         description: input.description ?? null,
         category: input.category,
         priority: input.priority,
-        sport: input.sport,
 
         // Progress Tracking
         target_value: input.targetValue ?? null,
@@ -166,7 +165,6 @@ export class GoalRepository extends EntityRepository<Goal> {
       if (input.description !== undefined) dbGoal.description = input.description;
       if (input.category !== undefined) dbGoal.category = input.category;
       if (input.priority !== undefined) dbGoal.priority = input.priority;
-      if (input.sport !== undefined) dbGoal.sport = input.sport;
 
       // Progress Tracking
       if (input.targetValue !== undefined) dbGoal.target_value = input.targetValue;

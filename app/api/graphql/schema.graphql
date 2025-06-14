@@ -203,7 +203,6 @@ type Goal {
 	description: String # Detailed goal description and context
 	category: GoalCategory! # Goal category (strength, endurance, etc.)
 	priority: GoalPriority! # Goal priority level
-	sport: String! # Sport-specific classification
 
 	# Progress Tracking
 	targetValue: Float # Target value to achieve
@@ -274,7 +273,6 @@ type SessionLog {
 	athlete: Athlete! # The athlete this session belongs to
 
 	# Session Information
-	title: String # Session title or name
 	sessionType: SessionType! # Type of session (training, assessment, etc.)
 	date: DateTime! # When the session took place
 	durationMinutes: Int # Duration of the session in minutes
@@ -350,10 +348,8 @@ type TrainingPlan {
 	athlete: Athlete! # Athlete relationship
 
 	# Plan Information
-	title: String! # Training plan title
 	overview: String # High-level plan description and objectives
 	difficulty: TrainingPlanDifficulty! # Plan difficulty level
-	sport: String! # Sport this plan is designed for
 
 	# Timeline
 	startDate: DateTime # When the training plan should begin
@@ -585,7 +581,6 @@ input CreateGoalInput {
 	description: String # Optional detailed description
 	category: GoalCategory! # Required goal category
 	priority: GoalPriority! # Required goal priority
-	sport: String! # Required sport classification
 
 	# Progress Tracking
 	targetValue: Float # Target value to achieve
@@ -608,7 +603,6 @@ input UpdateGoalInput {
 	description: String
 	category: GoalCategory
 	priority: GoalPriority
-	sport: String
 
 	# Progress Tracking
 	targetValue: Float
@@ -635,7 +629,6 @@ input CreateSessionLogInput {
 	athleteId: ID! # The athlete this session belongs to
 
 	# Session Information
-	title: String # Session title or name
 	sessionType: SessionType! # Type of session (training, assessment, etc.)
 	date: DateTime! # Required session date
 	durationMinutes: Int # Duration of the session in minutes
@@ -665,7 +658,6 @@ Supports both manual updates and AI-generated content addition.
 """
 input UpdateSessionLogInput {
 	# Session Information
-	title: String
 	sessionType: SessionType
 	date: DateTime
 	durationMinutes: Int
@@ -709,6 +701,8 @@ input CreateTrainingPlanInput {
 	athleteId: ID! # The athlete this plan is for
 	assistantIds: [ID!] # AI assistants to use for plan generation
 	goalIds: [ID!] # Goals this plan should address
+	overview: String # High-level plan description and objectives
+	difficulty: TrainingPlanDifficulty! # Plan difficulty level
 	notes: String # Coach notes about the plan
 	startDate: DateTime # When the training plan should begin
 	endDate: DateTime # When the training plan should conclude
@@ -924,10 +918,8 @@ All fields are optional - only provided fields will be updated.
 """
 input UpdateTrainingPlanInput {
 	# Plan Information
-	title: String # Plan title/name
 	overview: String # Plan overview description
 	difficulty: TrainingPlanDifficulty # Plan difficulty level
-	sport: String # Sport this plan is designed for
 
 	# Timeline
 	startDate: DateTime # When the training plan should begin

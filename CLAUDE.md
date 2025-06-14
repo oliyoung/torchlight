@@ -140,3 +140,5 @@ yarn build                        # Production build
 - This is a greenfield project with established architectural patterns
 - Follow established patterns for all new features
 - Document decisions in `.cursor/rules/context.mdc`
+- Titles are redundant
+- Sport should be inferred from Athlete

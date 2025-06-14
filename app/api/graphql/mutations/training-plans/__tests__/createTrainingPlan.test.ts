@@ -1,17 +1,18 @@
 import { createTrainingPlan } from "../createTrainingPlan";
 import { trainingPlanRepository, athleteRepository, goalRepository } from "@/lib/repository";
-import { generateTrainingPlanContent } from "@/ai/generateTrainingPlanContent";
+import { generateTrainingPlanContent } from "@/ai/features/generateTrainingPlan";
+import { TrainingPlanDifficulty } from "@/lib/types";
 
 jest.mock("@/lib/repository");
-jest.mock("@/ai/generateTrainingPlanContent");
+jest.mock("@/ai/features/generateTrainingPlan");
 jest.mock("@/lib/logger");
 
-const mockContext = { user: { id: "user-1" } };
+const mockContext = { coachId: "user-1", pubsub: {} };
 const mockInput = {
     athleteId: "athlete-1",
     goalIds: ["goal-1", "goal-2"],
     assistantIds: ["assistant-1"],
-    title: "Test Plan"
+    difficulty: TrainingPlanDifficulty.Beginner
 };
 const mockAthlete = { id: "athlete-1" };
 const mockGoals = [{ id: "goal-1" }, { id: "goal-2" }];
@@ -37,10 +38,11 @@ describe("createTrainingPlan", () => {
         expect(goalRepository.getGoalsByIds).toHaveBeenCalled();
         expect(generateTrainingPlanContent).toHaveBeenCalledWith(
             mockTrainingPlan.id,
-            mockContext.user.id,
+            mockContext.coachId,
             mockInput.assistantIds,
             mockAthlete,
-            mockGoals
+            mockGoals,
+            mockContext.pubsub
         );
         expect(result).toEqual(mockTrainingPlan);
     });
@@ -49,7 +51,7 @@ describe("createTrainingPlan", () => {
         (trainingPlanRepository.createTrainingPlan as jest.Mock).mockResolvedValue(null);
         await expect(
             createTrainingPlan(undefined, { input: mockInput }, mockContext as any)
-        ).rejects.toThrow("Failed to create initial training plan.");
+        ).rejects.toThrow("Failed to create training plan");
     });
 
     it("logs error if athlete or goals are missing but still proceeds", async () => {

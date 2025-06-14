@@ -42,7 +42,7 @@
     "timeline": {
         "targetDate": "2024-01-01",
         "duration": "3 months",
-        "urgencyLevel": "medium-term",
+        "urgencyLevel": "MEDIUM_TERM",
         "milestones": [
             "Practice dribbling drills twice a week",
             "Demonstrate improved dribbling in practice games after 6 weeks",
@@ -76,7 +76,7 @@
     },
     "constraints": {
         "physicalLimitations": [],
-        "experienceLevel": "intermediate",
+        "experienceLevel": "INTERMEDIATE",
         "previousChallenges": [
             "Difficulty navigating through defenders in games"
         ],
@@ -94,7 +94,7 @@
         ]
     },
     "extractionConfidence": {
-        "overallConfidence": "medium",
+        "overallConfidence": "MEDIUM",
         "missingInformation": [
             "Specific measurable outcomes",
             "Detailed timeline for achieving the goal"
@@ -110,7 +110,7 @@
         ]
     },
     "coachingFeedback": {
-        "dataQuality": "good",
+        "dataQuality": "GOOD",
         "keyGapsIdentified": [
             "Lack of measurable outcomes",
             "No defined timeline for the goal"

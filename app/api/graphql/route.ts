@@ -130,7 +130,7 @@ const { handleRequest } = createYoga({
       TrainingPlan: {
         athlete: async (parent, _args, context) => {
           try {
-            const athleteId = parent.athlete_id ?? parent.athlete?.id;
+            const athleteId = parent.athleteId ?? parent.athlete_id ?? parent.athlete?.id;
             if (!athleteId) return null;
             return await context.loaders.athlete.load(athleteId);
           } catch (error) {
@@ -243,6 +243,7 @@ const { handleRequest } = createYoga({
     let user: User | null = null
 
     const authHeader = req.request?.headers.get('authorization')
+
     if (authHeader?.startsWith('Bearer ')) {
       const accessToken = authHeader.replace('Bearer ', '')
       try {
@@ -261,28 +262,23 @@ const { handleRequest } = createYoga({
         if (error) {
           logger.warn({ error: error.message }, 'Token validation failed')
           // Token is invalid or expired
-          user = null
+
         } else if (headerUser) {
           // Additional check: verify token hasn't expired by checking exp claim
           try {
             const tokenPayload = JSON.parse(atob(accessToken.split('.')[1]))
             const currentTime = Math.floor(Date.now() / 1000)
-
             if (tokenPayload.exp && tokenPayload.exp < currentTime) {
               logger.warn({ userId: headerUser.id, exp: tokenPayload.exp, now: currentTime }, 'Token has expired')
-              user = null
             } else {
               user = headerUser
-              logger.info({ userId: headerUser.id }, 'Authenticated via Authorization header')
             }
           } catch (tokenError) {
             logger.error({ error: tokenError }, 'Failed to parse JWT token')
-            user = null
           }
         }
       } catch (error) {
         logger.error({ error }, 'Failed to authenticate with Authorization header')
-        user = null
       }
     }
 
@@ -335,6 +331,7 @@ const { handleRequest } = createYoga({
         dataloaders
       };
     }
+
     return {
       user: null,
       userId: null,

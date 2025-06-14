@@ -83,22 +83,12 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     try {
       // Create training plan with all new fields
       const dbTrainingPlan = {
-        athlete_id: data.athleteId,
-
-        // Plan Information
-        title: data.title,
         overview: data.overview ?? null,
         difficulty: data.difficulty,
-        sport: data.sport,
-
-        // Timeline
+        athlete_id: data.athleteId,
         start_date: data.startDate ?? null,
         end_date: data.endDate ?? null,
-
-        // Content
         notes: data.notes ?? null,
-
-        // Status
         status: TrainingPlanStatus.Draft
       };
 
@@ -150,10 +140,8 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
     try {
       // Create a flag to track if we need to update the main entity
       const hasEntityChanges = !!(
-        data.title !== undefined ||
         data.overview !== undefined ||
         data.difficulty !== undefined ||
-        data.sport !== undefined ||
         data.startDate !== undefined ||
         data.endDate !== undefined ||
         data.status !== undefined ||
@@ -169,10 +157,8 @@ export class TrainingPlanRepository extends EntityRepository<TrainingPlan> {
         const dbTrainingPlan: Record<string, unknown> = {};
 
         // Plan Information
-        if (data.title !== undefined) dbTrainingPlan.title = data.title;
         if (data.overview !== undefined) dbTrainingPlan.overview = data.overview;
         if (data.difficulty !== undefined) dbTrainingPlan.difficulty = data.difficulty;
-        if (data.sport !== undefined) dbTrainingPlan.sport = data.sport;
 
         // Timeline
         if (data.startDate !== undefined) dbTrainingPlan.start_date = data.startDate;
