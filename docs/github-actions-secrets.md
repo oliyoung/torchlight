@@ -6,35 +6,61 @@ This document outlines all the secrets required for the GitHub Actions workflows
 
 ### AWS Deployment (`deploy.yml`)
 
+**Only 6 secrets needed total:**
+
 #### AWS Credentials
 - **`AWS_ACCESS_KEY_ID`** - AWS access key ID for deployment
 - **`AWS_SECRET_ACCESS_KEY`** - AWS secret access key for deployment
 - **`APP_RUNNER_GITHUB_CONNECTION_ARN`** - ARN of the GitHub connection for AWS App Runner
 
-#### Application Secrets
-- **`APP_SECRETS_JSON`** - JSON string containing all application environment variables
-  ```json
-  {
-    "DATABASE_URL": "postgresql://...",
-    "NEXT_PUBLIC_SUPABASE_URL": "https://your-project.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJ...",
-    "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY": "eyJ...",
-    "NEXT_PUBLIC_ANTHROPIC_KEY": "sk-ant-...",
-    "NEXT_PUBLIC_ANTHROPIC_MODEL": "claude-sonnet-4-20250514",
-    "NEXT_PUBLIC_OPEN_AI_TOKEN": "sk-...",
-    "NEXT_PUBLIC_OPEN_AI_MODEL": "openai/gpt-4.1"
-  }
-  ```
+#### AWS Secret ARNs (references to existing secrets)
+- **`DATABASE_SECRET_ARN`** - ARN of existing database secret in AWS Secrets Manager
+- **`SUPABASE_SECRETS_ARN`** - ARN of existing Supabase secrets in AWS Secrets Manager  
+- **`AI_SECRETS_ARN`** - ARN of existing AI provider secrets in AWS Secrets Manager
 
-#### Build Environment Variables
-- **`NEXT_PUBLIC_SUPABASE_URL`** - Supabase project URL
-- **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** - Supabase anonymous key
-- **`NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY`** - Supabase service role key
-- **`DATABASE_URL`** - Database connection string
-- **`NEXT_PUBLIC_ANTHROPIC_KEY`** - Anthropic API key for AI features
-- **`NEXT_PUBLIC_ANTHROPIC_MODEL`** - Anthropic model name
-- **`NEXT_PUBLIC_OPEN_AI_TOKEN`** - OpenAI API token
-- **`NEXT_PUBLIC_OPEN_AI_MODEL`** - OpenAI model name
+**Note: This approach references existing AWS secrets instead of duplicating them in GitHub. Most secure for production!**
+
+## Setup Process
+
+### 1. Create AWS Secrets First
+Before running Terraform, create these secrets in AWS Secrets Manager:
+
+```bash
+# Database secret
+aws secretsmanager create-secret --name "wisegrowth/database" \
+  --secret-string '{"DATABASE_URL":"your-connection-string"}'
+
+# Supabase secrets
+aws secretsmanager create-secret --name "wisegrowth/supabase" \
+  --secret-string '{
+    "NEXT_PUBLIC_SUPABASE_URL":"https://your-project.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY":"your-anon-key",
+    "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY":"your-service-role-key"
+  }'
+
+# AI provider secrets
+aws secretsmanager create-secret --name "wisegrowth/ai" \
+  --secret-string '{
+    "NEXT_PUBLIC_ANTHROPIC_KEY":"your-anthropic-key",
+    "NEXT_PUBLIC_ANTHROPIC_MODEL":"claude-sonnet-4-20250514",
+    "NEXT_PUBLIC_OPEN_AI_TOKEN":"your-openai-token",
+    "NEXT_PUBLIC_OPEN_AI_MODEL":"openai/gpt-4.1"
+  }'
+```
+
+### 2. Get Secret ARNs
+```bash
+# Get the ARNs for your GitHub secrets
+aws secretsmanager describe-secret --secret-id "wisegrowth/database" --query 'ARN'
+aws secretsmanager describe-secret --secret-id "wisegrowth/supabase" --query 'ARN'
+aws secretsmanager describe-secret --secret-id "wisegrowth/ai" --query 'ARN'
+```
+
+### 3. Add ARNs to GitHub Secrets
+Use the ARNs from step 2 as the values for:
+- `DATABASE_SECRET_ARN`
+- `SUPABASE_SECRETS_ARN`
+- `AI_SECRETS_ARN`
 
 ### Supabase Deployments (`supabase-staging.yml`, `supabase-production.yml`)
 

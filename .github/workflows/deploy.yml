@@ -16,29 +16,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Set up Node.js and build the project to verify it works before deployment
-      # Also ensures all dependencies are properly resolved
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build project
-        run: yarn build
-        env:
-          # Required environment variables for Next.js build
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXT_PUBLIC_ANTHROPIC_KEY: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
-          NEXT_PUBLIC_ANTHROPIC_MODEL: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_MODEL }}
-          NEXT_PUBLIC_OPEN_AI_TOKEN: ${{ secrets.NEXT_PUBLIC_OPEN_AI_TOKEN }}
-          NEXT_PUBLIC_OPEN_AI_MODEL: ${{ secrets.NEXT_PUBLIC_OPEN_AI_MODEL }}
+      # Skip build verification - let AWS App Runner handle the build
+      # This eliminates the need for duplicate environment variables
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -72,11 +51,12 @@ jobs:
         env:
           # Pass the GitHub Connection ARN as an environment variable to Terraform
           TF_VAR_github_connection_arn: ${{ secrets.APP_RUNNER_GITHUB_CONNECTION_ARN }}
-          # WARNING: Directly passing sensitive JSON like this is NOT recommended for production.
-          # See explanation below and in the terraform code comments.
-          TF_VAR_app_secrets_json: ${{ secrets.APP_SECRETS_JSON }}
           # Pass the repository URL dynamically
           TF_VAR_github_repository_url: ${{ github.server_url }}/${{ github.repository }}
+          # Pass existing AWS secret ARNs
+          TF_VAR_database_secret_arn: ${{ secrets.DATABASE_SECRET_ARN }}
+          TF_VAR_supabase_secrets_arn: ${{ secrets.SUPABASE_SECRETS_ARN }}
+          TF_VAR_ai_secrets_arn: ${{ secrets.AI_SECRETS_ARN }}
 
 
       - name: Get App Runner Service URL
