@@ -76,6 +76,7 @@ variable "supabase_service_role_key" {
 variable "supabase_url" {
   description = "Supabase URL"
   type        = string
+  sensitive = false
   default = "https://ztcrnuxprcxwbvnwxdoj.supabase.co"
 }
 

@@ -67,33 +67,9 @@ jobs:
 
       - name: Terraform Apply with Retry
         run: |
-          set -e
-          for attempt in 1 2 3; do
-            echo "🚀 Terraform Apply - Attempt $attempt"
-            if terraform apply -auto-approve; then
-              echo "✅ Terraform apply succeeded"
-              break
-            else
-              echo "❌ Terraform apply failed on attempt $attempt"
-              if [ $attempt -eq 3 ]; then
-                echo "💥 All attempts failed, giving up"
-                exit 1
-              fi
-              
-              echo "🧹 Cleaning up failed resources before retry..."
-              # Clean up any failed services
-              FAILED_SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && (Status==`CREATE_FAILED` || Status==`OPERATION_IN_PROGRESS`)].ServiceArn' --output text)
-              if [ -n "$FAILED_SERVICES" ]; then
-                echo "🗑️ Deleting failed service: $FAILED_SERVICES"
-                aws apprunner delete-service --service-arn "$FAILED_SERVICES" --region ${{ env.AWS_REGION }} || true
-                echo "⏳ Waiting for deletion..."
-                sleep 30
-              fi
-              
-              echo "⏳ Waiting before retry..."
-              sleep 30
-            fi
-          done
+          if terraform apply -auto-approve; then
+            echo "✅ Terraform apply succeeded"
+          fi
         working-directory: ./terraform
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
