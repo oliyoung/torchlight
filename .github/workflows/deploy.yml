@@ -48,6 +48,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform # Ensure command runs in the terraform directory
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
 
       # Apply the Terraform configuration
       # Pass variables using -var or a .tfvars file if needed.
@@ -60,6 +64,10 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: ./terraform # Ensure command runs in the terraform directory
         env:
+          # AWS credentials for Terraform provider
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
           # Pass the GitHub Connection ARN as an environment variable to Terraform
           TF_VAR_github_connection_arn: ${{ secrets.APP_RUNNER_GITHUB_CONNECTION_ARN }}
           # Pass the repository URL dynamically
@@ -76,6 +84,10 @@ jobs:
           echo "service_url=$SERVICE_URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $SERVICE_URL"
         shell: bash
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ env.AWS_REGION }}
 
       - name: Health Check
         run: |

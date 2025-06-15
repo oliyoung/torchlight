@@ -63,6 +63,7 @@ variable "environment" {
   default     = "production"
 }
 
+
 # Define the AWS App Runner Service
 resource "aws_apprunner_service" "app_service" {
   service_name = "wisegrowth-service"
