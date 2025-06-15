@@ -189,7 +189,7 @@ resource "aws_apprunner_service" "app_service" {
   instance_configuration {
     cpu               = "1024" # 1 vCPU
     memory            = "2048" # 2 GB
-    instance_role_arn = aws_iam_role.apprunner_instance_role.arn
+    instance_role_arn = data.aws_iam_role.apprunner_instance_role.arn
   }
 
   health_check_configuration {
@@ -216,7 +216,7 @@ data "aws_iam_role" "apprunner_instance_role" {
 # IAM policy to allow App Runner to read secrets
 resource "aws_iam_role_policy" "apprunner_secrets_policy" {
   name = "wisegrowth-apprunner-secrets-policy"
-  role = aws_iam_role.apprunner_instance_role.id
+  role = data.aws_iam_role.apprunner_instance_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
