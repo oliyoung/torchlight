@@ -55,7 +55,7 @@ jobs:
           AWS_REGION: ${{ env.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR_supabase_url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          TF_VAR_supabase_url: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
           TF_VAR_supabase_anon_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           TF_VAR_supabase_service_role_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
           TF_VAR_anthropic_key: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
