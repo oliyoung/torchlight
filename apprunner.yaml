@@ -3,23 +3,8 @@ runtime: nodejs18
 build:
   commands:
     build:
-      - echo "🚀 Starting WiseGrowth build process..."
-      - echo "📦 Installing dependencies with yarn..."
       - yarn install --frozen-lockfile
-      - echo "🏗️ Building Next.js application..."
       - yarn build
-      - echo "✅ Build completed successfully!"
-  env:
-    # Build-time environment variables
-    # These are required for Next.js build process
-    NEXT_PUBLIC_SUPABASE_URL: $NEXT_PUBLIC_SUPABASE_URL
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: $NEXT_PUBLIC_SUPABASE_ANON_KEY
-    NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY: $NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-    NEXT_PUBLIC_ANTHROPIC_KEY: $NEXT_PUBLIC_ANTHROPIC_KEY
-    NEXT_PUBLIC_ANTHROPIC_MODEL: $NEXT_PUBLIC_ANTHROPIC_MODEL
-    NEXT_PUBLIC_OPEN_AI_TOKEN: $NEXT_PUBLIC_OPEN_AI_TOKEN
-    NEXT_PUBLIC_OPEN_AI_MODEL: $NEXT_PUBLIC_OPEN_AI_MODEL
-
 run:
   runtime-version: 18.19.0
   command: yarn start
@@ -27,15 +12,4 @@ run:
     port: 3000
     env: PORT
   env:
-    # Runtime environment variables
-    # App Runner will inject these from Terraform configuration
-    NODE_ENV: production
     PORT: 3000
-    # API configurations
-    NEXT_PUBLIC_SUPABASE_URL: $NEXT_PUBLIC_SUPABASE_URL
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: $NEXT_PUBLIC_SUPABASE_ANON_KEY
-    NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY: $NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-    NEXT_PUBLIC_ANTHROPIC_KEY: $NEXT_PUBLIC_ANTHROPIC_KEY
-    NEXT_PUBLIC_ANTHROPIC_MODEL: $NEXT_PUBLIC_ANTHROPIC_MODEL
-    NEXT_PUBLIC_OPEN_AI_TOKEN: $NEXT_PUBLIC_OPEN_AI_TOKEN
-    NEXT_PUBLIC_OPEN_AI_MODEL: $NEXT_PUBLIC_OPEN_AI_MODEL
