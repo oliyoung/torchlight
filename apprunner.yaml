@@ -6,9 +6,25 @@ build:
       - yarn install --frozen-lockfile
     build:
       - yarn build
+  env:
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_SUPABASE_ANON_KEY
+    - NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+    - NEXT_PUBLIC_ANTHROPIC_KEY
+    - NEXT_PUBLIC_ANTHROPIC_MODEL
+    - NEXT_PUBLIC_OPEN_AI_TOKEN
+    - NEXT_PUBLIC_OPEN_AI_MODEL
 run:
   runtime-version: 22.14.0
   command: yarn start
   network:
     port: 3000
-    env: PORT
+    env: APP_PORT
+  env:
+    - NEXT_PUBLIC_SUPABASE_URL
+    - NEXT_PUBLIC_SUPABASE_ANON_KEY
+    - NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+    - NEXT_PUBLIC_ANTHROPIC_KEY
+    - NEXT_PUBLIC_ANTHROPIC_MODEL
+    - NEXT_PUBLIC_OPEN_AI_TOKEN
+    - NEXT_PUBLIC_OPEN_AI_MODEL
