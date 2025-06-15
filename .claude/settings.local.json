@@ -26,7 +26,8 @@
       "Bash(git add:*)",
       "Bash(touch:*)",
       "Bash(AWS_REGION=us-east-1 terraform init)",
-      "Bash(terraform:*)"
+      "Bash(terraform:*)",
+      "Bash(aws apprunner list-connections:*)"
     ],
     "deny": []
   },

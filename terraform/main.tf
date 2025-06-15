@@ -66,9 +66,9 @@ data "aws_secretsmanager_secret" "openai_model" {
   name = "wisegrowth-openai-model"
 }
 
-variable "github_connection_arn" {
-  description = "The ARN of the AWS App Runner GitHub connection."
-  type        = string
+# Use existing GitHub connection
+data "aws_apprunner_connection" "github" {
+  connection_name = "Github"
 }
 
 variable "app_secrets_json" {
@@ -105,7 +105,7 @@ resource "aws_apprunner_service" "app_service" {
 
     # You need a GitHub connection ARN here to allow App Runner to pull code
     authentication_configuration {
-      connection_arn = var.github_connection_arn
+      connection_arn = data.aws_apprunner_connection.github.arn
     }
 
     code_repository {
