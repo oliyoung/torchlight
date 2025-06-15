@@ -37,82 +37,33 @@ locals {
   }
 }
 
-# Create individual secrets for each environment variable
-resource "aws_secretsmanager_secret" "supabase_url" {
-  name        = "wisegrowth-supabase-url"
-  description = "Supabase URL for WiseGrowth"
-  recovery_window_in_days = 0
+# Reference existing secrets
+data "aws_secretsmanager_secret" "supabase_url" {
+  name = "wisegrowth-supabase-url"
 }
 
-resource "aws_secretsmanager_secret_version" "supabase_url" {
-  secret_id     = aws_secretsmanager_secret.supabase_url.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_URL
+data "aws_secretsmanager_secret" "supabase_anon_key" {
+  name = "wisegrowth-supabase-anon-key"
 }
 
-resource "aws_secretsmanager_secret" "supabase_anon_key" {
-  name        = "wisegrowth-supabase-anon-key"
-  description = "Supabase Anonymous Key for WiseGrowth"
-  recovery_window_in_days = 0
+data "aws_secretsmanager_secret" "supabase_service_role_key" {
+  name = "wisegrowth-supabase-service-role-key"
 }
 
-resource "aws_secretsmanager_secret_version" "supabase_anon_key" {
-  secret_id     = aws_secretsmanager_secret.supabase_anon_key.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_ANON_KEY
+data "aws_secretsmanager_secret" "anthropic_key" {
+  name = "wisegrowth-anthropic-key"
 }
 
-resource "aws_secretsmanager_secret" "supabase_service_role_key" {
-  name        = "wisegrowth-supabase-service-role-key"
-  description = "Supabase Service Role Key for WiseGrowth"
-  recovery_window_in_days = 0
+data "aws_secretsmanager_secret" "anthropic_model" {
+  name = "wisegrowth-anthropic-model"
 }
 
-resource "aws_secretsmanager_secret_version" "supabase_service_role_key" {
-  secret_id     = aws_secretsmanager_secret.supabase_service_role_key.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+data "aws_secretsmanager_secret" "openai_token" {
+  name = "wisegrowth-openai-token"
 }
 
-resource "aws_secretsmanager_secret" "anthropic_key" {
-  name        = "wisegrowth-anthropic-key"
-  description = "Anthropic API Key for WiseGrowth"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "anthropic_key" {
-  secret_id     = aws_secretsmanager_secret.anthropic_key.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_ANTHROPIC_KEY
-}
-
-resource "aws_secretsmanager_secret" "anthropic_model" {
-  name        = "wisegrowth-anthropic-model"
-  description = "Anthropic Model for WiseGrowth"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "anthropic_model" {
-  secret_id     = aws_secretsmanager_secret.anthropic_model.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_ANTHROPIC_MODEL
-}
-
-resource "aws_secretsmanager_secret" "openai_token" {
-  name        = "wisegrowth-openai-token"
-  description = "OpenAI Token for WiseGrowth"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "openai_token" {
-  secret_id     = aws_secretsmanager_secret.openai_token.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_OPEN_AI_TOKEN
-}
-
-resource "aws_secretsmanager_secret" "openai_model" {
-  name        = "wisegrowth-openai-model"
-  description = "OpenAI Model for WiseGrowth"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "openai_model" {
-  secret_id     = aws_secretsmanager_secret.openai_model.id
-  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_OPEN_AI_MODEL
+data "aws_secretsmanager_secret" "openai_model" {
+  name = "wisegrowth-openai-model"
 }
 
 variable "github_connection_arn" {
@@ -171,13 +122,13 @@ resource "aws_apprunner_service" "app_service" {
 
           # Environment variables from individual secrets
           runtime_environment_secrets = {
-            NEXT_PUBLIC_SUPABASE_URL = aws_secretsmanager_secret.supabase_url.arn
-            NEXT_PUBLIC_SUPABASE_ANON_KEY = aws_secretsmanager_secret.supabase_anon_key.arn
-            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = aws_secretsmanager_secret.supabase_service_role_key.arn
-            NEXT_PUBLIC_ANTHROPIC_KEY = aws_secretsmanager_secret.anthropic_key.arn
-            NEXT_PUBLIC_ANTHROPIC_MODEL = aws_secretsmanager_secret.anthropic_model.arn
-            NEXT_PUBLIC_OPEN_AI_TOKEN = aws_secretsmanager_secret.openai_token.arn
-            NEXT_PUBLIC_OPEN_AI_MODEL = aws_secretsmanager_secret.openai_model.arn
+            NEXT_PUBLIC_SUPABASE_URL = data.aws_secretsmanager_secret.supabase_url.arn
+            NEXT_PUBLIC_SUPABASE_ANON_KEY = data.aws_secretsmanager_secret.supabase_anon_key.arn
+            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = data.aws_secretsmanager_secret.supabase_service_role_key.arn
+            NEXT_PUBLIC_ANTHROPIC_KEY = data.aws_secretsmanager_secret.anthropic_key.arn
+            NEXT_PUBLIC_ANTHROPIC_MODEL = data.aws_secretsmanager_secret.anthropic_model.arn
+            NEXT_PUBLIC_OPEN_AI_TOKEN = data.aws_secretsmanager_secret.openai_token.arn
+            NEXT_PUBLIC_OPEN_AI_MODEL = data.aws_secretsmanager_secret.openai_model.arn
           }
         }
       }
@@ -228,13 +179,13 @@ resource "aws_iam_role_policy" "apprunner_secrets_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = [
-          aws_secretsmanager_secret.supabase_url.arn,
-          aws_secretsmanager_secret.supabase_anon_key.arn,
-          aws_secretsmanager_secret.supabase_service_role_key.arn,
-          aws_secretsmanager_secret.anthropic_key.arn,
-          aws_secretsmanager_secret.anthropic_model.arn,
-          aws_secretsmanager_secret.openai_token.arn,
-          aws_secretsmanager_secret.openai_model.arn
+          data.aws_secretsmanager_secret.supabase_url.arn,
+          data.aws_secretsmanager_secret.supabase_anon_key.arn,
+          data.aws_secretsmanager_secret.supabase_service_role_key.arn,
+          data.aws_secretsmanager_secret.anthropic_key.arn,
+          data.aws_secretsmanager_secret.anthropic_model.arn,
+          data.aws_secretsmanager_secret.openai_token.arn,
+          data.aws_secretsmanager_secret.openai_model.arn
         ]
       }
     ]
@@ -250,13 +201,13 @@ output "apprunner_service_url" {
 output "app_secrets_arns" {
   description = "ARNs of the created secrets manager secrets"
   value = {
-    supabase_url = aws_secretsmanager_secret.supabase_url.arn
-    supabase_anon_key = aws_secretsmanager_secret.supabase_anon_key.arn
-    supabase_service_role_key = aws_secretsmanager_secret.supabase_service_role_key.arn
-    anthropic_key = aws_secretsmanager_secret.anthropic_key.arn
-    anthropic_model = aws_secretsmanager_secret.anthropic_model.arn
-    openai_token = aws_secretsmanager_secret.openai_token.arn
-    openai_model = aws_secretsmanager_secret.openai_model.arn
+    supabase_url = data.aws_secretsmanager_secret.supabase_url.arn
+    supabase_anon_key = data.aws_secretsmanager_secret.supabase_anon_key.arn
+    supabase_service_role_key = data.aws_secretsmanager_secret.supabase_service_role_key.arn
+    anthropic_key = data.aws_secretsmanager_secret.anthropic_key.arn
+    anthropic_model = data.aws_secretsmanager_secret.anthropic_model.arn
+    openai_token = data.aws_secretsmanager_secret.openai_token.arn
+    openai_model = data.aws_secretsmanager_secret.openai_model.arn
   }
   sensitive = true
 }
