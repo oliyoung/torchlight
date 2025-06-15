@@ -51,13 +51,28 @@ jobs:
       - name: Cleanup existing failed services
         run: |
           echo "🧹 Checking for existing failed App Runner services..."
-          SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && Status==`CREATE_FAILED`].ServiceArn' --output text)
+          SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && (Status==`CREATE_FAILED` || Status==`OPERATION_IN_PROGRESS`)].ServiceArn' --output text)
           if [ -n "$SERVICES" ]; then
             echo "🗑️ Found failed service, deleting: $SERVICES"
             aws apprunner delete-service --service-arn "$SERVICES" --region ${{ env.AWS_REGION }}
             echo "⏳ Waiting for deletion to complete..."
-            aws apprunner wait service-deleted --service-arn "$SERVICES" --region ${{ env.AWS_REGION }}
-            echo "✅ Failed service cleaned up"
+            
+            # Poll for deletion completion
+            for i in {1..30}; do
+              REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service`].ServiceArn' --output text)
+              if [ -z "$REMAINING" ]; then
+                echo "✅ Service deletion completed"
+                break
+              fi
+              echo "⏳ Still deleting... attempt $i/30"
+              sleep 10
+            done
+            
+            # Final check
+            REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service`].ServiceArn' --output text)
+            if [ -n "$REMAINING" ]; then
+              echo "⚠️ Service still exists, but proceeding anyway"
+            fi
           else
             echo "✨ No failed services to clean up"
           fi
@@ -65,11 +80,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-      - name: Terraform Apply with Retry
-        run: |
-          if terraform apply -auto-approve; then
-            echo "✅ Terraform apply succeeded"
-          fi
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
         working-directory: ./terraform
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
