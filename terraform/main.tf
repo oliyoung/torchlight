@@ -76,6 +76,10 @@ resource "aws_apprunner_service" "app_service" {
         type  = "BRANCH"
         value = "main"
       }
+      # You need a GitHub connection ARN here to allow App Runner to pull code
+      authentication_configuration {
+        connection_arn = var.github_connection_arn
+      }
       code_configuration {
         configuration_source = "REPOSITORY" # Use apprunner.yaml from repository
 
@@ -94,10 +98,6 @@ resource "aws_apprunner_service" "app_service" {
             NEXT_PUBLIC_OPEN_AI_MODEL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_OPEN_AI_MODEL::"
           }
         }
-      }
-      # You need a GitHub connection ARN here to allow App Runner to pull code
-      authentication_configuration {
-        connection_arn = var.github_connection_arn
       }
     }
   }
