@@ -110,7 +110,7 @@ resource "aws_apprunner_service" "app_service" {
             NEXT_PUBLIC_SUPABASE_URL = var.supabase_url
             NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
             NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
-            NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_api_key
+            NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_key
             NEXT_PUBLIC_ANTHROPIC_MODEL = var.anthropic_model
             # Add other vars as needed
             NEXT_PUBLIC_OPEN_AI_MODEL = var.open_ai_model
