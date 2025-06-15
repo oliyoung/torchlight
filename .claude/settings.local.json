@@ -27,7 +27,9 @@
       "Bash(touch:*)",
       "Bash(AWS_REGION=us-east-1 terraform init)",
       "Bash(terraform:*)",
-      "Bash(aws apprunner list-connections:*)"
+      "Bash(aws apprunner list-connections:*)",
+      "Bash(aws apprunner list-services:*)",
+      "Bash(aws apprunner delete-service:*)"
     ],
     "deny": []
   },

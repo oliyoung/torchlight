@@ -48,14 +48,58 @@ jobs:
       # resource in main.tf (which is NOT recommended for production).
       # A better approach is to fetch secrets within the application using an IAM role.
       # If you passed secrets via Terraform variables, you'd use -var="variable_name=${{ secrets.YOUR_SECRET_NAME }}"
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-        working-directory: ./terraform # Ensure command runs in the terraform directory
+      - name: Cleanup existing failed services
+        run: |
+          echo "🧹 Checking for existing failed App Runner services..."
+          SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && Status==`CREATE_FAILED`].ServiceArn' --output text)
+          if [ -n "$SERVICES" ]; then
+            echo "🗑️ Found failed service, deleting: $SERVICES"
+            aws apprunner delete-service --service-arn "$SERVICES" --region ${{ env.AWS_REGION }}
+            echo "⏳ Waiting for deletion to complete..."
+            aws apprunner wait service-deleted --service-arn "$SERVICES" --region ${{ env.AWS_REGION }}
+            echo "✅ Failed service cleaned up"
+          else
+            echo "✨ No failed services to clean up"
+          fi
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Apply with Retry
+        run: |
+          set -e
+          for attempt in 1 2 3; do
+            echo "🚀 Terraform Apply - Attempt $attempt"
+            if terraform apply -auto-approve; then
+              echo "✅ Terraform apply succeeded"
+              break
+            else
+              echo "❌ Terraform apply failed on attempt $attempt"
+              if [ $attempt -eq 3 ]; then
+                echo "💥 All attempts failed, giving up"
+                exit 1
+              fi
+              
+              echo "🧹 Cleaning up failed resources before retry..."
+              # Clean up any failed services
+              FAILED_SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && (Status==`CREATE_FAILED` || Status==`OPERATION_IN_PROGRESS`)].ServiceArn' --output text)
+              if [ -n "$FAILED_SERVICES" ]; then
+                echo "🗑️ Deleting failed service: $FAILED_SERVICES"
+                aws apprunner delete-service --service-arn "$FAILED_SERVICES" --region ${{ env.AWS_REGION }} || true
+                echo "⏳ Waiting for deletion..."
+                sleep 30
+              fi
+              
+              echo "⏳ Waiting before retry..."
+              sleep 30
+            fi
+          done
+        working-directory: ./terraform
         env:
           AWS_REGION: ${{ env.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          TF_VAR_supabase_url: ${{ env.NEXT_PUBLIC_SUPABASE_URL }}
+          TF_VAR_supabase_url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           TF_VAR_supabase_anon_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           TF_VAR_supabase_service_role_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
           TF_VAR_anthropic_key: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
