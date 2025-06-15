@@ -24,6 +24,18 @@ provider "aws" {
 # Individual secrets for each environment variable
 locals {
   app_secrets = jsondecode(var.app_secrets_json)
+  
+  # Define default values for missing keys
+  secrets_with_defaults = {
+    DATABASE_URL = try(local.app_secrets.DATABASE_URL, "")
+    NEXT_PUBLIC_SUPABASE_URL = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_URL, "")
+    NEXT_PUBLIC_SUPABASE_ANON_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY, "")
+    NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY, "")
+    NEXT_PUBLIC_ANTHROPIC_KEY = try(local.app_secrets.NEXT_PUBLIC_ANTHROPIC_KEY, "")
+    NEXT_PUBLIC_ANTHROPIC_MODEL = try(local.app_secrets.NEXT_PUBLIC_ANTHROPIC_MODEL, "claude-3-5-sonnet-20241022")
+    NEXT_PUBLIC_OPEN_AI_TOKEN = try(local.app_secrets.NEXT_PUBLIC_OPEN_AI_TOKEN, "")
+    NEXT_PUBLIC_OPEN_AI_MODEL = try(local.app_secrets.NEXT_PUBLIC_OPEN_AI_MODEL, "gpt-4")
+  }
 }
 
 # Create individual secrets for each environment variable
@@ -35,7 +47,7 @@ resource "aws_secretsmanager_secret" "database_url" {
 
 resource "aws_secretsmanager_secret_version" "database_url" {
   secret_id     = aws_secretsmanager_secret.database_url.id
-  secret_string = local.app_secrets.DATABASE_URL
+  secret_string = local.secrets_with_defaults.DATABASE_URL
 }
 
 resource "aws_secretsmanager_secret" "supabase_url" {
@@ -46,7 +58,7 @@ resource "aws_secretsmanager_secret" "supabase_url" {
 
 resource "aws_secretsmanager_secret_version" "supabase_url" {
   secret_id     = aws_secretsmanager_secret.supabase_url.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_SUPABASE_URL
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_URL
 }
 
 resource "aws_secretsmanager_secret" "supabase_anon_key" {
@@ -57,7 +69,7 @@ resource "aws_secretsmanager_secret" "supabase_anon_key" {
 
 resource "aws_secretsmanager_secret_version" "supabase_anon_key" {
   secret_id     = aws_secretsmanager_secret.supabase_anon_key.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_ANON_KEY
 }
 
 resource "aws_secretsmanager_secret" "supabase_service_role_key" {
@@ -68,7 +80,7 @@ resource "aws_secretsmanager_secret" "supabase_service_role_key" {
 
 resource "aws_secretsmanager_secret_version" "supabase_service_role_key" {
   secret_id     = aws_secretsmanager_secret.supabase_service_role_key.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
 }
 
 resource "aws_secretsmanager_secret" "anthropic_key" {
@@ -79,7 +91,7 @@ resource "aws_secretsmanager_secret" "anthropic_key" {
 
 resource "aws_secretsmanager_secret_version" "anthropic_key" {
   secret_id     = aws_secretsmanager_secret.anthropic_key.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_ANTHROPIC_KEY
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_ANTHROPIC_KEY
 }
 
 resource "aws_secretsmanager_secret" "anthropic_model" {
@@ -90,7 +102,7 @@ resource "aws_secretsmanager_secret" "anthropic_model" {
 
 resource "aws_secretsmanager_secret_version" "anthropic_model" {
   secret_id     = aws_secretsmanager_secret.anthropic_model.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_ANTHROPIC_MODEL
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_ANTHROPIC_MODEL
 }
 
 resource "aws_secretsmanager_secret" "openai_token" {
@@ -101,7 +113,7 @@ resource "aws_secretsmanager_secret" "openai_token" {
 
 resource "aws_secretsmanager_secret_version" "openai_token" {
   secret_id     = aws_secretsmanager_secret.openai_token.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_OPEN_AI_TOKEN
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_OPEN_AI_TOKEN
 }
 
 resource "aws_secretsmanager_secret" "openai_model" {
@@ -112,7 +124,7 @@ resource "aws_secretsmanager_secret" "openai_model" {
 
 resource "aws_secretsmanager_secret_version" "openai_model" {
   secret_id     = aws_secretsmanager_secret.openai_model.id
-  secret_string = local.app_secrets.NEXT_PUBLIC_OPEN_AI_MODEL
+  secret_string = local.secrets_with_defaults.NEXT_PUBLIC_OPEN_AI_MODEL
 }
 
 variable "github_connection_arn" {
