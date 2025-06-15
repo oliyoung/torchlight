@@ -14,4 +14,3 @@ run:
   command: yarn start
   network:
     port: 3000
-    env: PORT
