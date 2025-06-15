@@ -29,7 +29,8 @@
       "Bash(terraform:*)",
       "Bash(aws apprunner list-connections:*)",
       "Bash(aws apprunner list-services:*)",
-      "Bash(aws apprunner delete-service:*)"
+      "Bash(aws apprunner delete-service:*)",
+      "Bash(python3:*)"
     ],
     "deny": []
   },

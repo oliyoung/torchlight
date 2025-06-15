@@ -1,16 +1,12 @@
 version: 1.0
 runtime: nodejs18
+install:
+  command: yarn install --frozen-lockfile
 build:
-  commands:
-    build:
-      - echo "🚀 Starting WiseGrowth build process..."
-      - echo "📦 Installing dependencies with yarn..."
-      - yarn install --frozen-lockfile
-      - echo "🏗️ Building Next.js application..."
-      - yarn build
-      - echo "✅ Build completed successfully!"
+  command: yarn build
 run:
   runtime-version: 18.19.0
   command: yarn start
   network:
     port: 3000
+    env: PORT
