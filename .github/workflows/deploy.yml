@@ -17,23 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Skip build verification - let AWS App Runner handle the build
-      # This eliminates the need for duplicate environment variables
-
-      - name: Debug secrets
-        run: |
-          echo "AWS_ACCESS_KEY_ID length: ${#AWS_ACCESS_KEY_ID}"
-          echo "AWS_SECRET_ACCESS_KEY length: ${#AWS_SECRET_ACCESS_KEY}"
-          echo "First 4 chars of key: ${AWS_ACCESS_KEY_ID:0:4}"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
       - name: Configure AWS credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+          AWS_REGION: ${{ env.AWS_REGION }}
         run: |
           aws sts get-caller-identity
 
@@ -64,16 +52,14 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: ./terraform # Ensure command runs in the terraform directory
         env:
-          # AWS credentials for Terraform provider
+          AWS_REGION: ${{ env.AWS_REGION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ env.AWS_REGION }}
-          # Pass the GitHub Connection ARN as an environment variable to Terraform
-          TF_VAR_github_connection_arn: ${{ secrets.APP_RUNNER_GITHUB_CONNECTION_ARN }}
-          # Pass the repository URL dynamically
-          TF_VAR_github_repository_url: ${{ github.server_url }}/${{ github.repository }}
-          # Pass all secrets as one JSON blob
-          TF_VAR_app_secrets_json: ${{ secrets.APP_SECRETS_JSON }}
+          TF_VAR_supabase_url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          TF_VAR_supabase_anon_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          TF_VAR_supabase_service_role_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
+          TF_VAR_anthropic_key: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
+          TF_VAR_open_ai_token: ${{ secrets.NEXT_PUBLIC_OPEN_AI_TOKEN }}
 
 
       - name: Get App Runner Service URL

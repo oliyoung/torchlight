@@ -6,76 +6,16 @@ terraform {
       version = "~> 5.0"
     }
   }
-
-  # Uncomment and configure for production use
-  # backend "s3" {
-  #   bucket = "your-terraform-state-bucket"
-  #   key    = "wisegrowth/terraform.tfstate"
-  #   region = "us-east-1"
-  #   dynamodb_table = "terraform-locks"
-  #   encrypt = true
-  # }
 }
 
 provider "aws" {
   region = var.aws_region
 }
 
-# Individual secrets for each environment variable
-locals {
-  app_secrets = jsondecode(var.app_secrets_json)
-  
-  # Define default values for missing keys
-  secrets_with_defaults = {
-    NEXT_PUBLIC_SUPABASE_URL = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_URL, "")
-    NEXT_PUBLIC_SUPABASE_ANON_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY, "")
-    NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY, "")
-    NEXT_PUBLIC_ANTHROPIC_KEY = try(local.app_secrets.NEXT_PUBLIC_ANTHROPIC_KEY, "")
-    NEXT_PUBLIC_ANTHROPIC_MODEL = try(local.app_secrets.NEXT_PUBLIC_ANTHROPIC_MODEL, "claude-3-5-sonnet-20241022")
-    NEXT_PUBLIC_OPEN_AI_TOKEN = try(local.app_secrets.NEXT_PUBLIC_OPEN_AI_TOKEN, "")
-    NEXT_PUBLIC_OPEN_AI_MODEL = try(local.app_secrets.NEXT_PUBLIC_OPEN_AI_MODEL, "gpt-4")
-  }
-}
-
-# Reference existing secrets
-data "aws_secretsmanager_secret" "supabase_url" {
-  name = "wisegrowth-supabase-url"
-}
-
-data "aws_secretsmanager_secret" "supabase_anon_key" {
-  name = "wisegrowth-supabase-anon-key"
-}
-
-data "aws_secretsmanager_secret" "supabase_service_role_key" {
-  name = "wisegrowth-supabase-service-role-key"
-}
-
-data "aws_secretsmanager_secret" "anthropic_key" {
-  name = "wisegrowth-anthropic-key"
-}
-
-data "aws_secretsmanager_secret" "anthropic_model" {
-  name = "wisegrowth-anthropic-model"
-}
-
-data "aws_secretsmanager_secret" "openai_token" {
-  name = "wisegrowth-openai-token"
-}
-
-data "aws_secretsmanager_secret" "openai_model" {
-  name = "wisegrowth-openai-model"
-}
-
 variable "github_connection_arn" {
   description = "The ARN of the AWS App Runner GitHub connection."
   type        = string
   default     = "arn:aws:apprunner:us-east-1:390403881775:connection/Github/d7dae44c4f644e24909565ce85c3b640"
-}
-
-variable "app_secrets_json" {
-  description = "JSON string with all environment variables"
-  type        = string
-  sensitive   = true
 }
 
 variable "github_repository_url" {
@@ -96,8 +36,49 @@ variable "environment" {
   default     = "production"
 }
 
+variable "anthropic_model" {
+  description = "Anthropic Model"
+  type = string
+  default = "claude-sonnet-4-20250514"
+}
 
-# Define the AWS App Runner Service
+variable "anthropic_key" {
+  description = "Anthropic API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "open_ai_model" {
+  description = "Open AI Model"
+  default = "openai/gpt-4.1"
+  type = string
+  sensitive = false
+}
+
+variable "open_ai_token" {
+  description = "Open AI Token"
+  type = string
+  sensitive = false
+}
+
+variable "supabase_anon_key" {
+  description = "Supabase anonymous key"
+  type        = string
+  sensitive   = true
+}
+
+variable "supabase_service_role_key" {
+  description = "Supabase Service Role Key"
+  type =  string
+  sensitive = true
+}
+
+variable "supabase_url" {
+  description = "Supabase URL"
+  type        = string
+  default = "https://ztcrnuxprcxwbvnwxdoj.supabase.co"
+}
+
 resource "aws_apprunner_service" "app_service" {
   service_name = "wisegrowth-service"
 
@@ -121,27 +102,28 @@ resource "aws_apprunner_service" "app_service" {
         code_configuration_values {
           runtime = "NODEJS_18"
 
-          # Environment variables from individual secrets
-          runtime_environment_secrets = {
-            NEXT_PUBLIC_SUPABASE_URL = data.aws_secretsmanager_secret.supabase_url.arn
-            NEXT_PUBLIC_SUPABASE_ANON_KEY = data.aws_secretsmanager_secret.supabase_anon_key.arn
-            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = data.aws_secretsmanager_secret.supabase_service_role_key.arn
-            NEXT_PUBLIC_ANTHROPIC_KEY = data.aws_secretsmanager_secret.anthropic_key.arn
-            NEXT_PUBLIC_ANTHROPIC_MODEL = data.aws_secretsmanager_secret.anthropic_model.arn
-            NEXT_PUBLIC_OPEN_AI_TOKEN = data.aws_secretsmanager_secret.openai_token.arn
-            NEXT_PUBLIC_OPEN_AI_MODEL = data.aws_secretsmanager_secret.openai_model.arn
+          # Environment variables - set directly in Terraform
+          runtime_environment_variables = {
+            NODE_ENV = "production"
+            NEXT_TELEMETRY_DISABLED = "1"
+            # Add your required environment variables here
+            NEXT_PUBLIC_SUPABASE_URL = var.supabase_url
+            NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
+            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
+            NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_api_key
+            NEXT_PUBLIC_ANTHROPIC_MODEL = var.anthropic_model
+            # Add other vars as needed
+            NEXT_PUBLIC_OPEN_AI_MODEL = var.open_ai_model
+            NEXT_PUBLIC_OPEN_AI_TOKEN = var.open_ai_token
           }
         }
       }
     }
   }
 
-
-  # Link the IAM role that allows App Runner to access secrets
   instance_configuration {
-    cpu               = "1024" # 1 vCPU
-    memory            = "2048" # 2 GB
-    instance_role_arn = data.aws_iam_role.apprunner_instance_role.arn
+    cpu    = "1024" # 1 vCPU
+    memory = "2048" # 2 GB
   }
 
   health_check_configuration {
@@ -160,38 +142,6 @@ resource "aws_apprunner_service" "app_service" {
   }
 }
 
-# Reference existing IAM role for App Runner instance to access secrets
-data "aws_iam_role" "apprunner_instance_role" {
-  name = "wisegrowth-apprunner-instance-role"
-}
-
-# IAM policy to allow App Runner to read secrets
-resource "aws_iam_role_policy" "apprunner_secrets_policy" {
-  name = "wisegrowth-apprunner-secrets-policy"
-  role = data.aws_iam_role.apprunner_instance_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret"
-        ]
-        Resource = [
-          data.aws_secretsmanager_secret.supabase_url.arn,
-          data.aws_secretsmanager_secret.supabase_anon_key.arn,
-          data.aws_secretsmanager_secret.supabase_service_role_key.arn,
-          data.aws_secretsmanager_secret.anthropic_key.arn,
-          data.aws_secretsmanager_secret.anthropic_model.arn,
-          data.aws_secretsmanager_secret.openai_token.arn,
-          data.aws_secretsmanager_secret.openai_model.arn
-        ]
-      }
-    ]
-  })
-}
 
 # Output the App Runner Service URL
 output "apprunner_service_url" {
@@ -199,16 +149,3 @@ output "apprunner_service_url" {
   value       = aws_apprunner_service.app_service.service_url
 }
 
-output "app_secrets_arns" {
-  description = "ARNs of the created secrets manager secrets"
-  value = {
-    supabase_url = data.aws_secretsmanager_secret.supabase_url.arn
-    supabase_anon_key = data.aws_secretsmanager_secret.supabase_anon_key.arn
-    supabase_service_role_key = data.aws_secretsmanager_secret.supabase_service_role_key.arn
-    anthropic_key = data.aws_secretsmanager_secret.anthropic_key.arn
-    anthropic_model = data.aws_secretsmanager_secret.anthropic_model.arn
-    openai_token = data.aws_secretsmanager_secret.openai_token.arn
-    openai_model = data.aws_secretsmanager_secret.openai_model.arn
-  }
-  sensitive = true
-}

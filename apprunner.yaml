@@ -15,7 +15,6 @@ build:
     - NEXT_PUBLIC_SUPABASE_URL
     - NEXT_PUBLIC_SUPABASE_ANON_KEY
     - NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
-    - DATABASE_URL
     - NEXT_PUBLIC_ANTHROPIC_KEY
     - NEXT_PUBLIC_ANTHROPIC_MODEL
     - NEXT_PUBLIC_OPEN_AI_TOKEN
@@ -29,11 +28,10 @@ run:
     env: PORT
   env:
     # Runtime environment variables
-    # App Runner will inject these from AWS Secrets Manager
+    # App Runner will inject these from Terraform configuration
     - NODE_ENV=production
     - PORT=3000
-    # Database and API configurations
-    - DATABASE_URL
+    # API configurations
     - NEXT_PUBLIC_SUPABASE_URL
     - NEXT_PUBLIC_SUPABASE_ANON_KEY
     - NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
