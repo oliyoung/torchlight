@@ -1,5 +1,24 @@
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  # Uncomment and configure for production use
+  # backend "s3" {
+  #   bucket = "your-terraform-state-bucket"
+  #   key    = "wisegrowth/terraform.tfstate"
+  #   region = "us-east-1"
+  #   dynamodb_table = "terraform-locks"
+  #   encrypt = true
+  # }
+}
+
 provider "aws" {
-  region = "us-east-1" # Change to your desired AWS region
+  region = var.aws_region
 }
 
 # Define a secret in AWS Secrets Manager for environment variables
@@ -15,7 +34,6 @@ resource "aws_secretsmanager_secret_version" "app_secrets_version" {
   secret_id = aws_secretsmanager_secret.app_secrets.id
 
   # Add all your environment variables here in JSON format
-  # Example: {"DATABASE_URL": "your-supabase-url", "NEXTAUTH_SECRET": "your-nextauth-secret"}
   secret_string = var.app_secrets_json
 }
 
@@ -30,6 +48,24 @@ variable "app_secrets_json" {
   sensitive   = true # Mark as sensitive so it's not shown in logs/state
 }
 
+variable "github_repository_url" {
+  description = "The GitHub repository URL for the source code."
+  type        = string
+  default     = "https://github.com/oliyoung/congenial-carnival"
+}
+
+variable "aws_region" {
+  description = "AWS region for resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+variable "environment" {
+  description = "Environment name (e.g., production, staging)"
+  type        = string
+  default     = "production"
+}
+
 # Define the AWS App Runner Service
 resource "aws_apprunner_service" "app_service" {
   service_name = "wisegrowth-service"
@@ -37,38 +73,31 @@ resource "aws_apprunner_service" "app_service" {
   source_configuration {
     auto_deployments_enabled = true # Set to false if you want manual deployments
 
-    image_repository {
-      image_identifier = "public.ecr.aws/your-base-image:latest" # Placeholder - App Runner builds from source, but needs a base image idea
-      image_repository_type = "ECR_PUBLIC" # Or ECR for private repo
-      # No need for ECR details if building from source, remove this block and use code_repository instead
-    }
-
     code_repository {
-      repository_url    = "<YOUR_GITHUB_REPO_URL>" # REPLACE WITH YOUR GITHUB REPO URL
+      repository_url = var.github_repository_url
       source_code_version {
-        type    = "BRANCH"
-        value   = "main" # REPLACE WITH YOUR DESIRED BRANCH (e.g., "main")
+        type  = "BRANCH"
+        value = "main"
       }
       code_configuration {
-        configuration_source = "API" # Or "REPOSITORY" if you have an apprunner.yaml
+        configuration_source = "REPOSITORY" # Use apprunner.yaml from repository
 
-        image_configuration {
-          port = "3000" # Default Next.js port
-          # Command and Entrypoint can be set if needed, but Dockerfile should handle
+        code_configuration_values {
+          runtime = "NODEJS_18"
+
+          # Environment variables from Secrets Manager
+          # App Runner will inject these automatically when using instance role
+          runtime_environment_secrets = {
+            DATABASE_URL = "${aws_secretsmanager_secret.app_secrets.arn}:DATABASE_URL::"
+            NEXT_PUBLIC_SUPABASE_URL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_URL::"
+            NEXT_PUBLIC_SUPABASE_ANON_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_ANON_KEY::"
+            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY::"
+            NEXT_PUBLIC_ANTHROPIC_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_ANTHROPIC_KEY::"
+            NEXT_PUBLIC_ANTHROPIC_MODEL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_ANTHROPIC_MODEL::"
+            NEXT_PUBLIC_OPEN_AI_TOKEN = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_OPEN_AI_TOKEN::"
+            NEXT_PUBLIC_OPEN_AI_MODEL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_OPEN_AI_MODEL::"
+          }
         }
-
-        # Configure environment variables from Secrets Manager
-        runtime_environment_variables = {
-             # You don't list individual variables here when using secrets.
-             # Instead, you configure the role App Runner uses to access secrets.
-             # This part is a bit tricky with App Runner direct secrets access.
-             # A common pattern is to pass the Secret ARN as an environment variable
-             # and have the application fetch secrets at startup, or use App Runner's instance role.
-        }
-
-        # App Runner can automatically inject secrets if configured
-        # However, the direct API config doesn't easily support linking secrets
-        # by name like this. Using an instance role is the standard secure way.
       }
       # You need a GitHub connection ARN here to allow App Runner to pull code
       authentication_configuration {
@@ -77,18 +106,13 @@ resource "aws_apprunner_service" "app_service" {
     }
   }
 
-  instance_configuration {
-    cpu    = "1024" # 1 vCPU
-    memory = "2048" # 2 GB
-  }
 
-  # You'll need to create an instance role that has permissions to read the Secrets Manager secret
-  # and configure App Runner to use it. This is typically done via a separate IAM role resource
-  # and linking it here. For simplicity, this example omits the IAM role setup,
-  # but it is CRITICAL for production.
-  # instance_configuration {
-  #   instance_role_arn = aws_iam_role.apprunner_instance_role.arn # Link to your IAM role
-  # }
+  # Link the IAM role that allows App Runner to access secrets
+  instance_configuration {
+    cpu               = "1024" # 1 vCPU
+    memory            = "2048" # 2 GB
+    instance_role_arn = aws_iam_role.apprunner_instance_role.arn
+  }
 
   health_check_configuration {
     protocol = "TCP" # Or HTTP if you have a specific health check endpoint
@@ -100,13 +124,66 @@ resource "aws_apprunner_service" "app_service" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
     Project     = "wisegrowth"
+    ManagedBy   = "terraform"
   }
+}
+
+# IAM role for App Runner instance to access secrets
+resource "aws_iam_role" "apprunner_instance_role" {
+  name = "wisegrowth-apprunner-instance-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "tasks.apprunner.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Environment = var.environment
+    Project     = "wisegrowth"
+    ManagedBy   = "terraform"
+  }
+}
+
+# IAM policy to allow App Runner to read secrets
+resource "aws_iam_role_policy" "apprunner_secrets_policy" {
+  name = "wisegrowth-apprunner-secrets-policy"
+  role = aws_iam_role.apprunner_instance_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.app_secrets.arn
+        ]
+      }
+    ]
+  })
 }
 
 # Output the App Runner Service URL
 output "apprunner_service_url" {
   description = "The URL of the deployed App Runner service"
   value       = aws_apprunner_service.app_service.service_url
+}
+
+output "secrets_manager_secret_arn" {
+  description = "The ARN of the secrets manager secret"
+  value       = aws_secretsmanager_secret.app_secrets.arn
+  sensitive   = true
 }

@@ -23,7 +23,8 @@
       "WebFetch(domain:ui.shadcn.com)",
       "Bash(rg:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(touch:*)"
     ],
     "deny": []
   },

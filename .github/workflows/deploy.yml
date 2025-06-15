@@ -16,18 +16,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Optional: Set up Node.js and build the project as a check
-      # App Runner builds from source, but this ensures the build works
+      # Set up Node.js and build the project to verify it works before deployment
+      # Also ensures all dependencies are properly resolved
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x' # Use the Node.js version compatible with your project
+          node-version: '20.x'
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: npm install # Or yarn install, pnpm install
+        run: yarn install
 
       - name: Build project
-        run: npm run build # Or yarn build, pnpm build
+        run: yarn build
+        env:
+          # Required environment variables for Next.js build
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_ANTHROPIC_KEY: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
+          NEXT_PUBLIC_ANTHROPIC_MODEL: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_MODEL }}
+          NEXT_PUBLIC_OPEN_AI_TOKEN: ${{ secrets.NEXT_PUBLIC_OPEN_AI_TOKEN }}
+          NEXT_PUBLIC_OPEN_AI_MODEL: ${{ secrets.NEXT_PUBLIC_OPEN_AI_MODEL }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -64,10 +75,51 @@ jobs:
           # WARNING: Directly passing sensitive JSON like this is NOT recommended for production.
           # See explanation below and in the terraform code comments.
           TF_VAR_app_secrets_json: ${{ secrets.APP_SECRETS_JSON }}
+          # Pass the repository URL dynamically
+          TF_VAR_github_repository_url: ${{ github.server_url }}/${{ github.repository }}
 
 
       - name: Get App Runner Service URL
+        id: get_url
         run: |
           cd terraform
-          terraform output apprunner_service_url
+          SERVICE_URL=$(terraform output -raw apprunner_service_url)
+          echo "service_url=$SERVICE_URL" >> $GITHUB_OUTPUT
+          echo "Deployed to: $SERVICE_URL"
         shell: bash
+
+      - name: Health Check
+        run: |
+          echo "🏥 Performing health check on deployed service..."
+          SERVICE_URL="${{ steps.get_url.outputs.service_url }}"
+          
+          # Wait for service to be ready (App Runner can take a few minutes)
+          echo "⏳ Waiting for service to become available..."
+          for i in {1..20}; do
+            if curl -f -s --max-time 10 "$SERVICE_URL" > /dev/null; then
+              echo "✅ Service is healthy and responding"
+              echo "🌐 Application URL: $SERVICE_URL"
+              exit 0
+            fi
+            echo "⏳ Attempt $i/20: Service not ready yet, waiting 30 seconds..."
+            sleep 30
+          done
+          
+          echo "❌ Health check failed - service did not become available within 10 minutes"
+          echo "🔍 Please check AWS App Runner console for deployment status"
+          exit 1
+        shell: bash
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service URL**: ${{ steps.get_url.outputs.service_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Deployment completed successfully" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Deployment failed - check logs above" >> $GITHUB_STEP_SUMMARY
+          fi

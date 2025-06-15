@@ -6,8 +6,8 @@ require('dotenv').config();
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-const TEST_EMAIL = 'playwright.test@gmail.com';
-const TEST_PASSWORD = 'TestPassword123!';
+const TEST_EMAIL = process.env.TEST_COACH_EMAIL || 'playwright.test@gmail.com';
+const TEST_PASSWORD = process.env.TEST_COACH_PASSWORD || 'TestPassword123!';
 
 async function createTestUser() {
   if (!supabaseUrl || !supabaseAnonKey) {
