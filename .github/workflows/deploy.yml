@@ -20,7 +20,7 @@ jobs:
       # This eliminates the need for duplicate environment variables
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -70,7 +70,7 @@ jobs:
         run: |
           echo "🏥 Performing health check on deployed service..."
           SERVICE_URL="${{ steps.get_url.outputs.service_url }}"
-          
+
           # Wait for service to be ready (App Runner can take a few minutes)
           echo "⏳ Waiting for service to become available..."
           for i in {1..20}; do
@@ -82,7 +82,7 @@ jobs:
             echo "⏳ Attempt $i/20: Service not ready yet, waiting 30 seconds..."
             sleep 30
           done
-          
+
           echo "❌ Health check failed - service did not become available within 10 minutes"
           echo "🔍 Please check AWS App Runner console for deployment status"
           exit 1
