@@ -70,15 +70,16 @@ resource "aws_apprunner_service" "app_service" {
   source_configuration {
     auto_deployments_enabled = true # Set to false if you want manual deployments
 
+    # You need a GitHub connection ARN here to allow App Runner to pull code
+    authentication_configuration {
+      connection_arn = var.github_connection_arn
+    }
+
     code_repository {
       repository_url = var.github_repository_url
       source_code_version {
         type  = "BRANCH"
         value = "main"
-      }
-      # You need a GitHub connection ARN here to allow App Runner to pull code
-      authentication_configuration {
-        connection_arn = var.github_connection_arn
       }
       code_configuration {
         configuration_source = "REPOSITORY" # Use apprunner.yaml from repository
