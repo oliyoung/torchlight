@@ -82,10 +82,6 @@ variable "supabase_url" {
 resource "aws_apprunner_service" "app_service" {
   service_name = "wisegrowth-service"
 
-  lifecycle {
-    create_before_destroy = true
-  }
-
   source_configuration {
     auto_deployments_enabled = true # Set to false if you want manual deployments
 
