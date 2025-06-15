@@ -29,6 +29,9 @@ export async function createCoach(
     const coach = await coachRepository.createCoach(userId, user.email, args.input)
 
     // Create billing record
+    if (!coach) {
+      throw new Error('Failed to create coach profile')
+    }
     const billing = await coachBillingRepository.createForCoach(
       coach.id,
       user.email
@@ -40,6 +43,9 @@ export async function createCoach(
     })
 
     // Populate billing relationship
+    if (!updatedCoach) {
+      throw new Error('Failed to update coach profile')
+    }
     updatedCoach.billing = billing
 
     return updatedCoach

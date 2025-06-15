@@ -30,6 +30,9 @@ export async function updateCoach(
     const coach = await coachRepository.updateByUserId(userId, args.input)
 
     // Load billing relationship if needed
+    if (!coach) {
+      throw new Error('Failed to update coach profile')
+    }
     if (context.dataloaders?.coachBillingLoaders) {
       coach.billing = await context.dataloaders.coachBillingLoaders.coachBillingByCoachId.load(coach.id)
     }

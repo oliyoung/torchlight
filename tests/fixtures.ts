@@ -4,6 +4,8 @@ import * as path from 'path';
 // Environment variables
 export const TEST_CONFIG = {
   baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  testCoachEmail: process.env.TEST_COACH_EMAIL ?? 'test@example.com',
+  testCoachPassword: process.env.TEST_COACH_PASSWORD ?? 'password123',
 };
 
 /**
