@@ -21,28 +21,28 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Reference existing AWS secrets instead of creating new ones
-# This assumes secrets are already created in AWS Secrets Manager/Parameter Store
+# Simple approach: create one secret with all environment variables
+resource "aws_secretsmanager_secret" "app_secrets" {
+  name        = "wisegrowth-app-secrets"
+  description = "All environment variables for WiseGrowth"
+  
+  recovery_window_in_days = 0 # Set to 7+ for production
+}
+
+resource "aws_secretsmanager_secret_version" "app_secrets_version" {
+  secret_id     = aws_secretsmanager_secret.app_secrets.id
+  secret_string = var.app_secrets_json
+}
 
 variable "github_connection_arn" {
   description = "The ARN of the AWS App Runner GitHub connection."
   type        = string
 }
 
-# Variables for existing AWS secrets
-variable "database_secret_arn" {
-  description = "ARN of existing DATABASE_URL secret in AWS Secrets Manager"
+variable "app_secrets_json" {
+  description = "JSON string with all environment variables"
   type        = string
-}
-
-variable "supabase_secrets_arn" {
-  description = "ARN of existing Supabase secrets in AWS Secrets Manager"
-  type        = string
-}
-
-variable "ai_secrets_arn" {
-  description = "ARN of existing AI provider secrets in AWS Secrets Manager"
-  type        = string
+  sensitive   = true
 }
 
 variable "github_repository_url" {
@@ -82,22 +82,16 @@ resource "aws_apprunner_service" "app_service" {
         code_configuration_values {
           runtime = "NODEJS_18"
 
-          # Environment variables from existing AWS secrets
-          # App Runner will inject these automatically when using instance role
+          # All environment variables from one secret
           runtime_environment_secrets = {
-            # Database secret
-            DATABASE_URL = "${var.database_secret_arn}:DATABASE_URL::"
-            
-            # Supabase secrets
-            NEXT_PUBLIC_SUPABASE_URL = "${var.supabase_secrets_arn}:NEXT_PUBLIC_SUPABASE_URL::"
-            NEXT_PUBLIC_SUPABASE_ANON_KEY = "${var.supabase_secrets_arn}:NEXT_PUBLIC_SUPABASE_ANON_KEY::"
-            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = "${var.supabase_secrets_arn}:NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY::"
-            
-            # AI provider secrets
-            NEXT_PUBLIC_ANTHROPIC_KEY = "${var.ai_secrets_arn}:NEXT_PUBLIC_ANTHROPIC_KEY::"
-            NEXT_PUBLIC_ANTHROPIC_MODEL = "${var.ai_secrets_arn}:NEXT_PUBLIC_ANTHROPIC_MODEL::"
-            NEXT_PUBLIC_OPEN_AI_TOKEN = "${var.ai_secrets_arn}:NEXT_PUBLIC_OPEN_AI_TOKEN::"
-            NEXT_PUBLIC_OPEN_AI_MODEL = "${var.ai_secrets_arn}:NEXT_PUBLIC_OPEN_AI_MODEL::"
+            DATABASE_URL = "${aws_secretsmanager_secret.app_secrets.arn}:DATABASE_URL::"
+            NEXT_PUBLIC_SUPABASE_URL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_URL::"
+            NEXT_PUBLIC_SUPABASE_ANON_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_ANON_KEY::"
+            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY::"
+            NEXT_PUBLIC_ANTHROPIC_KEY = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_ANTHROPIC_KEY::"
+            NEXT_PUBLIC_ANTHROPIC_MODEL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_ANTHROPIC_MODEL::"
+            NEXT_PUBLIC_OPEN_AI_TOKEN = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_OPEN_AI_TOKEN::"
+            NEXT_PUBLIC_OPEN_AI_MODEL = "${aws_secretsmanager_secret.app_secrets.arn}:NEXT_PUBLIC_OPEN_AI_MODEL::"
           }
         }
       }
@@ -171,9 +165,7 @@ resource "aws_iam_role_policy" "apprunner_secrets_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = [
-          var.database_secret_arn,
-          var.supabase_secrets_arn,
-          var.ai_secrets_arn
+          aws_secretsmanager_secret.app_secrets.arn
         ]
       }
     ]
@@ -186,12 +178,8 @@ output "apprunner_service_url" {
   value       = aws_apprunner_service.app_service.service_url
 }
 
-output "referenced_secret_arns" {
-  description = "The ARNs of the secrets being referenced"
-  value = {
-    database = var.database_secret_arn
-    supabase = var.supabase_secrets_arn
-    ai       = var.ai_secrets_arn
-  }
+output "app_secrets_arn" {
+  description = "ARN of the created secrets manager secret"
+  value = aws_secretsmanager_secret.app_secrets.arn
   sensitive = true
 }

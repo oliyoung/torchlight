@@ -6,61 +6,58 @@ This document outlines all the secrets required for the GitHub Actions workflows
 
 ### AWS Deployment (`deploy.yml`)
 
-**Only 6 secrets needed total:**
+**Only 4 secrets needed total - SUPER SIMPLE:**
 
-#### AWS Credentials
-- **`AWS_ACCESS_KEY_ID`** - AWS access key ID for deployment
-- **`AWS_SECRET_ACCESS_KEY`** - AWS secret access key for deployment
-- **`APP_RUNNER_GITHUB_CONNECTION_ARN`** - ARN of the GitHub connection for AWS App Runner
+1. `AWS_ACCESS_KEY_ID` - Get from AWS IAM user
+2. `AWS_SECRET_ACCESS_KEY` - Get from AWS IAM user  
+3. `APP_RUNNER_GITHUB_CONNECTION_ARN` - Create GitHub connection in AWS console
+4. `APP_SECRETS_JSON` - Copy/paste from your .env file (see below)
 
-#### AWS Secret ARNs (references to existing secrets)
-- **`DATABASE_SECRET_ARN`** - ARN of existing database secret in AWS Secrets Manager
-- **`SUPABASE_SECRETS_ARN`** - ARN of existing Supabase secrets in AWS Secrets Manager  
-- **`AI_SECRETS_ARN`** - ARN of existing AI provider secrets in AWS Secrets Manager
+## Dead Simple Setup:
 
-**Note: This approach references existing AWS secrets instead of duplicating them in GitHub. Most secure for production!**
-
-## Setup Process
-
-### 1. Create AWS Secrets First
-Before running Terraform, create these secrets in AWS Secrets Manager:
-
+### 1. Create AWS User (one time)
 ```bash
-# Database secret
-aws secretsmanager create-secret --name "wisegrowth/database" \
-  --secret-string '{"DATABASE_URL":"your-connection-string"}'
+# Create user
+aws iam create-user --user-name github-actions-wisegrowth
 
-# Supabase secrets
-aws secretsmanager create-secret --name "wisegrowth/supabase" \
-  --secret-string '{
-    "NEXT_PUBLIC_SUPABASE_URL":"https://your-project.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY":"your-anon-key",
-    "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY":"your-service-role-key"
-  }'
+# Give it permissions  
+aws iam attach-user-policy --user-name github-actions-wisegrowth \
+  --policy-arn arn:aws:iam::aws:policy/AWSAppRunnerFullAccess
+aws iam attach-user-policy --user-name github-actions-wisegrowth \
+  --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
 
-# AI provider secrets
-aws secretsmanager create-secret --name "wisegrowth/ai" \
-  --secret-string '{
-    "NEXT_PUBLIC_ANTHROPIC_KEY":"your-anthropic-key",
-    "NEXT_PUBLIC_ANTHROPIC_MODEL":"claude-sonnet-4-20250514",
-    "NEXT_PUBLIC_OPEN_AI_TOKEN":"your-openai-token",
-    "NEXT_PUBLIC_OPEN_AI_MODEL":"openai/gpt-4.1"
-  }'
+# Get access keys
+aws iam create-access-key --user-name github-actions-wisegrowth
 ```
 
-### 2. Get Secret ARNs
-```bash
-# Get the ARNs for your GitHub secrets
-aws secretsmanager describe-secret --secret-id "wisegrowth/database" --query 'ARN'
-aws secretsmanager describe-secret --secret-id "wisegrowth/supabase" --query 'ARN'
-aws secretsmanager describe-secret --secret-id "wisegrowth/ai" --query 'ARN'
+### 2. Create GitHub Connection (AWS Console)
+- Go to AWS App Runner console
+- Create GitHub connection  
+- Copy the ARN
+
+### 3. Copy your .env to JSON
+Take your `.env` file and convert to JSON:
+```json
+{
+  "DATABASE_URL": "your-database-url",
+  "NEXT_PUBLIC_SUPABASE_URL": "https://your-project.supabase.co", 
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your-anon-key",
+  "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key",
+  "NEXT_PUBLIC_ANTHROPIC_KEY": "your-anthropic-key",
+  "NEXT_PUBLIC_ANTHROPIC_MODEL": "claude-sonnet-4-20250514",
+  "NEXT_PUBLIC_OPEN_AI_TOKEN": "your-openai-token", 
+  "NEXT_PUBLIC_OPEN_AI_MODEL": "openai/gpt-4.1"
+}
 ```
 
-### 3. Add ARNs to GitHub Secrets
-Use the ARNs from step 2 as the values for:
-- `DATABASE_SECRET_ARN`
-- `SUPABASE_SECRETS_ARN`
-- `AI_SECRETS_ARN`
+### 4. Add 4 secrets to GitHub
+Go to GitHub → Settings → Secrets → Actions → New repository secret:
+- `AWS_ACCESS_KEY_ID` = from step 1
+- `AWS_SECRET_ACCESS_KEY` = from step 1  
+- `APP_RUNNER_GITHUB_CONNECTION_ARN` = from step 2
+- `APP_SECRETS_JSON` = from step 3
+
+**That's it! Deploy will work.**
 
 ### Supabase Deployments (`supabase-staging.yml`, `supabase-production.yml`)
 

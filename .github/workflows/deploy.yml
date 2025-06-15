@@ -53,10 +53,8 @@ jobs:
           TF_VAR_github_connection_arn: ${{ secrets.APP_RUNNER_GITHUB_CONNECTION_ARN }}
           # Pass the repository URL dynamically
           TF_VAR_github_repository_url: ${{ github.server_url }}/${{ github.repository }}
-          # Pass existing AWS secret ARNs
-          TF_VAR_database_secret_arn: ${{ secrets.DATABASE_SECRET_ARN }}
-          TF_VAR_supabase_secrets_arn: ${{ secrets.SUPABASE_SECRETS_ARN }}
-          TF_VAR_ai_secrets_arn: ${{ secrets.AI_SECRETS_ARN }}
+          # Pass all secrets as one JSON blob
+          TF_VAR_app_secrets_json: ${{ secrets.APP_SECRETS_JSON }}
 
 
       - name: Get App Runner Service URL
