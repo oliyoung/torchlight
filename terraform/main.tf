@@ -208,28 +208,9 @@ resource "aws_apprunner_service" "app_service" {
   }
 }
 
-# IAM role for App Runner instance to access secrets
-resource "aws_iam_role" "apprunner_instance_role" {
+# Reference existing IAM role for App Runner instance to access secrets
+data "aws_iam_role" "apprunner_instance_role" {
   name = "wisegrowth-apprunner-instance-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "tasks.apprunner.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = {
-    Environment = var.environment
-    Project     = "wisegrowth"
-    ManagedBy   = "terraform"
-  }
 }
 
 # IAM policy to allow App Runner to read secrets
