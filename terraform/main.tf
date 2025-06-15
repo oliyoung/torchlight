@@ -27,7 +27,6 @@ locals {
   
   # Define default values for missing keys
   secrets_with_defaults = {
-    DATABASE_URL = try(local.app_secrets.DATABASE_URL, "")
     NEXT_PUBLIC_SUPABASE_URL = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_URL, "")
     NEXT_PUBLIC_SUPABASE_ANON_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY, "")
     NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = try(local.app_secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY, "")
@@ -39,17 +38,6 @@ locals {
 }
 
 # Create individual secrets for each environment variable
-resource "aws_secretsmanager_secret" "database_url" {
-  name        = "wisegrowth-database-url"
-  description = "Database URL for WiseGrowth"
-  recovery_window_in_days = 0
-}
-
-resource "aws_secretsmanager_secret_version" "database_url" {
-  secret_id     = aws_secretsmanager_secret.database_url.id
-  secret_string = local.secrets_with_defaults.DATABASE_URL
-}
-
 resource "aws_secretsmanager_secret" "supabase_url" {
   name        = "wisegrowth-supabase-url"
   description = "Supabase URL for WiseGrowth"
@@ -183,7 +171,6 @@ resource "aws_apprunner_service" "app_service" {
 
           # Environment variables from individual secrets
           runtime_environment_secrets = {
-            DATABASE_URL = aws_secretsmanager_secret.database_url.arn
             NEXT_PUBLIC_SUPABASE_URL = aws_secretsmanager_secret.supabase_url.arn
             NEXT_PUBLIC_SUPABASE_ANON_KEY = aws_secretsmanager_secret.supabase_anon_key.arn
             NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = aws_secretsmanager_secret.supabase_service_role_key.arn
@@ -260,7 +247,6 @@ resource "aws_iam_role_policy" "apprunner_secrets_policy" {
           "secretsmanager:DescribeSecret"
         ]
         Resource = [
-          aws_secretsmanager_secret.database_url.arn,
           aws_secretsmanager_secret.supabase_url.arn,
           aws_secretsmanager_secret.supabase_anon_key.arn,
           aws_secretsmanager_secret.supabase_service_role_key.arn,
@@ -283,7 +269,6 @@ output "apprunner_service_url" {
 output "app_secrets_arns" {
   description = "ARNs of the created secrets manager secrets"
   value = {
-    database_url = aws_secretsmanager_secret.database_url.arn
     supabase_url = aws_secretsmanager_secret.supabase_url.arn
     supabase_anon_key = aws_secretsmanager_secret.supabase_anon_key.arn
     supabase_service_role_key = aws_secretsmanager_secret.supabase_service_role_key.arn
