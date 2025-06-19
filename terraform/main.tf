@@ -101,7 +101,8 @@ resource "aws_apprunner_service" "app_service" {
         configuration_source = "REPOSITORY" # Use apprunner.yaml from repository
 
         code_configuration_values {
-          runtime = "NODEJS_18"
+          runtime = "NODEJS_20"
+          port = "3000"
 
           # Environment variables - set directly in Terraform
           runtime_environment_variables = {
