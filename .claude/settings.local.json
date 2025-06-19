@@ -30,7 +30,8 @@
       "Bash(aws apprunner list-connections:*)",
       "Bash(aws apprunner list-services:*)",
       "Bash(aws apprunner delete-service:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(aws apprunner describe-service:*)"
     ],
     "deny": []
   },
