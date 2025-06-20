@@ -23,11 +23,11 @@ ENV NEXT_PUBLIC_OPEN_AI_MODEL=$NEXT_PUBLIC_OPEN_AI_MODEL
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json (or yarn.lock/pnpm-lock.yaml)
-COPY package.json package-lock.json ./
+# Copy package.json and yarn.lock
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install --frozen-lockfile
 
 # Copy the rest of the application code
 COPY . .
@@ -35,7 +35,7 @@ COPY . .
 # Build the Next.js application
 # Set NEXT_TELEMETRY_DISABLED=1 to disable telemetry during build
 # Use output standalone for a smaller production image
-RUN NEXT_TELEMETRY_DISABLED=1 npm run build
+RUN NEXT_TELEMETRY_DISABLED=1 yarn build
 
 # Stage 2: Runner
 # Use a minimal image like node:20-alpine or a distroless image for production
