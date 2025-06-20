@@ -84,9 +84,8 @@ resource "aws_apprunner_service" "app_service" {
   service_name = "torchlight-service"
 
   source_configuration {
-    auto_deployments_enabled = true # Set to false if you want manual deployments
+    auto_deployments_enabled = true
 
-    # You need a GitHub connection ARN here to allow App Runner to pull code
     authentication_configuration {
       connection_arn = var.github_connection_arn
     }
@@ -98,39 +97,19 @@ resource "aws_apprunner_service" "app_service" {
         value = "main"
       }
       code_configuration {
-        configuration_source = "REPOSITORY" # Use apprunner.yaml from repository
-
-        code_configuration_values {
-          runtime = "NODEJS_22"
-          port = "3000"
-
-          # Environment variables - set directly in Terraform
-          runtime_environment_variables = {
-            NODE_ENV = "production"
-            NEXT_TELEMETRY_DISABLED = "1"
-            # Add your required environment variables here
-            NEXT_PUBLIC_SUPABASE_URL = var.supabase_url
-            NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
-            NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
-            NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_key
-            NEXT_PUBLIC_ANTHROPIC_MODEL = var.anthropic_model
-            # Add other vars as needed
-            NEXT_PUBLIC_OPEN_AI_MODEL = var.open_ai_model
-            NEXT_PUBLIC_OPEN_AI_TOKEN = var.open_ai_token
-          }
-        }
+        configuration_source = "DOCKERFILE"
       }
     }
   }
 
   instance_configuration {
-    cpu    = "1024" # 1 vCPU
-    memory = "2048" # 2 GB
+    cpu    = "1024"
+    memory = "2048"
   }
 
   health_check_configuration {
-    protocol = "TCP" # Or HTTP if you have a specific health check endpoint
-    path     = "/"   # Health check path if using HTTP
+    protocol = "TCP"
+    path     = "/"
     interval = 10
     timeout  = 5
     healthy_threshold   = 1
