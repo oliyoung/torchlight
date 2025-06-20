@@ -1,6 +1,6 @@
 # Google OAuth Setup Guide
 
-This guide walks you through setting up Google OAuth authentication with Supabase for the wisegrowth project.
+This guide walks you through setting up Google OAuth authentication with Supabase for the torchlight project.
 
 ## Prerequisites
 

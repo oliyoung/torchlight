@@ -1,4 +1,4 @@
-# wisegrowth Development Timeline
+# torchlight Development Timeline
 
 *A comprehensive chronicle of daily development progress from project inception to current state*
 
@@ -178,7 +178,7 @@
 - **fc9e261** | Remove internationalization support (simplification)
 - **bc0a1a1** | **Implement Google OAuth authentication and enhance login flow**
 - **6b34c79** | Refactor ProfileSection and CoachOnboardingModal components
-- **3e15930** | **Update project references from "congenial-carnival" to "wisegrowth"** *(Brand finalization)*
+- **3e15930** | **Update project references from "congenial-carnival" to "torchlight"** *(Brand finalization)*
 - **2e1c89f** | Enhance GraphQL API to support coach-specific data handling
 - **2ab9411** | Enhance GraphQL schema and repository structure
 - **cbbc02b** | Refactor Coach and CoachBilling repositories
@@ -249,7 +249,7 @@
 1. **Client-to-Athlete Transition** - Major terminology and UX improvement
 2. **AI-First Coaching Platform** - All core coaching workflows AI-enhanced
 3. **Youth-Aware Design** - Age-appropriate interfaces and feedback systems
-4. **Brand Evolution** - From "congenial-carnival" to "wisegrowth"
+4. **Brand Evolution** - From "congenial-carnival" to "torchlight"
 
 ### **Development Quality**
 - **Consistent Logging** - Centralized pino logger implementation

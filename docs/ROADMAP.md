@@ -1,6 +1,6 @@
-# wisegrowth Roadmap & Future Ideas
+# torchlight Roadmap & Future Ideas
 
-This document tracks planned features and future ideas for the wisegrowth coaching platform. Items are organized by priority and implementation status.
+This document tracks planned features and future ideas for the torchlight coaching platform. Items are organized by priority and implementation status.
 
 ## ✅ Recently Completed (Current State)
 

@@ -51,15 +51,15 @@ jobs:
       - name: Cleanup existing failed services
         run: |
           echo "🧹 Checking for existing failed App Runner services..."
-          SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service` && (Status==`CREATE_FAILED` || Status==`OPERATION_IN_PROGRESS`)].ServiceArn' --output text)
+          SERVICES=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`torchlight-service` && (Status==`CREATE_FAILED` || Status==`OPERATION_IN_PROGRESS`)].ServiceArn' --output text)
           if [ -n "$SERVICES" ]; then
             echo "🗑️ Found failed service, deleting: $SERVICES"
             aws apprunner delete-service --service-arn "$SERVICES" --region ${{ env.AWS_REGION }}
             echo "⏳ Waiting for deletion to complete..."
-            
+
             # Poll for deletion completion
             for i in {1..30}; do
-              REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service`].ServiceArn' --output text)
+              REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`torchlight-service`].ServiceArn' --output text)
               if [ -z "$REMAINING" ]; then
                 echo "✅ Service deletion completed"
                 break
@@ -67,9 +67,9 @@ jobs:
               echo "⏳ Still deleting... attempt $i/30"
               sleep 10
             done
-            
+
             # Final check
-            REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`wisegrowth-service`].ServiceArn' --output text)
+            REMAINING=$(aws apprunner list-services --region ${{ env.AWS_REGION }} --query 'ServiceSummaryList[?ServiceName==`torchlight-service`].ServiceArn' --output text)
             if [ -n "$REMAINING" ]; then
               echo "⚠️ Service still exists, but proceeding anyway"
             fi

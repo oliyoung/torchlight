@@ -5,6 +5,7 @@ build:
     pre-build:
       - yarn install --frozen-lockfile
     build:
+      - echo "ENV VARS:" && env | grep NEXT_PUBLIC_
       - yarn build
   env:
     - name: NEXT_PUBLIC_SUPABASE_URL

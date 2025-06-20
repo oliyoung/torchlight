@@ -81,7 +81,7 @@ variable "supabase_url" {
 }
 
 resource "aws_apprunner_service" "app_service" {
-  service_name = "wisegrowth-service"
+  service_name = "torchlight-service"
 
   source_configuration {
     auto_deployments_enabled = true # Set to false if you want manual deployments
@@ -139,7 +139,7 @@ resource "aws_apprunner_service" "app_service" {
 
   tags = {
     Environment = var.environment
-    Project     = "wisegrowth"
+    Project     = "torchlight"
     ManagedBy   = "terraform"
   }
 }

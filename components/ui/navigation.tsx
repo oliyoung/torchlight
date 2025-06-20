@@ -163,7 +163,7 @@ export default function Navigation() {
 							<div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
 								<span className="text-white font-bold text-sm">WG</span>
 							</div>
-							<span className="font-semibold text-primary-foreground">wisegrowth</span>
+							<span className="font-semibold text-primary-foreground">torchlight</span>
 						</div>
 					)}
 					<button

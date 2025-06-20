@@ -19,7 +19,7 @@ const sourceSansPro = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-	title: "wisegrowth",
+	title: "torchlight",
 	description: "AI-powered coaching platform for athlete development",
 };
 
