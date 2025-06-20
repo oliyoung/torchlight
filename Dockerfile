@@ -34,7 +34,6 @@ COPY . .
 
 # Build the Next.js application
 # Set NEXT_TELEMETRY_DISABLED=1 to disable telemetry during build
-# Use output standalone for a smaller production image
 RUN NEXT_TELEMETRY_DISABLED=1 yarn build
 
 # Stage 2: Runner
