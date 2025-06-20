@@ -2,6 +2,51 @@ resource "aws_ecr_repository" "torchlight" {
   name = "torchlight"
 }
 
+resource "aws_iam_role" "apprunner_ecr_access" {
+  name = "apprunner-ecr-access-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "build.apprunner.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "apprunner_ecr_access_policy" {
+  name = "apprunner-ecr-access-policy"
+  role = aws_iam_role.apprunner_ecr_access.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 terraform {
   required_version = ">= 1.0"
   required_providers {
@@ -42,8 +87,8 @@ variable "environment" {
 
 variable "anthropic_model" {
   description = "Anthropic Model"
-  type = string
-  default = "claude-sonnet-4-20250514"
+  type        = string
+  default     = "claude-sonnet-4-20250514"
 }
 
 variable "anthropic_key" {
@@ -54,15 +99,15 @@ variable "anthropic_key" {
 
 variable "open_ai_model" {
   description = "Open AI Model"
-  default = "openai/gpt-4.1"
-  type = string
-  sensitive = false
+  default     = "openai/gpt-4.1"
+  type        = string
+  sensitive   = false
 }
 
 variable "open_ai_token" {
   description = "Open AI Token"
-  type = string
-  sensitive = false
+  type        = string
+  sensitive   = false
 }
 
 variable "supabase_anon_key" {
@@ -73,27 +118,30 @@ variable "supabase_anon_key" {
 
 variable "supabase_service_role_key" {
   description = "Supabase Service Role Key"
-  type =  string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 variable "supabase_url" {
   description = "Supabase URL"
   type        = string
-  sensitive = false
-  default = "https://ztcrnuxprcxwbvnwxdoj.supabase.co"
+  sensitive   = false
+  default     = "https://ztcrnuxprcxwbvnwxdoj.supabase.co"
 }
 
 variable "aws_account_id" {
   description = "Your AWS account ID (should match the AWS_ACCOUNT_ID GitHub secret)"
   type        = string
-  default = "390403881775"
+  default     = "390403881775"
 }
 
 resource "aws_apprunner_service" "app_service" {
   service_name = "torchlight-service"
 
   source_configuration {
+    authentication_configuration {
+      access_role_arn = aws_iam_role.apprunner_ecr_access.arn
+    }
     auto_deployments_enabled = true
 
     image_repository {
@@ -103,15 +151,15 @@ resource "aws_apprunner_service" "app_service" {
       image_configuration {
         port = "3000"
         runtime_environment_variables = {
-          NODE_ENV = "production"
-          NEXT_TELEMETRY_DISABLED = "1"
-          NEXT_PUBLIC_SUPABASE_URL = var.supabase_url
-          NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
+          NODE_ENV                              = "production"
+          NEXT_TELEMETRY_DISABLED               = "1"
+          NEXT_PUBLIC_SUPABASE_URL              = var.supabase_url
+          NEXT_PUBLIC_SUPABASE_ANON_KEY         = var.supabase_anon_key
           NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
-          NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_key
-          NEXT_PUBLIC_ANTHROPIC_MODEL = var.anthropic_model
-          NEXT_PUBLIC_OPEN_AI_MODEL = var.open_ai_model
-          NEXT_PUBLIC_OPEN_AI_TOKEN = var.open_ai_token
+          NEXT_PUBLIC_ANTHROPIC_KEY             = var.anthropic_key
+          NEXT_PUBLIC_ANTHROPIC_MODEL           = var.anthropic_model
+          NEXT_PUBLIC_OPEN_AI_MODEL             = var.open_ai_model
+          NEXT_PUBLIC_OPEN_AI_TOKEN             = var.open_ai_token
         }
       }
     }
@@ -123,10 +171,10 @@ resource "aws_apprunner_service" "app_service" {
   }
 
   health_check_configuration {
-    protocol = "TCP"
-    path     = "/"
-    interval = 10
-    timeout  = 5
+    protocol            = "TCP"
+    path                = "/"
+    interval            = 10
+    timeout             = 5
     healthy_threshold   = 1
     unhealthy_threshold = 5
   }
