@@ -80,24 +80,34 @@ variable "supabase_url" {
   default = "https://ztcrnuxprcxwbvnwxdoj.supabase.co"
 }
 
+variable "aws_account_id" {
+  description = "Your AWS account ID (should match the AWS_ACCOUNT_ID GitHub secret)"
+  type        = string
+}
+
 resource "aws_apprunner_service" "app_service" {
   service_name = "torchlight-service"
 
   source_configuration {
     auto_deployments_enabled = true
 
-    authentication_configuration {
-      connection_arn = var.github_connection_arn
-    }
-
-    code_repository {
-      repository_url = var.github_repository_url
-      source_code_version {
-        type  = "BRANCH"
-        value = "main"
-      }
-      code_configuration {
-        configuration_source = "DOCKERFILE"
+    image_repository {
+      # Uses the ECR image built and pushed by GitHub Actions. Ensure AWS_ACCOUNT_ID is set as a GitHub secret.
+      image_identifier      = "${var.aws_account_id}.dkr.ecr.us-east-1.amazonaws.com/torchlight:latest"
+      image_repository_type = "ECR"
+      image_configuration {
+        port = "3000"
+        runtime_environment_variables = {
+          NODE_ENV = "production"
+          NEXT_TELEMETRY_DISABLED = "1"
+          NEXT_PUBLIC_SUPABASE_URL = var.supabase_url
+          NEXT_PUBLIC_SUPABASE_ANON_KEY = var.supabase_anon_key
+          NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY = var.supabase_service_role_key
+          NEXT_PUBLIC_ANTHROPIC_KEY = var.anthropic_key
+          NEXT_PUBLIC_ANTHROPIC_MODEL = var.anthropic_model
+          NEXT_PUBLIC_OPEN_AI_MODEL = var.open_ai_model
+          NEXT_PUBLIC_OPEN_AI_TOKEN = var.open_ai_token
+        }
       }
     }
   }

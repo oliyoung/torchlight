@@ -7,6 +7,8 @@ on:
 
 env:
   AWS_REGION: us-east-1 # Replace with your desired AWS region
+  ECR_REPOSITORY: torchlight
+  IMAGE_TAG: latest
 
 jobs:
   deploy:
@@ -25,13 +27,26 @@ jobs:
         run: |
           aws sts get-caller-identity
 
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+
+      - name: Tag Docker image
+        run: |
+          docker tag ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: latest # Or a specific version like 1.5.0
-
-      - name: Navigate to Terraform directory
-        run: cd terraform
 
       - name: Terraform Init
         run: terraform init
@@ -92,7 +107,7 @@ jobs:
           TF_VAR_supabase_service_role_key: ${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
           TF_VAR_anthropic_key: ${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }}
           TF_VAR_open_ai_token: ${{ secrets.NEXT_PUBLIC_OPEN_AI_TOKEN }}
-
+          TF_VAR_aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Get App Runner Service URL
         id: get_url
