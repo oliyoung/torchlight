@@ -25,7 +25,7 @@ variable "github_connection_arn" {
 variable "github_repository_url" {
   description = "The GitHub repository URL for the source code."
   type        = string
-  default     = "https://github.com/oliyoung/congenial-carnival"
+  default     = "https://github.com/oliyoung/torchlight"
 }
 
 variable "aws_region" {
@@ -87,6 +87,7 @@ variable "supabase_url" {
 variable "aws_account_id" {
   description = "Your AWS account ID (should match the AWS_ACCOUNT_ID GitHub secret)"
   type        = string
+  default = "390403881775"
 }
 
 resource "aws_apprunner_service" "app_service" {
