@@ -32,7 +32,15 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker build \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }} \
+            --build-arg NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY }} \
+            --build-arg NEXT_PUBLIC_ANTHROPIC_KEY=${{ secrets.NEXT_PUBLIC_ANTHROPIC_KEY }} \
+            --build-arg NEXT_PUBLIC_ANTHROPIC_MODEL=${{ secrets.NEXT_PUBLIC_ANTHROPIC_MODEL }} \
+            --build-arg NEXT_PUBLIC_OPEN_AI_TOKEN=${{ secrets.NEXT_PUBLIC_OPEN_AI_TOKEN }} \
+            --build-arg NEXT_PUBLIC_OPEN_AI_MODEL=${{ secrets.NEXT_PUBLIC_OPEN_AI_MODEL }} \
+            -t ${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} .
 
       - name: Tag Docker image
         run: |
