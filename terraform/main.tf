@@ -1,3 +1,7 @@
+resource "aws_ecr_repository" "torchlight" {
+  name = "torchlight"
+}
+
 terraform {
   required_version = ">= 1.0"
   required_providers {
