@@ -35,7 +35,6 @@ const GoalsQuery = gql`
       title
       description
       status
-      sport
       dueDate
       progressNotes
       createdAt

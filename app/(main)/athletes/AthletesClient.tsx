@@ -62,7 +62,7 @@ export default function AthletesClient() {
                 (athlete) =>
                     athlete.firstName.toLowerCase().includes(searchLower) ||
                     athlete.lastName.toLowerCase().includes(searchLower) ||
-                    athlete.email.toLowerCase().includes(searchLower)
+                    (athlete.email && athlete.email.toLowerCase().includes(searchLower))
             );
         }
 

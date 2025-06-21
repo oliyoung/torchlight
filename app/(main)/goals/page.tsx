@@ -21,7 +21,6 @@ const GoalsQuery = `
 			status
 			createdAt
 			dueDate
-			sport
 			athlete {
 				id
 				firstName

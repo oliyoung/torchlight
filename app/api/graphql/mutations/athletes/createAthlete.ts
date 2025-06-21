@@ -16,7 +16,13 @@ export const createAthlete = async (
     }
 
     try {
-        const athlete = await athleteRepository.create(coachId, args.input);
+        // Handle empty email strings by converting to null to avoid constraint violation
+        const sanitizedInput = {
+            ...args.input,
+            email: args.input.email?.trim() || null
+        };
+
+        const athlete = await athleteRepository.create(coachId, sanitizedInput);
 
         if (!athlete) {
             logger.error({ coachId, input: args.input }, "Failed to create athlete - null returned from repository");

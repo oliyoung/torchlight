@@ -151,7 +151,7 @@ type Athlete {
 	id: ID!
 	firstName: String!
 	lastName: String!
-	email: String!
+	email: String
 	phone: String # Phone number for contact
 	birthday: DateTime # Date of birth for age calculations and program planning
 	age: Int # Calculated age in years based on birthday
@@ -505,7 +505,7 @@ All fields are validated and the athlete is automatically associated with the au
 input CreateAthleteInput {
 	firstName: String!
 	lastName: String!
-	email: String! # Required for communication
+	email: String # Optional for communication
 	phone: String # Phone number for contact
 	birthday: DateTime! # Required for age-appropriate training planning
 	gender: AthleteGender # Gender information for training considerations

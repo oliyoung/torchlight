@@ -35,7 +35,8 @@
       "Bash(npx supabase migration:*)",
       "Bash(PGPASSWORD=\"$POSTGRES_PASSWORD\" psql \"$DATABASE_URL\" -c \"SELECT policyname FROM pg_policies WHERE tablename = 'coaches';\")",
       "Bash(env)",
-      "Bash(supabase:*)"
+      "Bash(supabase:*)",
+      "Bash(npx supabase:*)"
     ],
     "deny": []
   },

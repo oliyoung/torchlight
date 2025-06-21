@@ -238,7 +238,7 @@ export default function Navigation() {
 								</div>
 								{!isCollapsed && (
 									<div className="flex-1 min-w-0 text-left">
-										<p className="text-sm font-medium text-primary-foreground truncate">
+										<p className="text-sm font-medium text-gray-700 truncate">
 											{displayName}
 										</p>
 										<p className="text-xs text-gray-500 truncate">

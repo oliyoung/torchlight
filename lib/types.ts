@@ -117,7 +117,7 @@ export type Athlete = {
   coach: Coach;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
-  email: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   emergencyContactName?: Maybe<Scalars['String']['output']>;
   emergencyContactPhone?: Maybe<Scalars['String']['output']>;
   firstName: Scalars['String']['output'];
@@ -261,7 +261,7 @@ export type CoreGoal = {
 export type CreateAthleteInput = {
   availability?: InputMaybe<Scalars['JSON']['input']>;
   birthday: Scalars['DateTime']['input'];
-  email: Scalars['String']['input'];
+  email?: InputMaybe<Scalars['String']['input']>;
   emergencyContactName?: InputMaybe<Scalars['String']['input']>;
   emergencyContactPhone?: InputMaybe<Scalars['String']['input']>;
   firstName: Scalars['String']['input'];
@@ -1352,7 +1352,7 @@ export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends Re
   coach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emergencyContactName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emergencyContactPhone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   firstName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
