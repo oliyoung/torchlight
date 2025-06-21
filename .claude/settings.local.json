@@ -31,7 +31,11 @@
       "Bash(aws apprunner list-services:*)",
       "Bash(aws apprunner delete-service:*)",
       "Bash(python3:*)",
-      "Bash(aws apprunner describe-service:*)"
+      "Bash(aws apprunner describe-service:*)",
+      "Bash(npx supabase migration:*)",
+      "Bash(PGPASSWORD=\"$POSTGRES_PASSWORD\" psql \"$DATABASE_URL\" -c \"SELECT policyname FROM pg_policies WHERE tablename = 'coaches';\")",
+      "Bash(env)",
+      "Bash(supabase:*)"
     ],
     "deny": []
   },

@@ -20,8 +20,8 @@ export class EntityRepository<T extends { id: string | number }> {
   protected readonly entityMapping: EntityMapping<T>;
 
   constructor(entityMapping: EntityMapping<T>) {
+    this.client = supabaseServiceRole;
     this.entityMapping = entityMapping;
-    this.client = createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey);
   }
 
   // Helper to transform DB response to entity format
