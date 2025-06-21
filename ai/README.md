@@ -242,4 +242,4 @@ const patterns = await analyzeSessionPatterns(athleteId, startDate, endDate, goa
 await generateTrainingPlanContent(planId, userId, assistantIds, athlete, goals, pubsub);
 ```
 
-This AI layer transforms raw coaching data into actionable insights, making WiseGrowth a truly intelligent coaching platform that adapts to each athlete's unique development journey.
+This AI layer transforms raw coaching data into actionable insights, making Torchlight a truly intelligent coaching platform that adapts to each athlete's unique development journey.

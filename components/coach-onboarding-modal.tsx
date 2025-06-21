@@ -89,7 +89,7 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-white" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle>Welcome to WiseGrowth!</DialogTitle>
+          <DialogTitle>Welcome to Torchlight!</DialogTitle>
           <DialogDescription>
             Let's set up your coaching profile to get started.
           </DialogDescription>
@@ -157,7 +157,7 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
           </div>
 
           <p className="text-xs text-muted-foreground text-center">
-            You'll receive a 14-day free trial to get started with WiseGrowth.
+            You'll receive a 14-day free trial to get started with Torchlight.
           </p>
         </form>
       </DialogContent>

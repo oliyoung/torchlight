@@ -2,6 +2,8 @@ import { logger } from "@/lib/logger";
 import { supabaseServiceRole } from "@/lib/supabase/serviceRoleClient";
 import type { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { supabaseConfig } from "@/lib/supabase/config";
 
 // Type to represent entity mapping configurations
 export type EntityMapping<T> = {
@@ -18,8 +20,8 @@ export class EntityRepository<T extends { id: string | number }> {
   protected readonly entityMapping: EntityMapping<T>;
 
   constructor(entityMapping: EntityMapping<T>) {
-    this.client = supabaseServiceRole;
     this.entityMapping = entityMapping;
+    this.client = createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey);
   }
 
   // Helper to transform DB response to entity format
