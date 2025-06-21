@@ -187,6 +187,7 @@ type Athlete {
 	deletedAt: DateTime # Soft delete timestamp
 
 	# Relationships
+	coach: Coach! # The coach responsible for this athlete
 	goals: [Goal!] # Associated training goals
 	sessionLogs: [SessionLog!] # Training session records
 	trainingPlans: [TrainingPlan!]! # Structured training programs

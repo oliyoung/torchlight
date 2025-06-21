@@ -164,6 +164,19 @@ const { handleRequest } = createYoga({
         },
       },
       Athlete: {
+        coach: async (parent, _args, context) => {
+          try {
+            const coachId = parent.coachId ?? parent.coach_id;
+            if (!coachId) return null;
+            if (context.dataloaders?.coachLoaders) {
+              return await context.dataloaders.coachLoaders.coachById.load(coachId);
+            }
+            return null;
+          } catch (error) {
+            logger.error({ error, athleteId: parent.id }, 'Error resolving athlete coach');
+            return null;
+          }
+        },
         trainingPlans: async (parent, _args, context) => {
           try {
             // Get training plan IDs for this athlete

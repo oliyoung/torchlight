@@ -26,11 +26,9 @@ export default function MainLayout({
 
 	return (
 		<SidebarProvider>
-			<div className="min-h-screen bg-background">
-				<Navigation />
-				<MobileMenuButton />
-				<MainContent>{children}</MainContent>
-			</div>
+			<Navigation />
+			<MobileMenuButton />
+			<MainContent>{children}</MainContent>
 		</SidebarProvider>
 	);
 }

@@ -1,5 +1,4 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import type { GraphQLContext } from '@/app/api/graphql/route';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -115,6 +114,7 @@ export type Athlete = {
   age?: Maybe<Scalars['Int']['output']>;
   availability?: Maybe<Scalars['JSON']['output']>;
   birthday?: Maybe<Scalars['DateTime']['output']>;
+  coach: Coach;
   createdAt: Scalars['DateTime']['output'];
   deletedAt?: Maybe<Scalars['DateTime']['output']>;
   email: Scalars['String']['output'];
@@ -1349,6 +1349,7 @@ export type AthleteResolvers<ContextType = GraphQLContext, ParentType extends Re
   age?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   availability?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   birthday?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  coach?: Resolver<ResolversTypes['Coach'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
