@@ -1,7 +1,7 @@
 // @ts-nocheck
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { LastSessionLogs } from './last-session-logs';
+import LastSessionLogs from './last-session-logs';
 
 const meta: Meta<typeof LastSessionLogs> = {
     title: 'Components/LastSessionLogs',

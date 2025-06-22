@@ -33,8 +33,6 @@ const athleteSchema = z.object({
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().min(1, "Email is required").email("Invalid email address"),
   sport: z.string().min(1, "Sport is required"),
-  tags: z.string().optional(),
-  notes: z.string().optional(),
   birthday: z.string().optional(),
 });
 
@@ -76,20 +74,12 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
 
   const onSubmit = async (values: FormValues) => {
     setSuccess(false);
-    const tagsArray = values.tags
-      ? values.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean)
-      : [];
     const { data, error } = await executeMutation({
       input: {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         sport: values.sport,
-        tags: tagsArray,
-        notes: values.notes ?? "",
         birthday: values.birthday ?? "",
       },
     });

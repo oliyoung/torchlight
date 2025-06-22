@@ -187,9 +187,6 @@ type Athlete {
 	medicalConditions: String # Known medical conditions
 	injuries: String # Current or past injuries
 
-	# Metadata
-	tags: [String!] # Custom tags for categorization and filtering
-	notes: String # General notes about the athlete
 
 	# Timestamps
 	createdAt: DateTime!
@@ -542,9 +539,6 @@ input CreateAthleteInput {
 	medicalConditions: String # Known medical conditions
 	injuries: String # Current or past injuries
 
-	# Metadata
-	tags: [String!] # Optional categorization tags
-	notes: String # Optional general notes
 }
 
 """
@@ -579,9 +573,6 @@ input UpdateAthleteInput {
 	medicalConditions: String
 	injuries: String
 
-	# Metadata
-	tags: [String!] # Replaces existing tags entirely
-	notes: String
 }
 
 """

@@ -1,139 +1,82 @@
-"use client"
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button } from "@/components/ui/button";
+import { ErrorMessage } from "@/components/ui/error-message";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Users, User, Trophy, ArrowRight } from "lucide-react";
+import type { CoachRole } from "@/lib/types";
+import { COACH_ROLE_CONFIG } from "@/lib/utils/coach-role-limits";
+import { useState } from "react";
 
-import { useState, useEffect } from "react"
-import { useMutation } from "urql"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ErrorMessage } from "@/components/ui/error-message"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Users, User, Trophy, ArrowRight } from "lucide-react"
-import type { CoachRole } from "@/lib/types"
-import { useAuth } from "@/lib/auth/context"
-import { useCoachProfile } from "@/lib/hooks/use-coach-profile"
-import { COACH_ROLE_CONFIG } from "@/lib/utils/coach-role-limits"
-
-const CREATE_COACH_MUTATION = `
-  mutation CreateCoach($input: CreateCoachInput!) {
-    createCoach(input: $input) {
-      id
-      email
-      firstName
-      lastName
-      displayName
-      timezone
-      role
-      onboardingCompleted
-    }
-  }
-`
-
-const COACH_ROLE_OPTIONS: Array<{
-  role: CoachRole;
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  subtitle: string;
-  description: string;
-  maxAthletes: string;
-  features: string[];
-}> = [
-    {
-      role: 'PROFESSIONAL' as CoachRole,
-      icon: Trophy,
-      title: 'Professional Coach',
-      subtitle: 'For coaching businesses',
-      description: 'Manage unlimited athletes with full coaching features',
-      maxAthletes: 'Unlimited',
-      features: ['Unlimited athletes', 'Advanced analytics', 'Team management', 'Full feature access']
-    },
-    {
-      role: 'PERSONAL' as CoachRole,
-      icon: Users,
-      title: 'Personal Coach',
-      subtitle: 'For parents & families',
-      description: 'Perfect for parents coaching their children',
-      maxAthletes: `Up to ${COACH_ROLE_CONFIG.PERSONAL.maxAthletes}`,
-      features: [`Up to ${COACH_ROLE_CONFIG.PERSONAL.maxAthletes} athletes`, 'Family-focused UI', 'Simplified interface', 'Parent-friendly tools']
-    },
-    {
-      role: 'SELF' as CoachRole,
-      icon: User,
-      title: 'Self-Coached',
-      subtitle: 'For individual athletes',
-      description: 'Manage your own training and progress',
-      maxAthletes: `${COACH_ROLE_CONFIG.SELF.maxAthletes} (yourself)`,
-      features: ['Personal dashboard', 'Individual focus', 'Self-tracking tools', 'Training insights']
-    }
-  ];
-
-export default function OnboardingPage() {
-  const router = useRouter()
-  const { user, loading: authLoading } = useAuth()
-  const { coach, loading: profileLoading } = useCoachProfile()
-
+// Inline onboarding form component for Storybook
+const OnboardingFormInline = ({ initialRole }: { initialRole?: CoachRole | null } = {}) => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     displayName: "",
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-    role: null as CoachRole | null,
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+    role: initialRole || null as CoachRole | null,
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const [, createCoach] = useMutation(CREATE_COACH_MUTATION)
-
-  // Redirect if already onboarded
-  useEffect(() => {
-    if (!profileLoading && coach?.onboardingCompleted) {
-      router.push('/')
-    }
-  }, [coach, profileLoading, router])
-
-  // Redirect if not authenticated (but wait for auth to finish loading)
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login')
-    }
-  }, [user, authLoading, router])
+  const COACH_ROLE_OPTIONS: Array<{
+    role: CoachRole;
+    icon: React.ComponentType<{ className?: string }>;
+    title: string;
+    subtitle: string;
+    description: string;
+    maxAthletes: string;
+    features: string[];
+  }> = [
+      {
+        role: 'PROFESSIONAL' as CoachRole,
+        icon: Trophy,
+        title: 'Professional Coach',
+        subtitle: 'For coaching businesses',
+        description: 'Manage unlimited athletes with full coaching features',
+        maxAthletes: 'Unlimited',
+        features: ['Unlimited athletes', 'Advanced analytics', 'Team management', 'Full feature access']
+      },
+      {
+        role: 'PERSONAL' as CoachRole,
+        icon: Users,
+        title: 'Personal Coach',
+        subtitle: 'For parents & families',
+        description: 'Perfect for parents coaching their children',
+        maxAthletes: `Up to ${COACH_ROLE_CONFIG.PERSONAL.maxAthletes}`,
+        features: [`Up to ${COACH_ROLE_CONFIG.PERSONAL.maxAthletes} athletes`, 'Family-focused UI', 'Simplified interface', 'Parent-friendly tools']
+      },
+      {
+        role: 'SELF' as CoachRole,
+        icon: User,
+        title: 'Self-Coached',
+        subtitle: 'For individual athletes',
+        description: 'Manage your own training and progress',
+        maxAthletes: `${COACH_ROLE_CONFIG.SELF.maxAthletes} (yourself)`,
+        features: ['Personal dashboard', 'Individual focus', 'Self-tracking tools', 'Training insights']
+      }
+    ];
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
     if (!formData.role) {
-      setError("Please select a coaching mode")
-      setIsSubmitting(false)
-      return
+      setError("Please select a coaching mode");
+      setIsSubmitting(false);
+      return;
     }
 
-    try {
-      const result = await createCoach({
-        input: {
-          firstName: formData.firstName.trim() || undefined,
-          lastName: formData.lastName.trim() || undefined,
-          displayName: formData.displayName.trim() || undefined,
-          timezone: formData.timezone,
-          role: formData.role,
-        }
-      })
-
-      if (result.error) {
-        setError(result.error.message)
-        return
-      }
-
-      // Success! Redirect to athlete creation
-      router.push('/athletes/new?onboarding=true')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
+    // Simulate submission
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert("Profile created successfully!");
+    }, 1000);
+  };
 
   const handleInputChange = (field: keyof typeof formData) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -141,27 +84,15 @@ export default function OnboardingPage() {
     setFormData(prev => ({
       ...prev,
       [field]: e.target.value
-    }))
-  }
+    }));
+  };
 
   const handleRoleSelect = (role: CoachRole) => {
     setFormData(prev => ({
       ...prev,
       role
-    }))
-  }
-
-  // Show loading while checking auth/profile
-  if (authLoading || profileLoading || (!authLoading && !user)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin  h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
+    }));
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
@@ -171,7 +102,7 @@ export default function OnboardingPage() {
             <span className="text-sm font-medium text-primary">Step 1 of 2: Profile Setup</span>
           </div>
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Welcome to Torchlight!
+            Welcome to Torchlight! 🎯
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Let's set up your coaching profile to get started. Choose the mode that best fits how you'll be using Torchlight.
@@ -295,11 +226,10 @@ export default function OnboardingPage() {
                   className="h-12"
                 />
               </div>
-
             </div>
 
             {error && (
-              <div className=" bg-destructive/10 border border-destructive/20 p-4">
+              <div className="bg-destructive/10 border border-destructive/20 p-4">
                 <ErrorMessage message={error} />
               </div>
             )}
@@ -329,5 +259,131 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+// Create a mock component that doesn't use hooks
+const MockOnboardingPage = ({
+  userLoading = false,
+  coachLoading = false,
+  hasCompletedOnboarding = false
+}: {
+  userLoading?: boolean;
+  coachLoading?: boolean;
+  hasCompletedOnboarding?: boolean;
+}) => {
+  if (userLoading || coachLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasCompletedOnboarding) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Inline onboarding form component
+  return <OnboardingFormInline />;
+};
+
+const meta: Meta<typeof MockOnboardingPage> = {
+  title: "Pages/OnboardingStates",
+  component: MockOnboardingPage,
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        component: "Onboarding page states and flows without Next.js router dependencies. Shows loading states, completed states, and the main onboarding form."
+      }
+    },
+  },
+  argTypes: {
+    userLoading: {
+      control: 'boolean',
+      description: 'Show user authentication loading state'
+    },
+    coachLoading: {
+      control: 'boolean',
+      description: 'Show coach profile loading state'
+    },
+    hasCompletedOnboarding: {
+      control: 'boolean',
+      description: 'Show completed onboarding redirect state'
+    }
+  },
+  tags: ['autodocs'],
+};
+
+export default meta;
+type Story = StoryObj<typeof MockOnboardingPage>;
+
+export const Default: Story = {
+  args: {
+    userLoading: false,
+    coachLoading: false,
+    hasCompletedOnboarding: false
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Default onboarding flow showing the complete form."
+      }
+    }
+  }
+};
+
+export const LoadingAuth: Story = {
+  args: {
+    userLoading: true,
+    coachLoading: false,
+    hasCompletedOnboarding: false
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Loading state while checking user authentication."
+      }
+    }
+  }
+};
+
+export const LoadingProfile: Story = {
+  args: {
+    userLoading: false,
+    coachLoading: true,
+    hasCompletedOnboarding: false
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "Loading state while checking coach profile."
+      }
+    }
+  }
+};
+
+export const AlreadyCompleted: Story = {
+  args: {
+    userLoading: false,
+    coachLoading: false,
+    hasCompletedOnboarding: true
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: "State when user has already completed onboarding (redirecting to dashboard)."
+      }
+    }
+  }
+};

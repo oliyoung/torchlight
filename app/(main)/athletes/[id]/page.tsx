@@ -23,7 +23,6 @@ const AthleteQuery = gql`
       email
       sport
       fitnessLevel
-      tags
     }
   }
 `;
@@ -89,17 +88,6 @@ export default function Page() {
 				</Button>
 			}
 		>
-			<div className="mb-4">
-				<span className="text-gray-600">Tags: </span>
-				{data.athlete.tags?.map((tag: string) => (
-					<span
-						key={tag}
-						className="inline-block bg-zinc-200    dark:bg-zinc-700 text-xs  px-2 py-1 mr-2"
-					>
-						{tag}
-					</span>
-				))}
-			</div>
 
 			<section className="mt-8">
 				<div className="flex items-center justify-between mb-4">
