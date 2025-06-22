@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/auth/context';
 import { ErrorMessage } from '@/components/ui/error-message';
@@ -9,10 +12,22 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
+const loginSchema = z.object({
+    email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+    password: z.string().min(1, "Password is required").min(6, "Password must be at least 6 characters")
+})
+
+type LoginFormData = z.infer<typeof loginSchema>
+
 const LoginClient = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
+    const form = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        defaultValues: {
+            email: "",
+            password: ""
+        }
+    });
+
     const [googleLoading, setGoogleLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
@@ -69,28 +84,28 @@ const LoginClient = () => {
         }
     }, [searchParams]);
 
-    const handleSignIn = async () => {
-        setLoading(true);
+    const handleSignIn = async (data: LoginFormData) => {
         setError(null);
-        const { error } = await signIn(email, password);
+        form.clearErrors("root");
+        
+        const { error } = await signIn(data.email, data.password);
         if (error) {
-            setError(error.message);
+            form.setError("root", { message: error.message });
         } else {
             router.push('/');
         }
-        setLoading(false);
     };
 
-    const handleSignUp = async () => {
-        setLoading(true);
+    const handleSignUp = async (data: LoginFormData) => {
         setError(null);
-        const { error } = await signUp(email, password);
+        form.clearErrors("root");
+        
+        const { error } = await signUp(data.email, data.password);
         if (error) {
-            setError(error.message);
+            form.setError("root", { message: error.message });
         } else {
             router.push('/');
         }
-        setLoading(false);
     };
 
     const handleGoogleSignIn = async () => {
@@ -103,7 +118,7 @@ const LoginClient = () => {
         }
     };
 
-    const isLoading = loading || googleLoading;
+    const isLoading = form.formState.isSubmitting || googleLoading;
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -115,7 +130,9 @@ const LoginClient = () => {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {error && <ErrorMessage message={error} />}
+                    {(error || form.formState.errors.root) && (
+                        <ErrorMessage message={error || form.formState.errors.root?.message || "An error occurred"} />
+                    )}
 
                     {/* Google Sign In Button */}
                     <Button
@@ -165,50 +182,48 @@ const LoginClient = () => {
                     </div>
 
                     {/* Email/Password Form */}
-                    <div className="space-y-3">
+                    <form className="space-y-3">
                         <div>
                             <Input
                                 type="email"
-                                name="email"
+                                {...form.register("email")}
                                 placeholder="Enter your email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
                                 disabled={isLoading}
                                 autoComplete="email"
+                                errors={form.formState.errors}
                             />
                         </div>
 
                         <div>
                             <Input
                                 type="password"
-                                name="password"
+                                {...form.register("password")}
                                 placeholder="Enter your password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
                                 disabled={isLoading}
                                 autoComplete="current-password"
+                                errors={form.formState.errors}
                             />
                         </div>
 
                         <Button
                             type="button"
-                            onClick={handleSignIn}
+                            onClick={form.handleSubmit(handleSignIn)}
                             disabled={isLoading}
                             className="w-full"
                         >
-                            {loading ? 'Signing in...' : 'Sign In'}
+                            {form.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
                         </Button>
 
                         <Button
                             type="button"
                             variant="outline"
-                            onClick={handleSignUp}
+                            onClick={form.handleSubmit(handleSignUp)}
                             disabled={isLoading}
                             className="w-full"
                         >
-                            {loading ? 'Creating account...' : 'Create Account'}
+                            {form.formState.isSubmitting ? 'Creating account...' : 'Create Account'}
                         </Button>
-                    </div>
+                    </form>
                 </CardContent>
             </Card>
         </div>

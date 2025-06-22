@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { useMutation } from "urql"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,6 +35,18 @@ const CREATE_COACH_MUTATION = `
     }
   }
 `
+
+const coachOnboardingSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(50, "First name must be less than 50 characters"),
+  lastName: z.string().min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
+  displayName: z.string().max(50, "Display name must be less than 50 characters").optional(),
+  timezone: z.string().min(1, "Timezone is required"),
+  role: z.enum(["PROFESSIONAL", "PERSONAL", "SELF"] as const, {
+    required_error: "Please select a coaching mode"
+  })
+})
+
+type CoachOnboardingFormData = z.infer<typeof coachOnboardingSchema>
 
 interface CoachOnboardingModalProps {
   isOpen: boolean
@@ -79,42 +93,32 @@ const COACH_ROLE_OPTIONS: Array<{
 ];
 
 export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<CoachOnboardingModalProps>) {
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    displayName: "",
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-    role: null as CoachRole | null,
+  const form = useForm<CoachOnboardingFormData>({
+    resolver: zodResolver(coachOnboardingSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      displayName: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    }
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const [, createCoach] = useMutation(CREATE_COACH_MUTATION)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
-    if (!formData.role) {
-      setError("Please select a coaching mode")
-      setIsSubmitting(false)
-      return
-    }
-
+  const onSubmit = async (data: CoachOnboardingFormData) => {
     try {
       const result = await createCoach({
         input: {
-          firstName: formData.firstName.trim() || undefined,
-          lastName: formData.lastName.trim() || undefined,
-          displayName: formData.displayName.trim() || undefined,
-          timezone: formData.timezone,
-          role: formData.role,
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          displayName: data.displayName?.trim() || undefined,
+          timezone: data.timezone,
+          role: data.role,
         }
       })
 
       if (result.error) {
-        setError(result.error.message)
+        form.setError("root", { message: result.error.message })
         return
       }
 
@@ -122,26 +126,15 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
       onSuccess()
       onClose()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred")
-    } finally {
-      setIsSubmitting(false)
+      form.setError("root", { 
+        message: err instanceof Error ? err.message : "An unexpected error occurred" 
+      })
     }
   }
 
-  const handleInputChange = (field: keyof typeof formData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }))
-  }
-
   const handleRoleSelect = (role: CoachRole) => {
-    setFormData(prev => ({
-      ...prev,
-      role
-    }))
+    form.setValue("role", role)
+    form.clearErrors("role")
   }
 
   return (
@@ -154,14 +147,14 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Coach Role Selection */}
           <div className="space-y-4">
             <Label className="text-base font-semibold">Select Your Coaching Mode</Label>
             <div className="grid gap-3">
               {COACH_ROLE_OPTIONS.map((option) => {
                 const Icon = option.icon;
-                const isSelected = formData.role === option.role;
+                const isSelected = form.watch("role") === option.role;
                 
                 return (
                   <Card
@@ -205,6 +198,9 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
                 );
               })}
             </div>
+            {form.formState.errors.role && (
+              <p className="text-sm text-destructive">{form.formState.errors.role.message}</p>
+            )}
           </div>
 
           {/* Profile Information */}
@@ -213,49 +209,48 @@ export function CoachOnboardingModal({ isOpen, onClose, onSuccess }: Readonly<Co
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
                 <Input
                   id="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange("firstName")}
+                  {...form.register("firstName")}
                   placeholder="Your first name"
-                  disabled={isSubmitting}
+                  disabled={form.formState.isSubmitting}
+                  errors={form.formState.errors}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange("lastName")}
+                  {...form.register("lastName")}
                   placeholder="Your last name"
-                  disabled={isSubmitting}
+                  disabled={form.formState.isSubmitting}
+                  errors={form.formState.errors}
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="displayName">Display Name (Optional)</Label>
               <Input
                 id="displayName"
-                value={formData.displayName}
-                onChange={handleInputChange("displayName")}
+                {...form.register("displayName")}
                 placeholder="How you'd like to be called"
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting}
+                errors={form.formState.errors}
               />
             </div>
 
           </div>
 
-          {error && <ErrorMessage message={error} />}
+          {form.formState.errors.root && (
+            <ErrorMessage message={form.formState.errors.root.message || "An error occurred"} />
+          )}
 
           <div className="flex justify-end gap-2 pt-4">
             <Button
               type="submit"
-              disabled={isSubmitting || !formData.role}
+              disabled={form.formState.isSubmitting || !form.watch("role")}
               className="w-full"
             >
-              {isSubmitting ? "Setting up your profile..." : "Complete Setup"}
+              {form.formState.isSubmitting ? "Setting up your profile..." : "Complete Setup"}
             </Button>
           </div>
 

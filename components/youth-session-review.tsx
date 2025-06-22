@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,17 +14,19 @@ interface YouthSessionReviewProps {
   athleteAge?: number;
 }
 
-interface ReviewData {
-  energyLevel: number;
-  enjoyment: number;
-  difficulty: number;
-  focusAreas: string[];
-  feelings: string[];
-  highlights: string;
-  challenges: string;
-  improvements: string;
-  additionalNotes: string;
-}
+const youthSessionReviewSchema = z.object({
+  energyLevel: z.number().min(1).max(5),
+  enjoyment: z.number().min(1).max(5),
+  difficulty: z.number().min(1).max(5),
+  focusAreas: z.array(z.string()).min(1, "Please select at least one focus area"),
+  feelings: z.array(z.string()).min(1, "Please select at least one feeling"),
+  highlights: z.string().max(500, "Please keep highlights under 500 characters"),
+  challenges: z.string().max(500, "Please keep challenges under 500 characters"),
+  improvements: z.string().max(500, "Please keep improvements under 500 characters"),
+  additionalNotes: z.string().max(500, "Please keep additional notes under 500 characters")
+})
+
+type ReviewData = z.infer<typeof youthSessionReviewSchema>
 
 const ENERGY_LEVELS = [
   { value: 1, emoji: "😴", label: "Very tired" },
@@ -59,16 +64,21 @@ const FEELING_OPTIONS = [
 
 export function YouthSessionReview({ onReviewComplete, athleteAge = 16 }: YouthSessionReviewProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [reviewData, setReviewData] = useState<ReviewData>({
-    energyLevel: 3,
-    enjoyment: 3,
-    difficulty: 2,
-    focusAreas: [],
-    feelings: [],
-    highlights: "",
-    challenges: "",
-    improvements: "",
-    additionalNotes: ""
+  
+  const form = useForm<ReviewData>({
+    resolver: zodResolver(youthSessionReviewSchema),
+    defaultValues: {
+      energyLevel: 3,
+      enjoyment: 3,
+      difficulty: 2,
+      focusAreas: [],
+      feelings: [],
+      highlights: "",
+      challenges: "",
+      improvements: "",
+      additionalNotes: ""
+    },
+    mode: "onBlur"
   });
 
   const isYoungerAthlete = athleteAge < 14;
@@ -97,39 +107,40 @@ export function YouthSessionReview({ onReviewComplete, athleteAge = 16 }: YouthS
   ];
 
   const handleRatingChange = (type: keyof Pick<ReviewData, 'energyLevel' | 'enjoyment' | 'difficulty'>, value: number) => {
-    setReviewData(prev => ({ ...prev, [type]: value }));
+    form.setValue(type, value);
   };
 
   const handleArrayToggle = (type: keyof Pick<ReviewData, 'focusAreas' | 'feelings'>, value: string) => {
-    setReviewData(prev => ({
-      ...prev,
-      [type]: prev[type].includes(value) 
-        ? prev[type].filter(item => item !== value)
-        : [...prev[type], value]
-    }));
+    const currentValues = form.getValues(type);
+    const newValues = currentValues.includes(value) 
+      ? currentValues.filter(item => item !== value)
+      : [...currentValues, value];
+    form.setValue(type, newValues);
+    form.clearErrors(type);
   };
 
   const handleTextChange = (field: keyof Pick<ReviewData, 'highlights' | 'challenges' | 'improvements' | 'additionalNotes'>, value: string) => {
-    setReviewData(prev => ({ ...prev, [field]: value }));
+    form.setValue(field, value);
   };
 
   const generateTranscript = () => {
-    const energyLabel = ENERGY_LEVELS.find(e => e.value === reviewData.energyLevel)?.label || "Normal";
-    const enjoymentLabel = ENJOYMENT_LEVELS.find(e => e.value === reviewData.enjoyment)?.label || "Good";
-    const difficultyLabel = DIFFICULTY_LEVELS.find(e => e.value === reviewData.difficulty)?.label || "Just right";
+    const data = form.getValues();
+    const energyLabel = ENERGY_LEVELS.find(e => e.value === data.energyLevel)?.label || "Normal";
+    const enjoymentLabel = ENJOYMENT_LEVELS.find(e => e.value === data.enjoyment)?.label || "Good";
+    const difficultyLabel = DIFFICULTY_LEVELS.find(e => e.value === data.difficulty)?.label || "Just right";
 
-    return `Energy Level: ${energyLabel} (${reviewData.energyLevel}/5)
-Enjoyment: ${enjoymentLabel} (${reviewData.enjoyment}/5)
-Difficulty: ${difficultyLabel} (${reviewData.difficulty}/5)
+    return `Energy Level: ${energyLabel} (${data.energyLevel}/5)
+Enjoyment: ${enjoymentLabel} (${data.enjoyment}/5)
+Difficulty: ${difficultyLabel} (${data.difficulty}/5)
 
-Focus Areas: ${reviewData.focusAreas.join(", ") || "None specified"}
-Feelings: ${reviewData.feelings.join(", ") || "None specified"}
+Focus Areas: ${data.focusAreas.join(", ") || "None specified"}
+Feelings: ${data.feelings.join(", ") || "None specified"}
 
-What went well: ${reviewData.highlights || "Not specified"}
-What was challenging: ${reviewData.challenges || "Not specified"}
-What I want to improve: ${reviewData.improvements || "Not specified"}
+What went well: ${data.highlights || "Not specified"}
+What was challenging: ${data.challenges || "Not specified"}
+What I want to improve: ${data.improvements || "Not specified"}
 
-Additional notes: ${reviewData.additionalNotes || "None"}`;
+Additional notes: ${data.additionalNotes || "None"}`;
   };
 
   const renderRatingsStep = () => (
@@ -140,7 +151,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
           {ENERGY_LEVELS.map((level) => (
             <Button
               key={level.value}
-              variant={reviewData.energyLevel === level.value ? "default" : "outline"}
+              variant={form.watch("energyLevel") === level.value ? "default" : "outline"}
               className="flex-col h-20 w-20"
               onClick={() => handleRatingChange('energyLevel', level.value)}
             >
@@ -157,7 +168,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
           {ENJOYMENT_LEVELS.map((level) => (
             <Button
               key={level.value}
-              variant={reviewData.enjoyment === level.value ? "default" : "outline"}
+              variant={form.watch("enjoyment") === level.value ? "default" : "outline"}
               className="flex-col h-20 w-20"
               onClick={() => handleRatingChange('enjoyment', level.value)}
             >
@@ -174,7 +185,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
           {DIFFICULTY_LEVELS.map((level) => (
             <Button
               key={level.value}
-              variant={reviewData.difficulty === level.value ? "default" : "outline"}
+              variant={form.watch("difficulty") === level.value ? "default" : "outline"}
               className="flex-col h-20 w-16"
               onClick={() => handleRatingChange('difficulty', level.value)}
             >
@@ -195,7 +206,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         {FOCUS_OPTIONS.map((focus) => (
           <Badge
             key={focus}
-            variant={reviewData.focusAreas.includes(focus) ? "default" : "outline"}
+            variant={form.watch("focusAreas").includes(focus) ? "default" : "outline"}
             className="cursor-pointer px-3 py-2"
             onClick={() => handleArrayToggle('focusAreas', focus)}
           >
@@ -203,6 +214,9 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
           </Badge>
         ))}
       </div>
+      {form.formState.errors.focusAreas && (
+        <p className="text-sm text-destructive mt-2">{form.formState.errors.focusAreas.message}</p>
+      )}
     </div>
   );
 
@@ -214,7 +228,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         {FEELING_OPTIONS.map((feeling) => (
           <Badge
             key={feeling}
-            variant={reviewData.feelings.includes(feeling) ? "default" : "outline"}
+            variant={form.watch("feelings").includes(feeling) ? "default" : "outline"}
             className="cursor-pointer px-3 py-2"
             onClick={() => handleArrayToggle('feelings', feeling)}
           >
@@ -222,6 +236,9 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
           </Badge>
         ))}
       </div>
+      {form.formState.errors.feelings && (
+        <p className="text-sm text-destructive mt-2">{form.formState.errors.feelings.message}</p>
+      )}
     </div>
   );
 
@@ -233,8 +250,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         </label>
         <Textarea
           placeholder={isYoungerAthlete ? "I did a great job with..." : "Describe what you're proud of from today's session..."}
-          value={reviewData.highlights}
-          onChange={(e) => handleTextChange('highlights', e.target.value)}
+          {...form.register("highlights")}
           rows={2}
         />
       </div>
@@ -245,8 +261,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         </label>
         <Textarea
           placeholder={isYoungerAthlete ? "Something that was hard was..." : "What did you find difficult or frustrating?"}
-          value={reviewData.challenges}
-          onChange={(e) => handleTextChange('challenges', e.target.value)}
+          {...form.register("challenges")}
           rows={2}
         />
       </div>
@@ -257,8 +272,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         </label>
         <Textarea
           placeholder={isYoungerAthlete ? "Next time I want to work on..." : "What would you like to improve or focus on next time?"}
-          value={reviewData.improvements}
-          onChange={(e) => handleTextChange('improvements', e.target.value)}
+          {...form.register("improvements")}
           rows={2}
         />
       </div>
@@ -269,8 +283,7 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
         </label>
         <Textarea
           placeholder="Any other thoughts about today..."
-          value={reviewData.additionalNotes}
-          onChange={(e) => handleTextChange('additionalNotes', e.target.value)}
+          {...form.register("additionalNotes")}
           rows={2}
         />
       </div>
@@ -288,20 +301,38 @@ Additional notes: ${reviewData.additionalNotes || "None"}`;
   };
 
   const canProceed = () => {
+    const values = form.getValues();
     switch (currentStep) {
       case 0: return true; // Ratings always have defaults
-      case 1: return reviewData.focusAreas.length > 0;
-      case 2: return reviewData.feelings.length > 0;
+      case 1: return values.focusAreas.length > 0;
+      case 2: return values.feelings.length > 0;
       case 3: return true; // Details are optional
       default: return false;
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Validate current step before proceeding
+    let isValid = true;
+    
+    if (currentStep === 1) {
+      await form.trigger("focusAreas");
+      isValid = !form.formState.errors.focusAreas;
+    } else if (currentStep === 2) {
+      await form.trigger("feelings");
+      isValid = !form.formState.errors.feelings;
+    }
+    
+    if (!isValid) return;
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      onReviewComplete(generateTranscript());
+      // Final validation and submission
+      const isFormValid = await form.trigger();
+      if (isFormValid) {
+        onReviewComplete(generateTranscript());
+      }
     }
   };
 
