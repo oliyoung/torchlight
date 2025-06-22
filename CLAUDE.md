@@ -12,6 +12,7 @@ The backend is defined via a GraphQL schema, and the platform is human-centered,
 
 When responding, ask clarifying questions if anything is ambiguous, and prioritize responses that improve the usability, accuracy, or scalability of the system.
 
+
 ## Essential Commands
 
 ```bash
