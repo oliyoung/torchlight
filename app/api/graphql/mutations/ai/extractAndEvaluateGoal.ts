@@ -20,7 +20,7 @@ export default async (
     const { coachId } = context;
     const { athleteId, goalText } = input;
 
-    logger.info({ coachId, athleteId, goalTextLength: goalText.length }, "extractAndEvaluateGoal mutation called");
+    logger.info({ coachId, athleteId, goalTextLength: goalText?.length || 0 }, "extractAndEvaluateGoal mutation called");
 
     if (!coachId) {
         logger.error("Coach not authenticated for extractAndEvaluateGoal mutation.");
