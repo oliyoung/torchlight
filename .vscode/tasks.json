@@ -42,6 +42,74 @@
 			"presentation": {
 				"reveal": "always"
 			}
+		},
+		{
+			"label": "Test: Onboarding E2E",
+			"detail": "Run onboarding Playwright tests",
+			"type": "shell",
+			"command": "yarn test:e2e:onboarding",
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Onboarding E2E (Headed)",
+			"detail": "Run onboarding Playwright tests in headed mode (visual browser)",
+			"type": "shell",
+			"command": "yarn test:e2e:onboarding:headed",
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Onboarding E2E (Debug)",
+			"detail": "Run onboarding Playwright tests in debug mode",
+			"type": "shell",
+			"command": "yarn test:e2e:onboarding:debug",
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: All E2E",
+			"detail": "Run all Playwright tests",
+			"type": "shell",
+			"command": "yarn test:e2e",
+			"group": "test",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
 		}
 	]
 }

@@ -21,13 +21,17 @@ All Playwright tests now use **mocked authentication and API responses**. No liv
 
 ```
 tests/
-├── fixtures.ts            # Test utilities and mocked auth setup
-├── mocked/                # All tests use mocked data
-│   └── athletes.spec.ts   # Athlete management with mock data
-├── mocks/                 # Mock implementations
-│   ├── auth.ts           # Fake authentication responses
-│   └── graphql.ts        # Mock GraphQL responses
-└── unauthenticated/       # Public tests (login flow, etc.)
+├── fixtures.ts                    # Test utilities and mocked auth setup
+├── basic/                         # Basic UI tests (no complex mocks)
+│   └── onboarding-basic.spec.ts  # Onboarding UI structure tests
+├── mocked/                        # All tests use mocked data
+│   ├── athletes.spec.ts          # Athlete management with mock data
+│   ├── onboarding.spec.ts        # Full onboarding flow with mocks
+│   └── onboarding-simple.spec.ts # Simplified onboarding tests
+├── mocks/                         # Mock implementations
+│   ├── auth.ts                   # Fake authentication responses
+│   └── graphql.ts                # Mock GraphQL responses
+└── unauthenticated/               # Public tests (login flow, etc.)
 ```
 
 ## Running Tests
@@ -35,12 +39,21 @@ tests/
 ```bash
 # Run all mocked tests (default)
 npx playwright test
+yarn test:e2e
 
 # Run mocked tests with UI
 npx playwright test --ui
+yarn test:e2e:ui
 
 # Run mocked tests in headed mode
 npx playwright test --headed
+yarn test:e2e:headed
+
+# Run onboarding tests specifically
+yarn test:e2e:onboarding              # Basic onboarding UI tests
+yarn test:e2e:onboarding:headed       # Onboarding tests in headed mode
+yarn test:e2e:onboarding:debug        # Onboarding tests with debug mode
+yarn test:e2e:onboarding:mocked       # Onboarding tests with mocked API
 
 # Run only mocked tests explicitly
 npx playwright test --config=playwright.mocked.config.ts
@@ -155,6 +168,48 @@ All tests use realistic but fake data:
 - ✅ Goal tracking interfaces
 - ✅ Session log displays
 - ✅ Training plan views
+- ✅ Two-step onboarding flow
+- ✅ Coach role selection and validation
+- ✅ Athlete creation in onboarding context
+
+## Onboarding Tests
+
+The onboarding tests cover the complete two-step flow for new users:
+
+### Test Coverage
+- **Step 1**: Coach profile creation with role selection (Professional, Personal, Self-Coached)
+- **Step 2**: First athlete creation with onboarding context
+- **UI/UX**: Progress indicators, role-based limits, validation, redirects
+- **Integration**: End-to-end flow testing with mocked API responses
+
+### Running Onboarding Tests
+
+**Prerequisites**: Ensure development server is running (`yarn dev`)
+
+```bash
+# Basic UI tests (recommended for development)
+yarn test:e2e:onboarding
+
+# Visual debugging with browser window
+yarn test:e2e:onboarding:headed
+
+# Step-through debugging
+yarn test:e2e:onboarding:debug
+
+# Full mock integration tests
+yarn test:e2e:onboarding:mocked
+```
+
+**VS Code Integration**: Use Command Palette (`Ctrl+Shift+P`) → "Tasks: Run Task" → Select onboarding test option.
+
+### What's Tested
+- Role selection cards show correct athlete limits from constants
+- Form validation for required fields
+- Progress indicators ("Step 1 of 2", "Step 2 of 2")
+- Different UI context for onboarding vs regular athlete creation
+- Button text changes ("Next" → "Complete Setup")
+- Breadcrumb navigation differences
+- Error handling and validation messages
 
 ## Adding New Tests
 
