@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
 
 // Mock AuthContext for Storybook
 interface MockAuthContextType {
@@ -34,8 +34,28 @@ const MockAuthContext = createContext<MockAuthContextType>({
 
 // Mock AuthProvider that doesn't use router
 export const StorybookAuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const contextValue = {
+    user: {
+      id: 'storybook-user',
+      email: 'storybook@example.com'
+    },
+    session: {
+      access_token: 'mock-token',
+      user: {
+        id: 'storybook-user',
+        email: 'storybook@example.com'
+      }
+    },
+    loading: false,
+    signIn: async () => ({ error: null }),
+    signUp: async () => ({ error: null }),
+    signInWithGoogle: async () => ({ error: null }),
+    signOut: async () => {},
+    getAccessToken: () => 'mock-token',
+  };
+
   return (
-    <MockAuthContext.Provider value={MockAuthContext._currentValue}>
+    <MockAuthContext.Provider value={contextValue}>
       {children}
     </MockAuthContext.Provider>
   );

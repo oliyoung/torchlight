@@ -1,6 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
 import { useMutation } from "urql"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -29,6 +32,18 @@ const CREATE_COACH_MUTATION = `
     }
   }
 `
+
+const onboardingSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(50, "First name must be less than 50 characters"),
+  lastName: z.string().min(1, "Last name is required").max(50, "Last name must be less than 50 characters"),
+  displayName: z.string().max(50, "Display name must be less than 50 characters").optional(),
+  timezone: z.string().min(1, "Timezone is required"),
+  role: z.enum(["PROFESSIONAL", "PERSONAL", "SELF"] as const, {
+    required_error: "Please select a coaching mode"
+  })
+})
+
+type OnboardingFormData = z.infer<typeof onboardingSchema>
 
 const COACH_ROLE_OPTIONS: Array<{
   role: CoachRole;
@@ -73,15 +88,15 @@ export default function OnboardingPage() {
   const { user, loading: authLoading } = useAuth()
   const { coach, loading: profileLoading } = useCoachProfile()
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    displayName: "",
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
-    role: null as CoachRole | null,
+  const form = useForm<OnboardingFormData>({
+    resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      displayName: "",
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+    }
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const [, createCoach] = useMutation(CREATE_COACH_MUTATION)
 
@@ -99,56 +114,35 @@ export default function OnboardingPage() {
     }
   }, [user, authLoading, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
-
-    if (!formData.role) {
-      setError("Please select a coaching mode")
-      setIsSubmitting(false)
-      return
-    }
-
+  const onSubmit = async (data: OnboardingFormData) => {
     try {
       const result = await createCoach({
         input: {
-          firstName: formData.firstName.trim() || undefined,
-          lastName: formData.lastName.trim() || undefined,
-          displayName: formData.displayName.trim() || undefined,
-          timezone: formData.timezone,
-          role: formData.role,
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
+          displayName: data.displayName?.trim() || undefined,
+          timezone: data.timezone,
+          role: data.role,
         }
       })
 
       if (result.error) {
-        setError(result.error.message)
+        form.setError("root", { message: result.error.message })
         return
       }
 
       // Success! Redirect to athlete creation
       router.push('/athletes/new?onboarding=true')
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred")
-    } finally {
-      setIsSubmitting(false)
+      form.setError("root", { 
+        message: err instanceof Error ? err.message : "An unexpected error occurred" 
+      })
     }
   }
 
-  const handleInputChange = (field: keyof typeof formData) => (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }))
-  }
-
   const handleRoleSelect = (role: CoachRole) => {
-    setFormData(prev => ({
-      ...prev,
-      role
-    }))
+    form.setValue("role", role)
+    form.clearErrors("role")
   }
 
   // Show loading while checking auth/profile
@@ -179,7 +173,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="bg-card shadow-lg p-8">
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Coach Role Selection */}
             <div className="space-y-6">
               <div>
@@ -194,7 +188,7 @@ export default function OnboardingPage() {
               <div className="grid gap-4 md:grid-cols-3">
                 {COACH_ROLE_OPTIONS.map((option) => {
                   const Icon = option.icon;
-                  const isSelected = formData.role === option.role;
+                  const isSelected = form.watch("role") === option.role;
 
                   return (
                     <Card
@@ -240,6 +234,9 @@ export default function OnboardingPage() {
                   );
                 })}
               </div>
+              {form.formState.errors.role && (
+                <p className="text-sm text-destructive">{form.formState.errors.role.message}</p>
+              )}
             </div>
 
             {/* Profile Information */}
@@ -255,63 +252,54 @@ export default function OnboardingPage() {
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm font-medium">
-                    First Name
-                  </Label>
                   <Input
                     id="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange("firstName")}
+                    {...form.register("firstName")}
                     placeholder="Your first name"
-                    disabled={isSubmitting}
+                    disabled={form.formState.isSubmitting}
                     className="h-12"
+                    errors={form.formState.errors}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm font-medium">
-                    Last Name
-                  </Label>
                   <Input
                     id="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange("lastName")}
+                    {...form.register("lastName")}
                     placeholder="Your last name"
-                    disabled={isSubmitting}
+                    disabled={form.formState.isSubmitting}
                     className="h-12"
+                    errors={form.formState.errors}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="displayName" className="text-sm font-medium">
-                  Display Name (Optional)
-                </Label>
                 <Input
                   id="displayName"
-                  value={formData.displayName}
-                  onChange={handleInputChange("displayName")}
+                  {...form.register("displayName")}
                   placeholder="How you'd like to be called"
-                  disabled={isSubmitting}
+                  disabled={form.formState.isSubmitting}
                   className="h-12"
+                  errors={form.formState.errors}
                 />
               </div>
 
             </div>
 
-            {error && (
+            {form.formState.errors.root && (
               <div className=" bg-destructive/10 border border-destructive/20 p-4">
-                <ErrorMessage message={error} />
+                <ErrorMessage message={form.formState.errors.root.message || "An error occurred"} />
               </div>
             )}
 
             <div className="flex justify-center pt-6">
               <Button
                 type="submit"
-                disabled={isSubmitting || !formData.role}
+                disabled={form.formState.isSubmitting || !form.watch("role")}
                 size="lg"
                 className="px-8 py-3 text-lg"
               >
-                {isSubmitting ? (
+                {form.formState.isSubmitting ? (
                   "Setting up your profile..."
                 ) : (
                   <>
