@@ -1,6 +1,9 @@
 import type { Goal } from "@/lib/types";
 import { useState } from "react";
 import { useQuery } from "urql";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "./button";
 import {
 	Dialog,
@@ -20,6 +23,12 @@ interface GoalSelectDialogProps {
 	triggerLabel?: string;
 }
 
+const goalSelectSchema = z.object({
+	goalId: z.string().min(1, "Please select a goal"),
+});
+
+type GoalSelectFormData = z.infer<typeof goalSelectSchema>;
+
 const AthleteGoalsQuery = `
   query AthleteGoals($athleteId: ID!) {
     goals(athleteId: $athleteId) {
@@ -38,7 +47,13 @@ export function GoalSelectDialog({
 	triggerLabel = "Add Goal",
 }: GoalSelectDialogProps) {
 	const [open, setOpen] = useState(false);
-	const [selectedId, setSelectedId] = useState<Goal["id"]>();
+
+	const form = useForm<GoalSelectFormData>({
+		resolver: zodResolver(goalSelectSchema),
+		defaultValues: {
+			goalId: "",
+		},
+	});
 
 	const [{ data, fetching, error }] = useQuery<{ goals: Goal[] }>({
 		query: AthleteGoalsQuery,
@@ -48,16 +63,24 @@ export function GoalSelectDialog({
 
 	const goals = data?.goals || [];
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		const selected = goals.find((g) => g.id === selectedId);
-		if (selected) onSubmit(selected);
-		setSelectedId("");
-		setOpen(false);
+	function handleSubmit(data: GoalSelectFormData) {
+		const selected = goals.find((g) => g.id === data.goalId);
+		if (selected) {
+			onSubmit(selected);
+			form.reset();
+			setOpen(false);
+		}
+	}
+
+	function handleOpenChange(newOpen: boolean) {
+		setOpen(newOpen);
+		if (!newOpen) {
+			form.reset();
+		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button>{triggerLabel}</Button>
 			</DialogTrigger>
@@ -81,33 +104,34 @@ export function GoalSelectDialog({
 						</p>
 					</div>
 				) : (
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+						<div className="space-y-2">
 							<label
-								htmlFor="goal-select"
-								className="block text-sm font-medium mb-1"
+								htmlFor="goalId"
+								className="block text-sm font-medium"
 							>
 								Select Goal
 							</label>
 							<select
-								id="goal-select"
-								className="w-full border  px-2 py-1"
-								value={selectedId}
-								onChange={(e) => setSelectedId(e.target.value)}
-								required
+								id="goalId"
+								{...form.register("goalId")}
+								className="flex h-10 w-full input"
 							>
-								<option value="" disabled>
-									Select a goal...
-								</option>
+								<option value="">Select a goal...</option>
 								{goals.map((g) => (
 									<option key={g.id} value={g.id}>
 										{g.title} ({g.status})
 									</option>
 								))}
 							</select>
+							{form.formState.errors.goalId && (
+								<span className="text-xs text-destructive">
+									{String(form.formState.errors.goalId.message)}
+								</span>
+							)}
 						</div>
 						<DialogFooter>
-							<Button type="submit" disabled={!selectedId}>
+							<Button type="submit" disabled={!form.formState.isValid}>
 								Add
 							</Button>
 							<DialogClose asChild>

@@ -1,6 +1,9 @@
 import type { Assistant } from "@/lib/types";
 import { useState } from "react";
 import { useQuery } from "urql";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "./button";
 import {
 	Dialog,
@@ -19,6 +22,12 @@ interface AssistantSelectDialogProps {
 	onSubmit: (assistant: Assistant) => void;
 	triggerLabel?: string;
 }
+
+const assistantSelectSchema = z.object({
+	assistantId: z.string().min(1, "Please select an assistant"),
+});
+
+type AssistantSelectFormData = z.infer<typeof assistantSelectSchema>;
 
 const AssistantsBySportQuery = `
   query AssistantsBySport($sport: String!) {
@@ -39,7 +48,13 @@ export function AssistantSelectDialog({
 	triggerLabel = "Add Assistant",
 }: AssistantSelectDialogProps) {
 	const [open, setOpen] = useState(false);
-	const [selectedId, setSelectedId] = useState<Assistant["id"]>();
+
+	const form = useForm<AssistantSelectFormData>({
+		resolver: zodResolver(assistantSelectSchema),
+		defaultValues: {
+			assistantId: "",
+		},
+	});
 
 	const [{ data, fetching, error }] = useQuery<{ assistants: Assistant[] }>({
 		query: AssistantsBySportQuery,
@@ -49,16 +64,24 @@ export function AssistantSelectDialog({
 
 	const assistants = data?.assistants || [];
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		const selected = assistants.find((a) => a.id === selectedId);
-		if (selected) onSubmit(selected);
-		setSelectedId("");
-		setOpen(false);
+	function handleSubmit(data: AssistantSelectFormData) {
+		const selected = assistants.find((a) => a.id === data.assistantId);
+		if (selected) {
+			onSubmit(selected);
+			form.reset();
+			setOpen(false);
+		}
+	}
+
+	function handleOpenChange(newOpen: boolean) {
+		setOpen(newOpen);
+		if (!newOpen) {
+			form.reset();
+		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button>{triggerLabel}</Button>
 			</DialogTrigger>
@@ -73,33 +96,34 @@ export function AssistantSelectDialog({
 						message={`Error loading assistants: ${error.message}`}
 					/>
 				) : (
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div>
+					<form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+						<div className="space-y-2">
 							<label
-								htmlFor="assistant-select"
-								className="block text-sm font-medium mb-1"
+								htmlFor="assistantId"
+								className="block text-sm font-medium"
 							>
 								Select Assistant
 							</label>
 							<select
-								id="assistant-select"
-								className="w-full border  px-2 py-1"
-								value={selectedId}
-								onChange={(e) => setSelectedId(e.target.value)}
-								required
+								id="assistantId"
+								{...form.register("assistantId")}
+								className="flex h-10 w-full input"
 							>
-								<option value="" disabled>
-									Select an assistant...
-								</option>
+								<option value="">Select an assistant...</option>
 								{assistants.map((a) => (
 									<option key={a.id} value={a.id}>
 										{a.name} ({a.role} - {a.sport})
 									</option>
 								))}
 							</select>
+							{form.formState.errors.assistantId && (
+								<span className="text-xs text-destructive">
+									{String(form.formState.errors.assistantId.message)}
+								</span>
+							)}
 						</div>
 						<DialogFooter>
-							<Button type="submit" disabled={!selectedId}>
+							<Button type="submit" disabled={!form.formState.isValid}>
 								Add
 							</Button>
 							<DialogClose asChild>
