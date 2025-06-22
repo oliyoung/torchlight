@@ -32,7 +32,7 @@ export const MOCK_USER = {
 };
 
 export const MOCK_SESSION = {
-  access_token: 'mock-jwt-token-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzA2NzQ4MDAwLCJpYXQiOjE3MDY3NDQ0MDAsImlzcyI6Imh0dHBzOi8vbW9jay1zdXBhYmFzZS5jb20vYXV0aC92MSIsInN1YiI6Im1vY2stdXNlci1pZC0xMjM0NSIsImVtYWlsIjoibW9jay5jb2FjaEBwbGF5d3JpZ2h0LnRlc3QiLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7fSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTcwNjc0NDQwMH1dLCJzZXNzaW9uX2lkIjoibW9jay1zZXNzaW9uLWlkIn0.mock-signature',
+  access_token: `mock-jwt-token-${Math.floor(Date.now() / 1000)}`,
   token_type: 'bearer',
   expires_in: 3600,
   expires_at: Math.floor(Date.now() / 1000) + 3600,

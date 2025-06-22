@@ -1,5 +1,6 @@
 import { test as base, type Page, type BrowserContext } from '@playwright/test';
 import * as path from 'path';
+import { setupAllMocks } from './mocks/graphql';
 
 // Environment variables
 export const TEST_CONFIG = {
@@ -103,37 +104,24 @@ export type MockedTestFixtures = {
 // Mocked fixtures that use fake auth and data
 export const mockedTest = base.extend<MockedTestFixtures>({
   // Mocked page with fake auth and GraphQL responses
-  mockedPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    // Setup all mocks
-    const { setupAllMocks } = await import('./mocks/graphql');
+  mockedPage: async ({ page }, use) => {
+    // Setup all mocks on the existing page
     await setupAllMocks(page, TEST_CONFIG.baseUrl);
-
     await use(page);
-    await context.close();
   },
 
   // Mocked coach page with fake data
-  mockedCoachPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-
-    // Setup all mocks
-    const { setupAllMocks } = await import('./mocks/graphql');
+  mockedCoachPage: async ({ page, context }, use) => {
+    // Setup all mocks on the existing page
     await setupAllMocks(page, TEST_CONFIG.baseUrl);
-
+    
     const mockedCoachPage = new CoachPage(page, context);
     await use(mockedCoachPage);
-    await context.close();
   },
 
   // Mocked browser context
-  mockedContext: async ({ browser }, use) => {
-    const context = await browser.newContext();
+  mockedContext: async ({ context }, use) => {
     await use(context);
-    await context.close();
   },
 });
 

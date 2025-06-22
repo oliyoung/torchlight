@@ -267,26 +267,17 @@ export async function mockGraphQLAPI(page: Page) {
       });
     } else if (query.includes('query Me')) {
       // Mock Me query for checking onboarding status
+      // Return a coach who needs to complete onboarding
       const mockCoach = {
         id: 'coach-123',
         email: 'mock@example.com',
-        firstName: 'Mock',
-        lastName: 'Coach',
-        displayName: 'Mock Coach',
-        timezone: 'UTC',
-        role: 'PROFESSIONAL',
-        onboardingCompleted: true,
-        billing: {
-          id: 'billing-123',
-          subscriptionStatus: 'TRIAL',
-          subscriptionTier: 'PROFESSIONAL',
-          trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-          monthlyAthleteLimit: 999999,
-          currentAthleteCount: 0,
-          monthlySessionLogLimit: 1000,
-          currentSessionLogCount: 0,
-          aiCreditsRemaining: 100
-        }
+        firstName: null, // This indicates onboarding is needed
+        lastName: null,
+        displayName: null,
+        timezone: null,
+        role: null,
+        onboardingCompleted: false,
+        billing: null
       };
       
       await route.fulfill({
@@ -325,7 +316,9 @@ export async function mockGraphQLAPI(page: Page) {
  * Setup all mocks for a page (auth + GraphQL)
  */
 export async function setupAllMocks(page: Page, baseUrl = 'http://localhost:3000') {
-  const { injectMockAuth, mockSupabaseAuth } = await import('./auth');
+  // Import auth functions using ES6 imports to avoid any CommonJS issues
+  const authModule = await import('./auth');
+  const { injectMockAuth, mockSupabaseAuth } = authModule;
 
   // Setup auth mocks
   await injectMockAuth(page, baseUrl);

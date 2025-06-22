@@ -40,7 +40,10 @@
       "Bash(yarn dev:*)",
       "Bash(yarn seed)",
       "Bash(psql:*)",
-      "Bash(yarn test:e2e:*)"
+      "Bash(yarn test:e2e:*)",
+      "Bash(yarn playwright test:*)",
+      "Bash(kill:*)",
+      "Bash(yarn playwright:*)"
     ],
     "deny": []
   },
