@@ -1,5 +1,6 @@
 import { coachRepository, coachBillingRepository } from '@/lib/repository'
 import { GraphQLContext } from '@/app/api/graphql/route';
+import type { CoachRole } from '@/lib/types';
 
 /**
  * Creates a new coach profile during onboarding.
@@ -8,7 +9,7 @@ import { GraphQLContext } from '@/app/api/graphql/route';
  */
 export async function createCoach(
   parent: any,
-  args: { input: { firstName?: string; lastName?: string; displayName?: string; timezone?: string; billingEmail?: string } },
+  args: { input: { firstName?: string; lastName?: string; displayName?: string; timezone?: string; role: CoachRole; billingEmail?: string } },
   context: GraphQLContext
 ) {
 

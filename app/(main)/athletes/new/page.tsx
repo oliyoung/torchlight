@@ -9,8 +9,8 @@ import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
@@ -40,8 +40,10 @@ const athleteSchema = z.object({
 
 type FormValues = z.infer<typeof athleteSchema>;
 
-export default function NewAthletePage() {
+function NewAthletePageContent() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const isOnboarding = searchParams.get('onboarding') === 'true';
 	const {
 		register,
 		handleSubmit,
@@ -82,26 +84,43 @@ export default function NewAthletePage() {
 		if (!error && data?.createAthlete?.id) {
 			setSuccess(true);
 
-			// Navigate to the new athlete's page after a short delay
+			// Navigate based on whether this is onboarding or regular athlete creation
 			setTimeout(() => {
-				router.push(`/athletes/${data.createAthlete.id}`);
+				if (isOnboarding) {
+					// Complete onboarding, redirect to dashboard
+					router.push('/');
+				} else {
+					// Regular flow, go to athlete's page
+					router.push(`/athletes/${data.createAthlete.id}`);
+				}
 			}, 1500);
 		}
 	};
 
 	return (
 		<PageWrapper
-			title="Add New Athlete"
-			description="Create a new athlete profile"
-			breadcrumbs={[
+			title={isOnboarding ? "Add Your First Athlete" : "Add New Athlete"}
+			description={isOnboarding ? "Complete your onboarding by creating your first athlete profile" : "Create a new athlete profile"}
+			breadcrumbs={isOnboarding ? [
+				{ label: "Onboarding", href: "#" },
+				{ label: "Add Athlete", href: "#" },
+			] : [
 				{ label: "Athletes", href: "/athletes" },
 				{ label: "New Athlete", href: "#" },
 			]}
 		>
+			{isOnboarding && (
+				<div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+					<h3 className="font-semibold text-primary mb-2">Step 2 of 2: Add Your First Athlete</h3>
+					<p className="text-sm text-muted-foreground">
+						You're almost done! Create your first athlete profile to complete your onboarding.
+					</p>
+				</div>
+			)}
 
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 				{result.error && <ErrorMessage message={result.error.message} />}
-				{success && <SuccessMessage message="Athlete created successfully! Redirecting..." />}
+				{success && <SuccessMessage message={isOnboarding ? "Athlete created successfully! Welcome to Torchlight!" : "Athlete created successfully! Redirecting..."} />}
 
 				<div className="grid grid-cols-2 gap-4">
 					<div className="space-y-2">
@@ -293,12 +312,20 @@ export default function NewAthletePage() {
 					disabled={result.fetching}
 					className="w-full"
 				>
-					{result.fetching ? "Creating..." : "Create Athlete"}
+					{result.fetching ? "Creating..." : isOnboarding ? "Complete Setup" : "Create Athlete"}
 				</Button>
 			</form>
 
 
 
 		</PageWrapper>
+	);
+}
+
+export default function NewAthletePage() {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<NewAthletePageContent />
+		</Suspense>
 	);
 }

@@ -11,15 +11,19 @@ INSERT INTO assistants (name, sport, role, strengths, bio, prompt_template, crea
 ('Coach Prism', 'Basketball', 'Forward', ARRAY['Defensive Switching', 'Versatility', 'Tactical IQ'], 'A versatile forward who excels at defensive switching and tactical play. Coaches players to read the game, adapt on the fly, and contribute in multiple roles.', 'Design a week-long training block for a forward focused on defensive switching, versatility, and tactical IQ.', NOW(), NOW()),
 ('Coach Echo', 'Basketball', 'Any', ARRAY['Film Study', 'Self-Assessment', 'Growth Mindset'], 'A reflective coach focused on reviewing past performances to drive future improvement through self-awareness.', 'Generate a training program that includes film breakdown, reflection prompts, and self-assessment for any basketball role.', NOW(), NOW());
 
--- Create a sample coach first (this would normally be created through the auth flow)
-INSERT INTO coaches (user_id, email, first_name, last_name, display_name, timezone, account_status, onboarding_completed, created_at, updated_at) VALUES
-('550e8400-e29b-41d4-a716-446655440000', 'coach@example.com', 'Sample', 'Coach', 'Coach Sample', 'UTC', 'ACTIVE', true, NOW(), NOW());
+-- Create sample coaches with different roles for testing
+INSERT INTO coaches (user_id, email, first_name, last_name, display_name, timezone, account_status, onboarding_completed, role, created_at, updated_at) VALUES
+('550e8400-e29b-41d4-a716-446655440000', 'coach@example.com', 'Professional', 'Coach', 'Coach Pro', 'UTC', 'ACTIVE', true, 'PROFESSIONAL', NOW(), NOW()),
+('550e8400-e29b-41d4-a716-446655440001', 'parent@example.com', 'Parent', 'Coach', 'Parent Coach', 'UTC', 'ACTIVE', true, 'PERSONAL', NOW(), NOW()),
+('550e8400-e29b-41d4-a716-446655440002', 'athlete@example.com', 'Self', 'Athlete', 'Self Coached', 'UTC', 'ACTIVE', true, 'SELF', NOW(), NOW());
 
 -- Get the coach ID for the sample coach
 -- Note: In a real scenario, this would be handled by the application logic
 -- For seed data, we'll use a known UUID
 
--- Fixture data for athletes (using the sample coach's ID)
+-- Fixture data for athletes (distributed across different coach types)
+
+-- Professional Coach - Gets most athletes (unlimited)
 INSERT INTO athletes (coach_id, first_name, last_name, email, tags, notes, sport, birthday, gender, fitness_level, training_history, height, weight, created_at, updated_at, deleted_at) VALUES
 ((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Alice', 'Smith', 'alice.smith1@example.com', ARRAY['athlete','yoga'], 'Loves yoga. See https://placekitten.com/200/200', 'Yoga', '1990-01-01', 'FEMALE', 'INTERMEDIATE', '5 years of yoga', 165.0, 60.0, NOW(), NOW(), NULL),
 ((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Bob', 'Johnson', 'bob.johnson2@example.com', ARRAY['runner'], 'Marathon runner. https://placekitten.com/201/200', 'Running', '1985-05-12', 'MALE', 'ADVANCED', '10 marathons', 180.0, 75.0, NOW(), NOW(), NULL),
@@ -40,4 +44,12 @@ INSERT INTO athletes (coach_id, first_name, last_name, email, tags, notes, sport
 ((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Quinn', 'Hill', 'quinn.hill17@example.com', ARRAY['rowing'], 'Rowing club.', 'Rowing', '1992-01-05', 'NON_BINARY', 'BEGINNER', 'New to rowing', 172.0, 65.0, NOW(), NOW(), NULL),
 ((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Ruby', 'Scott', 'ruby.scott18@example.com', ARRAY['dance'], 'Ballet dancer.', 'Dance', '1995-09-17', 'FEMALE', 'ADVANCED', 'Performs ballet', 158.0, 50.0, NOW(), NOW(), NULL),
 ((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Sam', 'Green', 'sam.green19@example.com', ARRAY['football'], 'Quarterback.', 'Football', '1989-06-02', 'MALE', 'ADVANCED', 'Plays in league', 190.0, 90.0, NOW(), NOW(), NULL),
-((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Tina', 'Baker', 'tina.baker20@example.com', ARRAY['yoga','running'], 'Yoga and running.', 'Yoga', '1993-12-25', 'FEMALE', 'INTERMEDIATE', 'Mixes yoga and running', 166.0, 58.0, NOW(), NOW(), NULL);
+((SELECT id FROM coaches WHERE email = 'coach@example.com'), 'Tina', 'Baker', 'tina.baker20@example.com', ARRAY['yoga','running'], 'Yoga and running.', 'Yoga', '1993-12-25', 'FEMALE', 'INTERMEDIATE', 'Mixes yoga and running', 166.0, 58.0, NOW(), NOW(), NULL),
+
+-- Personal Coach (Parent) - Gets 3 children athletes  
+((SELECT id FROM coaches WHERE email = 'parent@example.com'), 'Emma', 'Parent', 'emma.parent@example.com', ARRAY['youth','soccer'], 'Oldest child, plays soccer', 'Soccer', '2010-04-15', 'FEMALE', 'BEGINNER', 'Started soccer this year', 140.0, 35.0, NOW(), NOW(), NULL),
+((SELECT id FROM coaches WHERE email = 'parent@example.com'), 'Jake', 'Parent', 'jake.parent@example.com', ARRAY['youth','basketball'], 'Middle child, loves basketball', 'Basketball', '2012-08-22', 'MALE', 'BEGINNER', 'School team player', 130.0, 30.0, NOW(), NOW(), NULL),
+((SELECT id FROM coaches WHERE email = 'parent@example.com'), 'Lily', 'Parent', 'lily.parent@example.com', ARRAY['youth','swimming'], 'Youngest, learning to swim', 'Swimming', '2014-11-10', 'FEMALE', 'BEGINNER', 'Swimming lessons', 120.0, 25.0, NOW(), NOW(), NULL),
+
+-- Self Coached Athlete - Gets 1 athlete (themselves)
+((SELECT id FROM coaches WHERE email = 'athlete@example.com'), 'Alex', 'Self', 'athlete@example.com', ARRAY['triathlon','endurance'], 'Training for first ironman', 'Triathlon', '1995-03-18', 'NON_BINARY', 'INTERMEDIATE', 'Running and cycling background', 175.0, 68.0, NOW(), NOW(), NULL);

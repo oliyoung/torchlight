@@ -19,14 +19,9 @@ const sourceSansPro = Source_Sans_3({
 export default ({
     children,
 }: Readonly<{ children: React.ReactNode }>) =>
-    <html lang="en">
-        <body
-            className={`antialiased ${inter.className} ${sourceSansPro.className}`}
-        >
+
             <AuthProvider>
                 <UrqlProvider>
                     {children}
                 </UrqlProvider>
             </AuthProvider>
-        </body>
-    </html>

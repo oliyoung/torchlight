@@ -180,6 +180,7 @@ export type Coach = {
   lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
   onboardingCompleted: Scalars['Boolean']['output'];
+  role: CoachRole;
   timezone?: Maybe<Scalars['String']['output']>;
   trainingPlans: Array<TrainingPlan>;
   updatedAt: Scalars['DateTime']['output'];
@@ -216,6 +217,13 @@ export type CoachBilling = {
   updatedAt: Scalars['DateTime']['output'];
   usageResetDate: Scalars['DateTime']['output'];
 };
+
+/** Coach role type determining UI mode and athlete limits. */
+export enum CoachRole {
+  Personal = 'PERSONAL',
+  Professional = 'PROFESSIONAL',
+  Self = 'SELF'
+}
 
 /** Coach-specific feedback and development insights. */
 export type CoachingFeedback = {
@@ -291,6 +299,7 @@ export type CreateCoachInput = {
   displayName?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
+  role: CoachRole;
   timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1070,6 +1079,7 @@ export type UpdateCoachInput = {
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
   onboardingCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  role?: InputMaybe<CoachRole>;
   timezone?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -1225,6 +1235,7 @@ export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Coach: ResolverTypeWrapper<Coach>;
   CoachBilling: ResolverTypeWrapper<CoachBilling>;
+  CoachRole: CoachRole;
   CoachingFeedback: ResolverTypeWrapper<CoachingFeedback>;
   ConfidenceLevel: ConfidenceLevel;
   Constraints: ResolverTypeWrapper<Constraints>;
@@ -1401,6 +1412,7 @@ export type CoachResolvers<ContextType = GraphQLContext, ParentType extends Reso
   lastLoginAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   onboardingCompleted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['CoachRole'], ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   trainingPlans?: Resolver<Array<ResolversTypes['TrainingPlan']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;

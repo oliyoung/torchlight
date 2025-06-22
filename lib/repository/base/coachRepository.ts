@@ -1,5 +1,5 @@
 import { EntityRepository, type EntityMapping } from './entityRepository'
-import type { Coach, CreateCoachInput, UpdateCoachInput, AccountStatus } from '@/lib/types'
+import type { Coach, CreateCoachInput, UpdateCoachInput, AccountStatus, CoachRole } from '@/lib/types'
 
 // Coach-specific column mappings
 const coachMapping: EntityMapping<Coach> = {
@@ -24,6 +24,7 @@ const coachMapping: EntityMapping<Coach> = {
       displayName: data.display_name as string | null,
       avatar: data.avatar as string | null,
       timezone: data.timezone as string | null,
+      role: data.role as CoachRole,
 
       onboardingCompleted: data.onboarding_completed as boolean,
       lastLoginAt: data.last_login_at as string | null,
@@ -59,7 +60,7 @@ export class CoachRepository extends EntityRepository<Coach> {
    * @param input - Optional coach profile data
    * @returns Promise resolving to created coach
    */
-  async createCoach(userId: string, email: string, input: CreateCoachInput = {}): Promise<Coach | null> {
+  async createCoach(userId: string, email: string, input: Partial<CreateCoachInput> = {}): Promise<Coach | null> {
     const coachData: Partial<Coach> = {
       userId,
       email,
@@ -68,6 +69,7 @@ export class CoachRepository extends EntityRepository<Coach> {
       displayName: input.displayName || null,
       avatar: null,
       timezone: input.timezone || 'UTC',
+      role: input.role || ('PROFESSIONAL' as CoachRole), // Default to PROFESSIONAL if not specified
       onboardingCompleted: true,
       lastLoginAt: new Date().toISOString()
     };
@@ -128,6 +130,7 @@ export class CoachRepository extends EntityRepository<Coach> {
       ...(input.displayName !== undefined && { displayName: input.displayName }),
       ...(input.avatar !== undefined && { avatar: input.avatar }),
       ...(input.timezone !== undefined && { timezone: input.timezone }),
+      ...(input.role !== undefined && input.role !== null && { role: input.role }),
       ...(input.onboardingCompleted !== undefined && { onboardingCompleted: Boolean(input.onboardingCompleted) })
     };
 

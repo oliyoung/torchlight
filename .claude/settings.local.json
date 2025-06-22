@@ -36,7 +36,11 @@
       "Bash(PGPASSWORD=\"$POSTGRES_PASSWORD\" psql \"$DATABASE_URL\" -c \"SELECT policyname FROM pg_policies WHERE tablename = 'coaches';\")",
       "Bash(env)",
       "Bash(supabase:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "Bash(yarn dev:*)",
+      "Bash(yarn seed)",
+      "Bash(psql:*)",
+      "Bash(yarn test:e2e:*)"
     ],
     "deny": []
   },

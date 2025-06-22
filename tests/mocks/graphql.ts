@@ -216,8 +216,88 @@ export async function mockGraphQLAPI(page: Page) {
           data: { trainingPlans: MOCK_TRAINING_PLANS }
         })
       });
+    } else if (query.includes('createCoach')) {
+      // Mock coach creation mutation
+      const mockCoach = {
+        id: 'coach-123',
+        email: 'mock@example.com',
+        firstName: variables?.input?.firstName || 'Mock',
+        lastName: variables?.input?.lastName || 'Coach',
+        displayName: variables?.input?.displayName || 'Mock Coach',
+        timezone: variables?.input?.timezone || 'UTC',
+        role: variables?.input?.role || 'PROFESSIONAL',
+        onboardingCompleted: true
+      };
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: { createCoach: mockCoach }
+        })
+      });
+    } else if (query.includes('createAthlete')) {
+      // Mock athlete creation mutation
+      const mockAthlete = {
+        id: 'athlete-123',
+        firstName: variables?.input?.firstName || 'Mock',
+        lastName: variables?.input?.lastName || 'Athlete',
+        email: variables?.input?.email || 'athlete@example.com',
+        sport: variables?.input?.sport || 'Tennis',
+        birthday: variables?.input?.birthday || '1995-01-01',
+        gender: variables?.input?.gender,
+        height: variables?.input?.height,
+        weight: variables?.input?.weight,
+        emergencyContactName: variables?.input?.emergencyContactName,
+        emergencyContactPhone: variables?.input?.emergencyContactPhone,
+        medicalConditions: variables?.input?.medicalConditions,
+        injuries: variables?.input?.injuries,
+        tags: variables?.input?.tags || [],
+        notes: variables?.input?.notes,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: { createAthlete: mockAthlete }
+        })
+      });
+    } else if (query.includes('query Me')) {
+      // Mock Me query for checking onboarding status
+      const mockCoach = {
+        id: 'coach-123',
+        email: 'mock@example.com',
+        firstName: 'Mock',
+        lastName: 'Coach',
+        displayName: 'Mock Coach',
+        timezone: 'UTC',
+        role: 'PROFESSIONAL',
+        onboardingCompleted: true,
+        billing: {
+          id: 'billing-123',
+          subscriptionStatus: 'TRIAL',
+          subscriptionTier: 'PROFESSIONAL',
+          trialEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+          monthlyAthleteLimit: 999999,
+          currentAthleteCount: 0,
+          monthlySessionLogLimit: 1000,
+          currentSessionLogCount: 0,
+          aiCreditsRemaining: 100
+        }
+      };
+      
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: { me: mockCoach }
+        })
+      });
     } else if (query.includes('mutation')) {
-      // Mock successful mutations
+      // Mock other successful mutations
       await route.fulfill({
         status: 200,
         contentType: 'application/json',

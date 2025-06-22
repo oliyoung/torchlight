@@ -2,14 +2,19 @@
 
 import Navigation, { SidebarProvider, MobileMenuButton, useSidebar } from "@/components/ui/navigation";
 import { useSessionGuard } from "@/lib/hooks/use-session-guard";
+import { CoachRoleProvider } from "@/lib/contexts/coach-role-context";
+import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
 
-function MainContent({ children }: { children: React.ReactNode }) {
+function MainContentWithRole({ children }: { children: React.ReactNode }) {
+	const { coach, loading } = useCoachProfile();
 	const { isCollapsed } = useSidebar();
 
 	return (
-		<main className={`transition-all duration-300 ${isCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
-			{children}
-		</main>
+		<CoachRoleProvider coach={coach} isLoading={loading}>
+			<main className={`transition-all duration-300 ${isCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
+				{children}
+			</main>
+		</CoachRoleProvider>
 	);
 }
 
@@ -28,7 +33,7 @@ export default function MainLayout({
 		<SidebarProvider>
 			<Navigation />
 			<MobileMenuButton />
-			<MainContent>{children}</MainContent>
+			<MainContentWithRole>{children}</MainContentWithRole>
 		</SidebarProvider>
 	);
 }

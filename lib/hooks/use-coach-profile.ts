@@ -12,6 +12,7 @@ const ME_QUERY = `
       lastName
       displayName
       timezone
+      role
       onboardingCompleted
       billing {
         id

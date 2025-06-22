@@ -25,6 +25,7 @@ const GET_COACH_PROFILE = `
       email
       avatar
       timezone
+      role
     }
   }
 `;
@@ -39,6 +40,7 @@ const UPDATE_COACH_MUTATION = `
       email
       avatar
       timezone
+      role
     }
   }
 `;

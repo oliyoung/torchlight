@@ -20,6 +20,7 @@ type Coach {
 	displayName: String # Computed or custom display name
 	avatar: String # Profile picture URL
 	timezone: String # Coach's timezone for scheduling
+	role: CoachRole! # Coach role determining UI mode and athlete limits
 
 	# Account management
 	onboardingCompleted: Boolean! # Whether initial setup is done
@@ -92,6 +93,15 @@ enum SubscriptionTier {
 	FREE # Free tier with basic features
 	STARTER # Basic paid plan
 	PROFESSIONAL # Professional plan with advanced features
+}
+
+"""
+Coach role type determining UI mode and athlete limits.
+"""
+enum CoachRole {
+	PROFESSIONAL # Professional coach - unlimited athletes, full features
+	PERSONAL # Personal coach (parent) - up to 3 athletes, simplified UI
+	SELF # Self-coached athlete - 1 athlete (themselves), personal dashboard
 }
 
 """
@@ -461,6 +471,7 @@ input CreateCoachInput {
 	lastName: String
 	displayName: String
 	timezone: String
+	role: CoachRole! # Required during coach creation
 	billingEmail: String
 }
 
@@ -474,6 +485,7 @@ input UpdateCoachInput {
 	displayName: String
 	avatar: String
 	timezone: String
+	role: CoachRole
 	onboardingCompleted: Boolean
 }
 

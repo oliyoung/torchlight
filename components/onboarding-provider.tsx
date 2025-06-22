@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { useCoachProfile } from "@/lib/hooks/use-coach-profile"
-import { CoachOnboardingModal } from "./coach-onboarding-modal"
 
 interface OnboardingProviderProps {
   children: React.ReactNode
@@ -11,58 +10,43 @@ interface OnboardingProviderProps {
 
 /**
  * Provider that handles the onboarding flow for new coaches.
- * Automatically shows onboarding modal when a user doesn't have a coach profile.
+ * Automatically redirects to onboarding page when a user doesn't have a coach profile.
  */
 export function OnboardingProvider({ children }: OnboardingProviderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const {
     shouldShowOnboarding,
     loading,
-    refetch,
-    isAuthenticated
+    isAuthenticated,
+    user
   } = useCoachProfile()
 
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
-  const [hasShownOnboarding, setHasShownOnboarding] = useState(false)
-
-  // Check if we're on an auth page (login, callback, etc.)
+  // Check if we're on an auth page (login, callback, etc.) or onboarding page
   const isAuthPage = pathname?.startsWith('/login') ||
     pathname?.startsWith('/auth/') ||
     pathname?.startsWith('/register')
+  
+  const isOnboardingPage = pathname === '/onboarding'
+  const isAthleteCreationOnboarding = pathname === '/athletes/new' && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('onboarding') === 'true'
 
-  // Show onboarding modal when conditions are met
+  // Only redirect to onboarding if:
+  // 1. Not loading
+  // 2. User is authenticated (has user object)
+  // 3. User needs onboarding
+  // 4. Not already on auth, onboarding, or athlete creation onboarding pages
   useEffect(() => {
     if (!loading &&
+      user &&
       isAuthenticated &&
       shouldShowOnboarding &&
-      !hasShownOnboarding &&
-      !isAuthPage) {
-      setIsOnboardingOpen(true)
-      setHasShownOnboarding(true)
+      !isAuthPage &&
+      !isOnboardingPage &&
+      !isAthleteCreationOnboarding) {
+      console.log('OnboardingProvider: Redirecting to onboarding')
+      router.push('/onboarding')
     }
-  }, [shouldShowOnboarding, loading, isAuthenticated, hasShownOnboarding, isAuthPage])
+  }, [shouldShowOnboarding, loading, isAuthenticated, user, isAuthPage, isOnboardingPage, isAthleteCreationOnboarding, router, pathname])
 
-  const handleOnboardingClose = () => {
-    // For now, don't allow closing without completing onboarding
-    // In the future, you might want to allow this and show a different message
-  }
-
-  const handleOnboardingSuccess = async () => {
-    // Refetch the coach profile to get updated data
-    await refetch()
-    setIsOnboardingOpen(false)
-  }
-
-  return (
-    <>
-      {children}
-      {!isAuthPage && (
-        <CoachOnboardingModal
-          isOpen={isOnboardingOpen}
-          onClose={handleOnboardingClose}
-          onSuccess={handleOnboardingSuccess}
-        />
-      )}
-    </>
-  )
+  return <>{children}</>
 }
