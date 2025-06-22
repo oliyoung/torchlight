@@ -151,7 +151,6 @@ export const extractAndEvaluateGoal = async (
             athleteHeight: athlete.height?.toString() ?? "Not specified",
             athleteWeight: athlete.weight?.toString() ?? "Not specified",
             coachRelationship: "Current coach", // Could be enhanced with actual relationship data
-            athletePreviousGoals: athlete.notes ?? "No previous goals recorded",
             goalText: goalText
         };
 

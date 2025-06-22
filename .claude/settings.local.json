@@ -43,7 +43,9 @@
       "Bash(yarn test:e2e:*)",
       "Bash(yarn playwright test:*)",
       "Bash(kill:*)",
-      "Bash(yarn playwright:*)"
+      "Bash(yarn playwright:*)",
+      "Bash(yarn storybook:*)",
+      "Bash(yarn remove:*)"
     ],
     "deny": []
   },

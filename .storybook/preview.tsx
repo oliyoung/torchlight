@@ -2,8 +2,7 @@ import type { Preview } from '@storybook/nextjs-vite';
 import React from 'react';
 import { Inter, Source_Sans_3 } from 'next/font/google';
 import '../app/globals.css';
-import { AuthProvider } from '../lib/auth/context';
-import { UrqlProvider } from '../lib/hooks/urql-provider';
+import { StorybookProviders } from './storybook-providers';
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -26,15 +25,20 @@ const preview: Preview = {
        date: /Date$/i,
       },
     },
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        pathname: '/storybook',
+        query: {},
+      },
+    },
   },
   decorators: [
     (Story) => (
       <div className={`antialiased ${inter.className} ${sourceSansPro.className}`}>
-        <AuthProvider>
-          <UrqlProvider>
-            <Story />
-          </UrqlProvider>
-        </AuthProvider>
+        <StorybookProviders>
+          <Story />
+        </StorybookProviders>
       </div>
     ),
   ],
