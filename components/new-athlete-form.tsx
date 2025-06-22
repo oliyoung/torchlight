@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
+import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
 
 const CreateAthleteMutation = `
   mutation CreateAthlete($input: CreateAthleteInput!) {
@@ -30,6 +31,19 @@ const athleteSchema = z.object({
 type FormValues = z.infer<typeof athleteSchema>;
 
 export const NewAthleteForm = () => {
+	const { coach } = useCoachProfile();
+	
+	const defaultValues = useMemo(() => {
+		if (coach?.role === 'SELF') {
+			return {
+				firstName: coach.firstName || '',
+				lastName: coach.lastName || '',
+				email: coach.email || '',
+			};
+		}
+		return {};
+	}, [coach]);
+
 	const {
 		register,
 		handleSubmit,
@@ -38,6 +52,7 @@ export const NewAthleteForm = () => {
 		formState: { errors },
 	} = useForm<FormValues>({
 		resolver: zodResolver(athleteSchema),
+		defaultValues,
 	});
 	const [success, setSuccess] = useState(false);
 	const [result, executeMutation] = useMutation(CreateAthleteMutation);

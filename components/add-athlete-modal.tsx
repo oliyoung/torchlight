@@ -15,11 +15,12 @@ import { SportSelect } from "@/components/ui/sport-select";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
 
 const CreateAthleteMutation = `
   mutation CreateAthlete($input: CreateAthleteInput!) {
@@ -47,6 +48,19 @@ interface AddAthleteModalProps {
 export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const { coach } = useCoachProfile();
+  
+  const defaultValues = useMemo(() => {
+    if (coach?.role === 'SELF') {
+      return {
+        firstName: coach.firstName || '',
+        lastName: coach.lastName || '',
+        email: coach.email || '',
+      };
+    }
+    return {};
+  }, [coach]);
+
   const {
     register,
     handleSubmit,
@@ -55,6 +69,7 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(athleteSchema),
+    defaultValues,
   });
   const [success, setSuccess] = useState(false);
   const [result, executeMutation] = useMutation(CreateAthleteMutation);
@@ -121,7 +136,10 @@ export function AddAthleteModal({ onSuccess, triggerButton }: AddAthleteModalPro
         <DialogHeader>
           <DialogTitle>Add New Athlete</DialogTitle>
           <DialogDescription>
-            Add a new athlete to your database. Fill in their details below.
+            {coach?.role === 'SELF' 
+              ? "We've prefilled your information below. Adjust as needed to create your athlete profile."
+              : "Add a new athlete to your database. Fill in their details below."
+            }
           </DialogDescription>
         </DialogHeader>
 

@@ -92,13 +92,9 @@
     "test": "jest",
     "test:e2e": "playwright test",
     "test:e2e:debug": "playwright test --debug",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:onboarding": "playwright test tests/mocked/onboarding-basic.spec.ts",
-    "test:e2e:onboarding:debug": "playwright test tests/mocked/onboarding-basic.spec.ts --debug",
-    "test:e2e:onboarding:headed": "playwright test tests/mocked/onboarding-basic.spec.ts --headed",
-    "test:e2e:onboarding:mocked": "playwright test tests/mocked/onboarding-simple.spec.ts",
+    "test:e2e:headed": "xvfb-run playwright test --headed",
     "test:e2e:report": "playwright show-report",
-    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ui": "xvfb-run playwright test --ui",
     "type-check": "tsc --noEmit"
   },
   "version": "0.1.0"

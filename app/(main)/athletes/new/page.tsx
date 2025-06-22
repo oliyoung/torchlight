@@ -10,10 +10,11 @@ import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
+import { useCoachProfile } from "@/lib/hooks/use-coach-profile";
 
 const CreateAthleteMutation = `
   mutation CreateAthlete($input: CreateAthleteInput!) {
@@ -44,6 +45,19 @@ function NewAthletePageContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const isOnboarding = searchParams.get('onboarding') === 'true';
+	const { coach } = useCoachProfile();
+	
+	const defaultValues = useMemo(() => {
+		if (coach?.role === 'SELF') {
+			return {
+				firstName: coach.firstName || '',
+				lastName: coach.lastName || '',
+				email: coach.email || '',
+			};
+		}
+		return {};
+	}, [coach]);
+
 	const {
 		register,
 		handleSubmit,
@@ -51,6 +65,7 @@ function NewAthletePageContent() {
 		formState: { errors },
 	} = useForm<FormValues>({
 		resolver: zodResolver(athleteSchema),
+		defaultValues,
 	});
 	const [success, setSuccess] = useState(false);
 	const [result, executeMutation] = useMutation(CreateAthleteMutation);
@@ -113,7 +128,19 @@ function NewAthletePageContent() {
 				<div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
 					<h3 className="font-semibold text-primary mb-2">Step 2 of 2: Add Your First Athlete</h3>
 					<p className="text-sm text-muted-foreground">
-						You're almost done! Create your first athlete profile to complete your onboarding.
+						{coach?.role === 'SELF' 
+							? "You're almost done! We've prefilled your profile information below - feel free to adjust as needed to complete your athlete profile setup."
+							: "You're almost done! Create your first athlete profile to complete your onboarding."
+						}
+					</p>
+				</div>
+			)}
+
+			{coach?.role === 'SELF' && !isOnboarding && (
+				<div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+					<h3 className="font-semibold text-blue-800 mb-2">Self-Coached Profile</h3>
+					<p className="text-sm text-blue-700">
+						We've prefilled your basic information below. You can adjust any details to customize your athlete profile.
 					</p>
 				</div>
 			)}
