@@ -1,0 +1,10 @@
+yarn run v1.22.22
+$ next dev --turbopack --turbopack
+ ⚠ Port 3000 is in use, using available port 3001 instead.
+   ▲ Next.js 15.3.4 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://10.255.255.254:3001
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 1122ms

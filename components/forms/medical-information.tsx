@@ -34,6 +34,7 @@ export const MedicalInformationForm = ({
             rows={2}
             placeholder="Any medical conditions, allergies, or medications"
             disabled={disabled}
+            errors={errors}
           />
           {errors.medicalConditions && (
             <span className="text-xs text-destructive">
@@ -50,6 +51,7 @@ export const MedicalInformationForm = ({
             rows={2}
             placeholder="Any current or past injuries that may affect training"
             disabled={disabled}
+            errors={errors}
           />
           {errors.injuries && (
             <span className="text-xs text-destructive">

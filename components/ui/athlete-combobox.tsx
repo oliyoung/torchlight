@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import type { Athlete } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useCoachRoleInfo } from "@/lib/contexts/coach-role-context";
 import { Check, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import { useQuery } from "urql";
@@ -51,9 +52,39 @@ export function AthleteCombobox({
 		query: AthletesQuery,
 	});
 	const [open, setOpen] = React.useState(false);
+	const { isSelf } = useCoachRoleInfo();
 
 	const athletes = data?.athletes ?? [];
 	const selectedAthlete = athletes.find((c) => c.id === value);
+
+	// Auto-select athlete if there's only one or if in self mode
+	React.useEffect(() => {
+		if (!value && athletes.length === 1) {
+			onChange(athletes[0].id);
+		}
+	}, [athletes, value, onChange]);
+
+	// Hide the component if there's only one athlete or in self mode
+	const shouldHide = (isSelf || athletes.length === 1) && athletes.length > 0;
+	
+	if (shouldHide && selectedAthlete) {
+		return (
+			<div>
+				{label && (
+					<label
+						id={`${label.toLowerCase().replace(/\s+/g, "-")}-label`}
+						className="block text-sm font-medium text-gray-700 mb-1"
+					>
+						{label}
+					</label>
+				)}
+				<div className="w-full p-3 bg-muted rounded-md border text-sm">
+					{selectedAthlete.firstName} {selectedAthlete.lastName} ({selectedAthlete.email})
+				</div>
+				{error && <span className="text-xs text-destructive">{error}</span>}
+			</div>
+		);
+	}
 
 	return (
 		<div>

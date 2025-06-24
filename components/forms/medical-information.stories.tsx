@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { MedicalInformationForm } from "./medical-information-form";
+import { MedicalInformationForm } from "./medical-information";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +37,7 @@ const MedicalInformationFormWrapper = ({
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-background">
-      <MedicalInformationForm 
+      <MedicalInformationForm
         register={register}
         errors={hasErrors ? mockErrors : errors}
         disabled={disabled}

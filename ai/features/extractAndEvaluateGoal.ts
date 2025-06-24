@@ -12,6 +12,7 @@ const GOAL_EVALUATION_PROMPT_FILE = "ai/prompts/goal_evaluation.prompt.yml";
  */
 const goalEvaluationResponseSchema = z.object({
     coreGoal: z.object({
+        title: z.string(),
         type: z.string(),
         primaryObjective: z.string(),
         sport: z.string(),

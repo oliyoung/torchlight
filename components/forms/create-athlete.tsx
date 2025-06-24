@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { BasicInformationForm } from "@/components/forms/basic-information-form";
+import { BasicInformationForm } from "@/components/forms/basic-information";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useMemo } from "react";
@@ -28,7 +28,7 @@ type FormValues = z.infer<typeof athleteSchema>;
 
 export const NewAthleteForm = () => {
 	const { coach } = useCoachProfile();
-	
+
 	const defaultValues = useMemo(() => {
 		if (coach?.role === 'SELF') {
 			return {

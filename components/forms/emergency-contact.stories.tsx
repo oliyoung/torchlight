@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { EmergencyContactForm } from "./emergency-contact-form";
+import { EmergencyContactForm } from "./emergency-contact";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +38,7 @@ const EmergencyContactFormWrapper = ({
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-background">
-      <EmergencyContactForm 
+      <EmergencyContactForm
         register={register}
         errors={hasErrors ? mockErrors : errors}
         disabled={disabled}

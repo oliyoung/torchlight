@@ -18,7 +18,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 		return (
 			<div>
 				<Label htmlFor={name}>{name}</Label>
-				<input type={type} className={cn("flex h-10 w-full input", className)} ref={ref} {...props} />
+				<input type={type} className={cn("flex w-full input", className)} ref={ref} {...props} />
 				{errors && errors[name] && (
 					<span className="text-xs text-destructive">
 						{String(errors[name].message) || "This field is required"}
