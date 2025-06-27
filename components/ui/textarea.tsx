@@ -5,17 +5,17 @@ import { Label } from "./label"
 import { FieldErrors } from "react-hook-form";
 
 export interface TextareaProps
-	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> { errors: FieldErrors<any>; }
+	extends React.TextareaHTMLAttributes<HTMLTextAreaElement> { label: string; errors: FieldErrors<any>; }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-	({ className, errors, ...props }, ref) => {
+	({ className, errors, label, ...props }, ref) => {
 		const { name } = props
 		if (!name) {
 			throw new Error("Input component requires a 'name' prop for error handling.")
 		}
 		return (
 			<div>
-				<Label htmlFor={name}>{name}</Label>
+				<Label htmlFor={name}>{label ? label : name}</Label>
 				<textarea
 					className={cn(
 						"flex min-h-[80px] w-full bg-input rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",

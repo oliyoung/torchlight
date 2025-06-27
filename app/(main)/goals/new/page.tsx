@@ -1,14 +1,17 @@
 "use client";
 
 import { CreateGoalForm } from "@/components/forms/create-goal";
+import { GoalEvaluationDisplay } from "@/components/ui/goal-evaluation-display";
 import { PageWrapper } from "@/components/ui/page-wrapper";
+import { GoalEvaluationResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
 export default function NewGoalPage() {
   const router = useRouter();
 
   const handleSuccess = (goalId: string) => {
-    router.push("/goals");
+    // router.push("/goals");
+
   };
 
   const handleCancel = () => {
@@ -17,19 +20,13 @@ export default function NewGoalPage() {
 
   return (
     <PageWrapper
-      title="Create New Goal"
-      description="Create a goal for an athlete"
+      title="Construct New Goal"
       breadcrumbs={[
         { label: "Goals", href: "/goals" },
         { label: "New Goal", href: "#" },
       ]}
     >
-      <div className="max-w-2xl mx-auto">
-        <CreateGoalForm
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-        />
-      </div>
+      <CreateGoalForm onSuccess={handleSuccess} onCancel={handleCancel} />
     </PageWrapper>
   );
 }

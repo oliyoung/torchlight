@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import { GoalEvaluationResponse } from "@/lib/types";
 
 interface GoalEvaluationDisplayProps {
-  evaluation: GoalEvaluationResponse;
+  evaluation: GoalEvaluationResponse | null
   className?: string;
   showExtendedInfo?: boolean;
 }
@@ -12,195 +12,113 @@ export function GoalEvaluationDisplay({
   className = "",
   showExtendedInfo = false
 }: GoalEvaluationDisplayProps) {
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return "text-green-600";
-    if (score >= 6) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getScoreBackground = (score: number) => {
-    if (score >= 8) return "bg-green-50";
-    if (score >= 6) return "bg-yellow-50";
-    return "bg-red-50";
-  };
+  if (!evaluation) {
+    return null;
+  }
 
   return (
-    <Card className={`p-4 space-y-4 ${className}`}>
-      <div>
-        <h3 className="font-semibold text-lg mb-2">AI Goal Evaluation</h3>
+    <Card className={`flex flex-col gap-4 p-4 ${className}`}>
 
-        {/* Quality Scores and Core Goal Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <h4 className="font-medium">Quality Scores</h4>
-            <div className="space-y-1 text-sm">
-              <div className={`flex justify-between p-2 rounded ${getScoreBackground(evaluation.goalEvaluation.overallQualityScore)}`}>
-                <span>Overall Quality:</span>
-                <span className={`font-medium ${getScoreColor(evaluation.goalEvaluation.overallQualityScore)}`}>
-                  {evaluation.goalEvaluation.overallQualityScore}/10
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Specificity:</span>
-                <span className={getScoreColor(evaluation.goalEvaluation.specificityScore)}>
-                  {evaluation.goalEvaluation.specificityScore}/10
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Feasibility:</span>
-                <span className={getScoreColor(evaluation.goalEvaluation.feasibilityScore)}>
-                  {evaluation.goalEvaluation.feasibilityScore}/10
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Relevance:</span>
-                <span className={getScoreColor(evaluation.goalEvaluation.relevanceScore)}>
-                  {evaluation.goalEvaluation.relevanceScore}/10
-                </span>
-              </div>
-              {showExtendedInfo && (
-                <>
-                  <div className="flex justify-between">
-                    <span>Time Structure:</span>
-                    <span className={getScoreColor(evaluation.goalEvaluation.timeStructureScore)}>
-                      {evaluation.goalEvaluation.timeStructureScore}/10
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Motivation:</span>
-                    <span className={getScoreColor(evaluation.goalEvaluation.motivationScore)}>
-                      {evaluation.goalEvaluation.motivationScore}/10
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+      <p className="text-xl font-bold">
+        {evaluation?.refinedGoalSuggestion?.improvedGoalStatement}
+      </p>
 
-          <div className="space-y-2">
-            <h4 className="font-medium">Extracted Goal</h4>
-            <div className="space-y-1 text-sm">
-              <div><strong>Title:</strong> {evaluation.coreGoal.title}</div>
-              <div><strong>Type:</strong> {evaluation.coreGoal.type}</div>
-              <div><strong>Sport:</strong> {evaluation.coreGoal.sport}</div>
-              {showExtendedInfo && evaluation.coreGoal.measurableOutcome && (
-                <div><strong>Measurable Outcome:</strong> {evaluation.coreGoal.measurableOutcome}</div>
-              )}
+      {evaluation?.refinedGoalSuggestion && <div>
+        <h3 className="text-xl font-bold">Key Changes</h3>
+        <ul className="list-disc list-inside text-sm space-y-1">
+          {evaluation?.refinedGoalSuggestion?.keyChanges.map((change, index) => (
+            <li key={index}>{change}</li>
+          ))}
+        </ul>
+      </div>}
+
+      {evaluation?.refinedGoalSuggestion?.rationale && <div>
+        <h3 className="text-xl font-bold">Rationale</h3>
+        <p>
+          {evaluation?.refinedGoalSuggestion?.rationale}
+        </p>
+      </div>}
+
+      {showExtendedInfo && evaluation?.goalEvaluation && (
+        <div>
+          <div className="grid grid-cols-6 gap-4">
+            <div className=" bg-slate-100 border border-slate-300 p-3 flex flex-col">
+              <span>Score</span>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.overallQualityScore}/10
+              </span>
             </div>
-          </div>
+
+            <div className="bg-slate-100 border border-slate-300 p-3 rounded flex flex-col">
+              <h4 className="font-medium">Specificity</h4>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.specificScore}/10
+              </span>
+            </div>
+
+            <div className="bg-slate-100 border border-slate-300 p-3 rounded flex flex-col">
+              <h4 className="font-medium">Measurability</h4>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.measurableScore}/10
+              </span>
+            </div>
+
+            <div className="bg-slate-100 border border-slate-300 p-3 rounded flex flex-col">
+              <h4 className="font-medium">Achievability</h4>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.achievableScore}/10
+              </span>
+            </div>
+
+            <div className="bg-slate-100 border border-slate-300 p-3 rounded flex flex-col">
+              <h4 className="font-medium">Relevance</h4>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.relevantScore}/10
+              </span>
+            </div>
+            <div className="bg-slate-100 border border-slate-300 p-3 rounded flex flex-col">
+              <h4 className="font-medium">Time Bound</h4>
+              <span className="font-bold">
+                {evaluation?.goalEvaluation?.timeBoundScore}/10
+              </span>
+            </div>
+          </div></div>)}
+
+      {evaluation?.goalEvaluation?.evaluationSummary && <div className="grid grid-cols-3 grid-rows-1 gap-4">
+        <div>
+          <h4 className="font-medium">Strengths</h4>
+          <ul className="text-sm space-y-1">
+            {evaluation?.goalEvaluation?.evaluationSummary.strengths.map((strength: string, index: number) => (
+              <li key={index} className="flex items-start">
+                <span className="text-green-500 mr-2">✓</span>
+                {strength}
+              </li>
+            ))}
+          </ul>
         </div>
-
-        {/* AI Suggestion */}
-        {evaluation.refinedGoalSuggestion.improvedGoalStatement && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">AI Suggestion</h4>
-            <p className="text-sm bg-blue-50 p-3 rounded">
-              {evaluation.refinedGoalSuggestion.improvedGoalStatement}
-            </p>
-            <p className="text-xs text-gray-600 mt-1">
-              {evaluation.refinedGoalSuggestion.rationale}
-            </p>
-          </div>
-        )}
-
-        {/* Areas for Improvement */}
-        {evaluation.goalEvaluation.evaluationSummary.weaknesses.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Areas for Improvement</h4>
-            <ul className="text-sm space-y-1">
-              {evaluation.goalEvaluation.evaluationSummary.weaknesses.map((weakness: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-amber-500 mr-2">•</span>
-                  {weakness}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Strengths (when extended info is shown) */}
-        {showExtendedInfo && evaluation.goalEvaluation.evaluationSummary.strengths.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Strengths</h4>
-            <ul className="text-sm space-y-1">
-              {evaluation.goalEvaluation.evaluationSummary.strengths.map((strength: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-green-500 mr-2">✓</span>
-                  {strength}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Risk Factors (when extended info is shown) */}
-        {showExtendedInfo && evaluation.goalEvaluation.evaluationSummary.riskFactors.length > 0 && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Risk Factors</h4>
-            <ul className="text-sm space-y-1">
-              {evaluation.goalEvaluation.evaluationSummary.riskFactors.map((risk: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-red-500 mr-2">⚠</span>
-                  {risk}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Extraction Confidence (when extended info is shown) */}
-        {showExtendedInfo && evaluation.extractionConfidence && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">AI Confidence</h4>
-            <div className="text-sm space-y-1">
-              <div className="flex justify-between">
-                <span>Confidence Level:</span>
-                <span className={`font-medium ${evaluation.extractionConfidence.overallConfidence === "HIGH" ? "text-green-600" :
-                    evaluation.extractionConfidence.overallConfidence === "MEDIUM" ? "text-yellow-600" :
-                      "text-red-600"
-                  }`}>
-                  {evaluation.extractionConfidence.overallConfidence}
-                </span>
-              </div>
-              {evaluation.extractionConfidence.missingInformation.length > 0 && (
-                <div>
-                  <span className="font-medium">Missing Information:</span>
-                  <ul className="ml-4 mt-1">
-                    {evaluation.extractionConfidence.missingInformation.map((info, index) => (
-                      <li key={index} className="text-xs text-gray-600">• {info}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Coaching Feedback (when extended info is shown) */}
-        {showExtendedInfo && evaluation.coachingFeedback && (
-          <div className="mt-4">
-            <h4 className="font-medium mb-2">Coaching Insights</h4>
-            <div className="text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Data Quality:</span>
-                <span className={`font-medium ${evaluation.coachingFeedback.dataQuality === "EXCELLENT" ? "text-green-600" :
-                    evaluation.coachingFeedback.dataQuality === "GOOD" ? "text-blue-600" :
-                      evaluation.coachingFeedback.dataQuality === "LIMITED" ? "text-yellow-600" :
-                        "text-red-600"
-                  }`}>
-                  {evaluation.coachingFeedback.dataQuality}
-                </span>
-              </div>
-              {evaluation.coachingFeedback.coachDevelopmentInsight && (
-                <div className="bg-gray-50 p-3 rounded">
-                  <span className="font-medium">Coach Development Insight:</span>
-                  <p className="mt-1">{evaluation.coachingFeedback.coachDevelopmentInsight}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+        <div>
+          <h4 className="font-medium">Weaknesses</h4>
+          <ul className="text-sm space-y-1">
+            {evaluation?.goalEvaluation?.evaluationSummary.weaknesses.map((weakness: string, index: number) => (
+              <li key={index} className="flex items-start">
+                <span className="text-amber-500 mr-2">•</span>
+                {weakness}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h4 className="font-medium">Risk Factors</h4>
+          <ul className="text-sm space-y-1">
+            {evaluation?.goalEvaluation?.evaluationSummary.riskFactors.map((risk: string, index: number) => (
+              <li key={index} className="flex items-start">
+                <span className="text-red-500 mr-2">⚠</span>
+                {risk}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>}
     </Card>
   );
 }

@@ -773,16 +773,16 @@ type CoreGoal {
 }
 
 """
-Detailed scoring and evaluation of goal quality across multiple dimensions.
+Detailed scoring and evaluation of goal quality using SMART criteria.
 Each score is typically 1-10 scale with 10 being highest quality.
 """
 type GoalEvaluation {
 	overallQualityScore: Int! # Overall goal quality assessment
-	specificityScore: Int! # How specific and clear the goal is
-	feasibilityScore: Int! # How achievable the goal appears
-	relevanceScore: Int! # How relevant to athlete's sport/context
-	timeStructureScore: Int! # How well-defined the timeline is
-	motivationScore: Int! # How motivating/engaging the goal appears
+	specificScore: Int! # How specific and clear the goal is
+	measurableScore: Int! # How measurable and quantifiable the goal is
+	achievableScore: Int! # How achievable the goal appears
+	relevantScore: Int! # How relevant to athlete's sport/context
+	timeBoundScore: Int! # How well-defined the timeline and deadlines are
 	evaluationSummary: EvaluationSummary! # Detailed breakdown of assessment
 }
 

@@ -434,18 +434,18 @@ export enum GoalCategory {
 }
 
 /**
- * Detailed scoring and evaluation of goal quality across multiple dimensions.
+ * Detailed scoring and evaluation of goal quality using SMART criteria.
  * Each score is typically 1-10 scale with 10 being highest quality.
  */
 export type GoalEvaluation = {
   __typename?: 'GoalEvaluation';
+  achievableScore: Scalars['Int']['output'];
   evaluationSummary: EvaluationSummary;
-  feasibilityScore: Scalars['Int']['output'];
-  motivationScore: Scalars['Int']['output'];
+  measurableScore: Scalars['Int']['output'];
   overallQualityScore: Scalars['Int']['output'];
-  relevanceScore: Scalars['Int']['output'];
-  specificityScore: Scalars['Int']['output'];
-  timeStructureScore: Scalars['Int']['output'];
+  relevantScore: Scalars['Int']['output'];
+  specificScore: Scalars['Int']['output'];
+  timeBoundScore: Scalars['Int']['output'];
 };
 
 /**
@@ -1507,13 +1507,13 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
 };
 
 export type GoalEvaluationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoalEvaluation'] = ResolversParentTypes['GoalEvaluation']> = {
+  achievableScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   evaluationSummary?: Resolver<ResolversTypes['EvaluationSummary'], ParentType, ContextType>;
-  feasibilityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  motivationScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  measurableScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   overallQualityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  relevanceScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  specificityScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  timeStructureScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  relevantScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  specificScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  timeBoundScore?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

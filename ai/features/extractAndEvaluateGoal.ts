@@ -20,11 +20,11 @@ const goalEvaluationResponseSchema = z.object({
     }),
     goalEvaluation: z.object({
         overallQualityScore: z.number(),
-        specificityScore: z.number(),
-        feasibilityScore: z.number(),
-        relevanceScore: z.number(),
-        timeStructureScore: z.number(),
-        motivationScore: z.number(),
+        specificScore: z.number(),
+        measurableScore: z.number(),
+        achievableScore: z.number(),
+        relevantScore: z.number(),
+        timeBoundScore: z.number(),
         evaluationSummary: z.object({
             strengths: z.array(z.string()),
             weaknesses: z.array(z.string()),

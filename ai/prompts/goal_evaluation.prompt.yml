@@ -49,39 +49,39 @@ messages:
       - **Measurement Methods**: How they plan to track progress
       - **Secondary Benefits**: Other improvements they hope to see
 
-      ## Goal Quality Evaluation Framework
+      ## SMART Goal Quality Evaluation Framework
 
-      After extracting the structured information, evaluate the goal quality across these five critical dimensions:
+      After extracting the structured information, evaluate the goal quality using the SMART criteria:
 
-      ### 1. Specificity & Measurability (1-10 scale)
-      - Is the goal concrete and quantifiable with clear success criteria?
-      - Can progress be tracked objectively with measurable milestones?
-      - Are all parameters well-defined (conditions, standards, methods)?
-      - Rate 1-3: Vague/unmeasurable, 4-6: Somewhat specific, 7-10: Highly specific and measurable
+      ### 1. Specific (1-10 scale)
+      - Is the goal clear, concrete, and well-defined?
+      - Does it answer who, what, where, when, and why?
+      - Are all parameters and conditions explicitly stated?
+      - Rate 1-3: Vague/unclear, 4-6: Somewhat specific, 7-10: Highly specific and detailed
 
-      ### 2. Feasibility & Realism (1-10 scale)
-      - Is this achievable given the athlete's current ability, timeline, and resources?
-      - Does it account for realistic progression rates in this sport/skill area?
-      - Are there obvious barriers, injury risks, or unrealistic expectations?
-      - Rate 1-3: Unrealistic/dangerous, 4-6: Challenging but possible, 7-10: Well-calibrated and achievable
+      ### 2. Measurable (1-10 scale)
+      - Can progress be tracked objectively with quantifiable metrics?
+      - Are there clear success criteria and milestones?
+      - Is it possible to determine when the goal has been achieved?
+      - Rate 1-3: No measurable criteria, 4-6: Some metrics available, 7-10: Fully quantifiable with clear indicators
 
-      ### 3. Relevance & Alignment (1-10 scale)
-      - Does this goal serve the athlete's broader objectives and development?
-      - Is it appropriate for their sport, age, experience level, and development stage?
-      - Does it connect logically to their training history, strengths, and aspirations?
-      - Rate 1-3: Misaligned/irrelevant, 4-6: Somewhat relevant, 7-10: Perfectly aligned with athlete needs
+      ### 3. Achievable (1-10 scale)
+      - Is this goal realistic given the athlete's current ability, timeline, and resources?
+      - Does it account for realistic progression rates and potential obstacles?
+      - Is it challenging enough to motivate but not so difficult as to discourage?
+      - Rate 1-3: Unrealistic/impossible, 4-6: Challenging but possible, 7-10: Well-calibrated and attainable
 
-      ### 4. Time Structure & Organization (1-10 scale)
-      - Is there a clear, appropriate deadline or target date?
-      - Does the timeline create optimal motivation without being rushed or too distant?
+      ### 4. Relevant (1-10 scale)
+      - Does this goal align with the athlete's broader objectives and development?
+      - Is it appropriate for their sport, age, experience level, and current situation?
+      - Does it connect to their values, interests, and long-term aspirations?
+      - Rate 1-3: Irrelevant/misaligned, 4-6: Somewhat relevant, 7-10: Perfectly aligned with athlete needs
+
+      ### 5. Time-bound (1-10 scale)
+      - Is there a clear, specific deadline or target date?
+      - Does the timeline create appropriate urgency and motivation?
       - Are there logical intermediate milestones and check-in points?
-      - Rate 1-3: No timeline/poor structure, 4-6: Basic timeline, 7-10: Well-structured with clear phases
-
-      ### 5. Motivational Impact & Ownership (1-10 scale)
-      - Will this goal inspire and engage the athlete personally?
-      - Does it reflect their values, interests, and intrinsic motivations?
-      - Is it challenging enough to drive growth but not so difficult as to discourage?
-      - Rate 1-3: Demotivating/imposed, 4-6: Moderately engaging, 7-10: Highly motivating and personally meaningful
+      - Rate 1-3: No timeline/deadline, 4-6: General timeframe, 7-10: Specific deadline with structured phases
 
       ## Extraction Guidelines
 
@@ -111,8 +111,8 @@ messages:
       - When goals seem unrealistic, provide gentle reality checks
       - When more context would help, suggest specific questions to ask
 
-      ### Provide Goal Quality Analysis
-      - Evaluate each goal dimension (specificity, feasibility, relevance, time structure, motivation)
+      ### Provide SMART Goal Quality Analysis
+      - Evaluate each SMART dimension (Specific, Measurable, Achievable, Relevant, Time-bound)
       - Provide numerical scores to make assessment clear and actionable
       - Identify specific strengths to celebrate and weaknesses to address
       - Suggest concrete improvements that would increase goal effectiveness

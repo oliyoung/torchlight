@@ -1,18 +1,17 @@
 "use client";
 
-import { AthleteCombobox } from "@/components/ui/athlete-combobox";
 import { Button } from "@/components/ui/button";
 import { ErrorMessage } from "@/components/ui/error-message";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { SuccessMessage } from "@/components/ui/success-message";
 import { Textarea } from "@/components/ui/textarea";
 import { logger } from "@/lib/logger";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
-import { Controller, type SubmitHandler, useForm } from "react-hook-form";
+import { useState } from "react";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { useMutation } from "urql";
 import { z } from "zod";
+import { GoalEvaluationDisplay } from "../ui/goal-evaluation-display";
+import { GoalEvaluationResponse } from "@/lib/types";
 
 const CreateGoalMutation = `
   mutation CreateGoal($input: CreateGoalInput!) {
@@ -23,6 +22,14 @@ const CreateGoalMutation = `
   }
 `;
 
+const EvaluateGoalMutation = `
+  mutation ExtractAndEvaluateGoal($input: CreateGoalInput!) {
+    extractAndEvaluateGoal(input: $input) {
+      id
+      title
+    }
+  }
+`;
 
 const goalSchema = z.object({
   athleteId: z.string().min(1, "Athlete is required"),
@@ -38,15 +45,15 @@ interface CreateGoalFormProps {
   className?: string;
 }
 
-export function CreateGoalForm({ onSuccess, onCancel, className }: CreateGoalFormProps) {
+export function CreateGoalForm({ onSuccess, onCancel }: CreateGoalFormProps) {
   const [success, setSuccess] = useState(false);
+  const [evaluation, setEvaluation] = useState<GoalEvaluationResponse | null>(null);
   const [goalResult, executeGoalMutation] = useMutation(CreateGoalMutation);
+  const [goalEvaluation, executeGoalEvaluation] = useMutation(EvaluateGoalMutation)
 
   const {
     register,
     handleSubmit,
-    control,
-    watch,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
@@ -56,6 +63,29 @@ export function CreateGoalForm({ onSuccess, onCancel, className }: CreateGoalFor
     },
   });
 
+  const onEvaluateGoal = async (values: FormValues) => {
+    try {
+      const { data, error: goalError } = await executeGoalEvaluation({
+        input: {
+          athleteId: values.athleteId,
+          title: values.description.slice(0, 100),
+          description: values.description || "",
+          category: "SKILL", // Default category since it's required
+          priority: "MEDIUM", // Default priority since it's required
+          dueDate: values.dueDate ? new Date(values.dueDate) : undefined,
+        },
+      });
+
+      if (goalError) {
+        throw new Error(goalError.message);
+      }
+      if (data.createGoal?.id) {
+        setEvaluation(data.extractAndEvaluateGoal);
+      }
+    } catch (error) {
+      logger.error({ error }, "Error creating goal");
+    }
+  }
 
   const onSubmit: SubmitHandler<FormValues> = async (values) => {
     setSuccess(false);
@@ -95,7 +125,7 @@ export function CreateGoalForm({ onSuccess, onCancel, className }: CreateGoalFor
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className={`flex flex-col gap-4 ${className || ""}`}
+      className="flex flex-col gap-4"
     >
       {goalResult.error && (
         <ErrorMessage message={goalResult.error.message} />
@@ -103,36 +133,22 @@ export function CreateGoalForm({ onSuccess, onCancel, className }: CreateGoalFor
       {success && (
         <SuccessMessage message="Goal created successfully!" />
       )}
-
       <Textarea
         id="description"
+        label="What goal would you like to achieve?"
         errors={errors}
         {...register("description")}
         placeholder="Describe the goal in detail (this will be used as the title)"
         className="resize-none h-24"
         required
       />
-
-      <Input id="dueDate" type="date" {...register("dueDate")} errors={errors} />
-
-      <div className="flex gap-2">
+      <GoalEvaluationDisplay evaluation={evaluation} />
+      <div className="flex flex-row gap-2 justify-between">
         {onCancel && (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            className="flex-1"
-          >
-            Cancel
-          </Button>
+          <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
         )}
-        <Button
-          type="submit"
-          disabled={isSubmitting || goalResult.fetching}
-          className="flex-1"
-        >
-          {goalResult.fetching ? "Creating..." : "Create Goal"}
-        </Button>
+        {!evaluation && (<Button onClick={() => onEvaluateGoal({ athleteId: "", description: "", dueDate: "" })} disabled={isSubmitting || goalEvaluation.fetching}>Evaluate Goal</Button>)}
+        {onSuccess && evaluation && (<Button type="submit" disabled={isSubmitting || goalResult.fetching} > {goalResult.fetching ? "Creating..." : "Create Goal"} </Button>)}
       </div>
     </form>
   );
