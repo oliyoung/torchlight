@@ -110,10 +110,10 @@ interface CreateGoalFormProps {
   athleteId: string;
   onSuccess?: (goalId: string) => void;
   onCancel?: () => void;
-  className?: string;
+  onEvaluate?: (goal: string) => void;
 }
 
-export function CreateGoalForm({ athleteId, onSuccess, onCancel }: CreateGoalFormProps) {
+export function CreateGoalForm({ athleteId, onSuccess, onCancel, onEvaluate }: CreateGoalFormProps) {
   const [success, setSuccess] = useState(false);
   const [evaluation, setEvaluation] = useState<GoalEvaluationResponse | null>(null);
   const [currentStep, setCurrentStep] = useState<'input' | 'evaluation' | 'create'>('input');
@@ -147,7 +147,9 @@ export function CreateGoalForm({ athleteId, onSuccess, onCancel }: CreateGoalFor
   const onEvaluateGoal = async (values: FormValues) => {
     try {
       logger.info({ values }, "Starting goal evaluation");
-
+      if (onEvaluate) {
+        onEvaluate(values.description);
+      }
       const { data, error: evalError } = await executeGoalEvaluation({
         input: {
           athleteId: values.athleteId,

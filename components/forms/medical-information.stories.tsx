@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { MedicalInformationForm } from "./medical-information";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -30,19 +30,17 @@ const MedicalInformationFormWrapper = ({
   });
 
   // Simulate validation errors
-  const mockErrors = hasErrors ? {
-    medicalConditions: { message: "Medical conditions are required" },
-    injuries: { message: "Injury information is required" },
+  const mockErrors: FieldErrors<FormValues> = hasErrors ? {
+    medicalConditions: { type: "manual", message: "Medical conditions are required" },
+    injuries: { type: "manual", message: "Injury information is required" },
   } : {};
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-background">
-      <MedicalInformationForm
-        register={register}
-        errors={hasErrors ? mockErrors : errors}
-        disabled={disabled}
-      />
-    </div>
+    <MedicalInformationForm
+      register={register}
+      errors={hasErrors ? mockErrors : errors}
+      disabled={disabled}
+    />
   );
 };
 
@@ -50,7 +48,6 @@ const meta: Meta<typeof MedicalInformationFormWrapper> = {
   title: "Forms/MedicalInformationForm",
   component: MedicalInformationFormWrapper,
   parameters: {
-    layout: "centered",
     docs: {
       description: {
         component: "Isolated medical information form component for athlete profiles. Includes medical conditions and injury history fields."

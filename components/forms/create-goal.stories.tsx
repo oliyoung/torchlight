@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from 'storybook/test';
 import { CreateGoalForm } from "./create-goal";
 import { Client, Provider } from "urql";
 import { mockClient } from "@/lib/test-utils/mock-urql-client";
@@ -152,8 +153,13 @@ const createMockClient = () => {
 const meta: Meta<typeof CreateGoalForm> = {
   title: "Forms/CreateGoalForm",
   component: CreateGoalForm,
+  tags: ['autodocs'],
+  args: {
+    athleteId: mockAthletes.athletes[0].id // Default to first athlete
+  },
   parameters: {
     layout: "padded",
+    actions: { argTypesRegex: '^on.*' },
     docs: {
       description: {
         component: "A comprehensive form for creating goals with AI-powered evaluation and validation."
@@ -164,9 +170,7 @@ const meta: Meta<typeof CreateGoalForm> = {
     (Story) => (
       <Provider value={createMockClient()}>
         <CoachRoleProvider coach={mockCoach} isLoading={false}>
-          <div className="max-w-2xl mx-auto p-4">
-            <Story />
-          </div>
+          <Story />
         </CoachRoleProvider>
       </Provider>
     ),
@@ -183,10 +187,6 @@ const meta: Meta<typeof CreateGoalForm> = {
     onCancel: {
       description: "Callback function called when user cancels goal creation",
       action: "onCancel"
-    },
-    className: {
-      description: "Additional CSS classes to apply to the form",
-      control: "text"
     }
   }
 };
@@ -196,9 +196,6 @@ type Story = StoryObj<typeof CreateGoalForm>;
 
 export const Default: Story = {
   name: "Default Form",
-  args: {
-    athleteId: mockAthletes.athletes[0].id // Default to first athlete
-  },
   parameters: {
     docs: {
       description: {
@@ -208,80 +205,6 @@ export const Default: Story = {
   }
 };
 
-export const WithCallbacks: Story = {
-  name: "With Callbacks",
-  args: {
-    athleteId: mockAthletes.athletes[0].id // Default to first athlete
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Form with success and cancel callback handlers. Check the Actions panel to see callback interactions."
-      }
-    }
-  }
-};
-
-export const InteractiveDemo: Story = {
-  name: "Interactive Demo",
-  args: {
-    athleteId: mockAthletes.athletes[0].id // Default to first athlete
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: `
-## How to use this form:
-
-1. **Select an Athlete** - Choose from the dropdown (will auto-select if only one athlete or in self mode)
-2. **Enter Goal Description** - Describe the goal in detail
-3. **Evaluate with AI** - Click "Evaluate Goal with AI" to get quality assessment and suggestions
-4. **Review AI Analysis** - Check the scores, extracted information, and improvement suggestions
-5. **Set Target Date** (Optional) - Choose a target completion date
-6. **Create Goal** - Submit the form once AI evaluation is complete
-
-The form includes intelligent features:
-- **Auto-selection** for single athlete scenarios
-- **AI-powered evaluation** with quality scoring
-- **Smart re-evaluation** when description changes significantly
-- **Validation** requiring AI evaluation before goal creation
-- **Success/error handling** with appropriate feedback
-        `
-      }
-    }
-  }
-};
-
-// Story showcasing the AI evaluation feature
-export const AIEvaluationShowcase: Story = {
-  name: "AI Evaluation Showcase",
-  render: () => {
-    // This story pre-fills the form to demonstrate the AI evaluation
-    return (
-      <Provider value={createMockClient()}>
-        <CoachRoleProvider coach={mockCoach} isLoading={false}>
-          <div className="max-w-2xl mx-auto p-4">
-            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-              <h3 className="font-semibold mb-2">AI Evaluation Demo</h3>
-              <p className="text-sm text-gray-700">
-                This showcases the AI evaluation feature. Fill out the form and click "Evaluate Goal with AI"
-                to see the comprehensive analysis including quality scores, suggestions, and improvements.
-              </p>
-            </div>
-            <CreateGoalForm athleteId="1" />
-          </div>
-        </CoachRoleProvider>
-      </Provider>
-    );
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Demonstrates the AI evaluation functionality with example responses."
-      }
-    }
-  }
-};
 
 // Story for testing error states
 export const ErrorHandling: Story = {

@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import type { CoachRole } from "@/lib/types";
+import { BasicInformationForm } from "./basic-information";
 
 const athleteSchema = z.object({
 	firstName: z.string().min(1, "First name is required"),
@@ -21,7 +22,7 @@ const athleteSchema = z.object({
 type FormValues = z.infer<typeof athleteSchema>;
 
 // Standalone new athlete form component for Storybook
-const StandaloneNewAthleteForm = ({
+const StandaloneCreateAthlete = ({
 	coachRole = 'PROFESSIONAL' as CoachRole,
 	showError = false,
 	isSubmitting = false
@@ -67,110 +68,7 @@ const StandaloneNewAthleteForm = ({
 		<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 			{showError && <ErrorMessage message="Failed to create athlete. Please try again." />}
 			{success && <SuccessMessage message="Athlete created successfully!" />}
-
-			{coachRole === 'SELF' && (
-				<div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-					<p className="text-sm text-blue-700">
-						<strong>Self-Coached Mode:</strong> We've prefilled your information below. Feel free to adjust as needed.
-					</p>
-				</div>
-			)}
-
-			<div>
-				<label
-					htmlFor="firstName"
-					className="block text-sm font-medium text-gray-700 mb-1"
-				>
-					First Name
-				</label>
-				<Input
-					id="firstName"
-					{...register("firstName")}
-					autoComplete="given-name"
-					className="mt-1"
-					errors={{}}
-					disabled={submittingState}
-				/>
-				{errors.firstName && (
-					<span className="text-xs text-destructive">
-						{errors.firstName.message}
-					</span>
-				)}
-			</div>
-			<div>
-				<label
-					htmlFor="lastName"
-					className="block text-sm font-medium text-gray-700 mb-1"
-				>
-					Last Name
-				</label>
-				<Input
-					id="lastName"
-					{...register("lastName")}
-					autoComplete="family-name"
-					className="mt-1"
-					errors={{}}
-					disabled={submittingState}
-				/>
-				{errors.lastName && (
-					<span className="text-xs text-destructive">
-						{errors.lastName.message}
-					</span>
-				)}
-			</div>
-			<div>
-				<label
-					htmlFor="email"
-					className="block text-sm font-medium text-gray-700 mb-1"
-				>
-					Email
-				</label>
-				<Input
-					id="email"
-					type="email"
-					{...register("email")}
-					autoComplete="email"
-					className="mt-1"
-					errors={{}}
-					disabled={submittingState}
-				/>
-				{errors.email && (
-					<span className="text-xs text-destructive">
-						{errors.email.message}
-					</span>
-				)}
-			</div>
-			<div>
-				<Controller
-					name="sport"
-					control={control}
-					render={({ field }) => (
-						<SportSelect
-							label="Primary Sport"
-							value={field.value}
-							onChange={field.onChange}
-							error={errors.sport?.message}
-							disabled={submittingState}
-						/>
-					)}
-				/>
-			</div>
-			<div>
-				<label
-					htmlFor="birthday"
-					className="block text-sm font-medium text-gray-700 mb-1"
-				>
-					Birthday
-				</label>
-				<Input
-					id="birthday"
-					type="date"
-					{...register("birthday")}
-					className="mt-1"
-					errors={{}}
-					disabled={submittingState}
-				/>
-			</div>
+			<BasicInformationForm register={register} control={control} errors={errors} />
 			<Button type="submit" disabled={submittingState} className="w-full mt-4">
 				{submittingState ? "Creating..." : "Create Athlete"}
 			</Button>
@@ -178,24 +76,19 @@ const StandaloneNewAthleteForm = ({
 	);
 };
 
-const meta: Meta<typeof StandaloneNewAthleteForm> = {
-	title: "Forms/NewAthleteForm",
-	component: StandaloneNewAthleteForm,
+const meta: Meta<typeof StandaloneCreateAthlete> = {
+	title: "Forms/CreateAthlete",
+	component: StandaloneCreateAthlete,
+	tags: ['autodocs'],
 	parameters: {
 		layout: "padded",
+		actions: { argTypesRegex: '^on.*' },
 		docs: {
 			description: {
 				component: "Standalone form for creating new athletes. Automatically prefills coach information when in self-coached mode without requiring auth context."
 			}
 		}
 	},
-	decorators: [
-		(Story) => (
-			<div className="max-w-2xl mx-auto p-6 bg-background">
-				<Story />
-			</div>
-		),
-	],
 	argTypes: {
 		coachRole: {
 			control: 'select',
@@ -211,11 +104,10 @@ const meta: Meta<typeof StandaloneNewAthleteForm> = {
 			description: 'Show submitting state'
 		}
 	},
-	tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof StandaloneNewAthleteForm>;
+type Story = StoryObj<typeof StandaloneCreateAthlete>;
 
 export const Default: Story = {
 	args: {

@@ -25,41 +25,23 @@ export const MedicalInformationForm = ({
   return (
     <div className={`space-y-4 ${className}`}>
       <h3 className="text-lg font-medium">Medical Information</h3>
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="medicalConditions">Medical Conditions</Label>
-          <Textarea
-            id="medicalConditions"
-            {...register("medicalConditions")}
-            rows={2}
-            placeholder="Any medical conditions, allergies, or medications"
-            disabled={disabled}
-            errors={errors}
-          />
-          {errors.medicalConditions && (
-            <span className="text-xs text-destructive">
-              {String(errors.medicalConditions.message) || "This field is required"}
-            </span>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="injuries">Current or Past Injuries</Label>
-          <Textarea
-            id="injuries"
-            {...register("injuries")}
-            rows={2}
-            placeholder="Any current or past injuries that may affect training"
-            disabled={disabled}
-            errors={errors}
-          />
-          {errors.injuries && (
-            <span className="text-xs text-destructive">
-              {String(errors.injuries.message) || "This field is required"}
-            </span>
-          )}
-        </div>
-      </div>
+      <Textarea
+        label="Medical Conditions"
+        id="medicalConditions"
+        {...register("medicalConditions")}
+        rows={2}
+        placeholder="Any medical conditions, allergies, or medications"
+        disabled={disabled}
+        errors={errors}
+      />
+      <Textarea
+        label="Current or Past Injuries"
+        id="injuries"
+        {...register("injuries")}
+        rows={2}
+        placeholder="Any current or past injuries that may affect training"
+        disabled={disabled}
+        errors={errors} />
     </div>
   );
 };

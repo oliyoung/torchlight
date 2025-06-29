@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { EmergencyContactForm } from "./emergency-contact";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -23,27 +23,31 @@ const EmergencyContactFormWrapper = ({
 }) => {
   const {
     register,
-    formState: { errors },
-    trigger
-  } = useForm<FormValues>({
-    resolver: zodResolver(emergencyContactSchema),
-    defaultValues,
-  });
+    formState: { errors } } = useForm<FormValues>({
+      resolver: zodResolver(emergencyContactSchema),
+      defaultValues,
+    });
 
   // Simulate validation errors
-  const mockErrors = hasErrors ? {
-    emergencyContactName: { message: "Contact name is required" },
-    emergencyContactPhone: { message: "Valid phone number is required" },
-  } : {};
+  const mockErrors: FieldErrors<FormValues> = hasErrors
+    ? {
+      emergencyContactName: {
+        type: "manual",
+        message: "Contact name is required",
+      },
+      emergencyContactPhone: {
+        type: "manual",
+        message: "Valid phone number is required",
+      },
+    }
+    : {};
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-background">
-      <EmergencyContactForm
-        register={register}
-        errors={hasErrors ? mockErrors : errors}
-        disabled={disabled}
-      />
-    </div>
+    <EmergencyContactForm
+      register={register}
+      errors={hasErrors ? mockErrors : errors}
+      disabled={disabled}
+    />
   );
 };
 
@@ -51,7 +55,6 @@ const meta: Meta<typeof EmergencyContactFormWrapper> = {
   title: "Forms/EmergencyContactForm",
   component: EmergencyContactFormWrapper,
   parameters: {
-    layout: "centered",
     docs: {
       description: {
         component: "Isolated emergency contact form component for athlete profiles. Includes contact name and phone number fields with validation."
