@@ -39,7 +39,8 @@ const Goal = ({ goal }: { goal: GoalType }) => {
                 </span>
             </div>
         </div>
-    </div >
+        {JSON.stringify(goal, null, 2)}
+    </div>
 }
 
 export default Goal;

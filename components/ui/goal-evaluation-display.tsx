@@ -2,12 +2,14 @@ import { Card } from "@/components/ui/card";
 import { GoalEvaluationResponse } from "@/lib/types";
 
 interface GoalEvaluationDisplayProps {
+  goal: string
   evaluation: GoalEvaluationResponse | null
   className?: string;
   showExtendedInfo?: boolean;
 }
 
 export function GoalEvaluationDisplay({
+  goal,
   evaluation,
   className = "",
   showExtendedInfo = false
@@ -18,8 +20,10 @@ export function GoalEvaluationDisplay({
 
   return (
     <Card className={`flex flex-col gap-4 p-4 ${className}`}>
-
-      <p className="text-xl font-bold">
+      <h3 className="text-xl font-bold">Your Goal</h3>
+      <p className="text-slate-600  bg-slate-50 p-4 rounded-md">{goal}</p>
+      <h3 className="text-xl font-bold">Improved Goal</h3>
+      <p className="text-xl  bg-slate-50 p-4 rounded-md">
         {evaluation?.refinedGoalSuggestion?.improvedGoalStatement}
       </p>
 

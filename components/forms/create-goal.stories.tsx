@@ -3,7 +3,7 @@ import { CreateGoalForm } from "./create-goal";
 import { Client, Provider } from "urql";
 import { mockClient } from "@/lib/test-utils/mock-urql-client";
 import { CoachRoleProvider } from "@/lib/contexts/coach-role-context";
-import type { Coach } from "@/lib/types";
+import { CoachRole, type Coach } from "@/lib/types";
 
 // Mock GraphQL responses
 const mockEvaluationResponse = {
@@ -120,7 +120,7 @@ const mockCoach: Coach = {
   displayName: "John Coach",
   avatar: null,
   timezone: "UTC",
-  role: "PROFESSIONAL",
+  role: CoachRole.Personal,
   onboardingCompleted: true,
   lastLoginAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
@@ -172,6 +172,10 @@ const meta: Meta<typeof CreateGoalForm> = {
     ),
   ],
   argTypes: {
+    athleteId: {
+      description: "ID of the athlete for whom the goal is being created",
+      control: "text"
+    },
     onSuccess: {
       description: "Callback function called when goal is successfully created",
       action: "onSuccess"
@@ -192,7 +196,9 @@ type Story = StoryObj<typeof CreateGoalForm>;
 
 export const Default: Story = {
   name: "Default Form",
-  args: {},
+  args: {
+    athleteId: mockAthletes.athletes[0].id // Default to first athlete
+  },
   parameters: {
     docs: {
       description: {
@@ -205,12 +211,7 @@ export const Default: Story = {
 export const WithCallbacks: Story = {
   name: "With Callbacks",
   args: {
-    onSuccess: (goalId: string) => {
-      console.log("Goal created with ID:", goalId);
-    },
-    onCancel: () => {
-      console.log("Goal creation cancelled");
-    }
+    athleteId: mockAthletes.athletes[0].id // Default to first athlete
   },
   parameters: {
     docs: {
@@ -221,29 +222,10 @@ export const WithCallbacks: Story = {
   }
 };
 
-export const WithCustomStyling: Story = {
-  name: "Custom Styling",
-  args: {
-    className: "border rounded-lg p-6 bg-gray-50"
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: "Form with custom CSS styling applied via the className prop."
-      }
-    }
-  }
-};
-
 export const InteractiveDemo: Story = {
   name: "Interactive Demo",
   args: {
-    onSuccess: (goalId: string) => {
-      alert(`Goal created successfully with ID: ${goalId}`);
-    },
-    onCancel: () => {
-      alert("Goal creation cancelled");
-    }
+    athleteId: mockAthletes.athletes[0].id // Default to first athlete
   },
   parameters: {
     docs: {
@@ -286,7 +268,7 @@ export const AIEvaluationShowcase: Story = {
                 to see the comprehensive analysis including quality scores, suggestions, and improvements.
               </p>
             </div>
-            <CreateGoalForm />
+            <CreateGoalForm athleteId="1" />
           </div>
         </CoachRoleProvider>
       </Provider>
@@ -337,21 +319,6 @@ export const ErrorHandling: Story = {
     docs: {
       description: {
         story: "Demonstrates error handling when AI evaluation or goal creation fails."
-      }
-    }
-  }
-};
-
-// Story for mobile/responsive testing
-export const MobileView: Story = {
-  name: "Mobile View",
-  parameters: {
-    viewport: {
-      defaultViewport: "mobile1"
-    },
-    docs: {
-      description: {
-        story: "How the form appears and functions on mobile devices."
       }
     }
   }
